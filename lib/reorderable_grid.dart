@@ -7,7 +7,7 @@ class RecordableGridView extends StatefulWidget {
   final int crossAxisCount;
 
   RecordableGridView({this.children, this.crossAxisCount})
-      : assert(children != null);
+      : assert(children != null), assert(crossAxisCount != null);
 
   @override
   _RecordableGridViewState createState() => _RecordableGridViewState();
@@ -56,10 +56,24 @@ class _ReorderableGridContent extends StatefulWidget {
 class __ReorderableGridContentState extends State<_ReorderableGridContent> {
 
 
-  Widget _wrap(Widget toWrap) {
+  Widget _wrap(Widget toWrap, BoxConstraints constraints) {
     Widget buildDragTarget(BuildContext context, List<Key> acceptedCandidates,
         List<dynamic> rejectedCandidates) {
-        return toWrap;
+        return LongPressDraggable(
+          maxSimultaneousDrags: 1,
+          // feed back is the view follow pointer
+          feedback: Container(
+            // actually, this constraints is not necessary here.
+            constraints: constraints,
+            child: Material(
+              elevation: 3.0,
+              child: toWrap),
+          ),
+          child: toWrap,
+          onDragStarted: () => {
+            print("onDrag Started")
+          },
+        );
     }
 
     return DragTarget<Key>(
@@ -69,9 +83,14 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent> {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      children: widget.children.map((e) => _wrap(e)),
-      crossAxisCount: widget.crossAxisCount,
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        print("constraints: ${constraints}");
+        return GridView.count(
+          children: widget.children.map((e) => _wrap(e, constraints)).toList(),
+          crossAxisCount: widget.crossAxisCount,
+        );
+      },
     );
   }
 }
