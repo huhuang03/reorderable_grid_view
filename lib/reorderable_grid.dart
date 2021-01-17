@@ -1,5 +1,7 @@
 library reorderable_grid;
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class RecordableGridView extends StatefulWidget {
@@ -17,32 +19,37 @@ class RecordableGridView extends StatefulWidget {
 }
 
 class _RecordableGridViewState extends State<RecordableGridView> {
-  final GlobalKey _overlayKey =
-      GlobalKey(debugLabel: '$RecordableGridView overlay key');
-
-  // This entry contains the scrolling list itself.
-  OverlayEntry _listOverlayEntry;
-
-  @override
-  void initState() {
-    super.initState();
-    _listOverlayEntry = OverlayEntry(
-      opaque: true,
-      builder: (BuildContext context) {
-        return _ReorderableGridContent(
-          children: widget.children,
-          crossAxisCount: widget.crossAxisCount,
-          onReorder: widget.onReorder,
-        );
-      },
-    );
-  }
+  // final GlobalKey _overlayKey =
+  //     GlobalKey(debugLabel: '$RecordableGridView overlay key');
+  //
+  // // This entry contains the scrolling list itself.
+  // OverlayEntry _listOverlayEntry;
+  //
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _listOverlayEntry = OverlayEntry(
+  //     opaque: true,
+  //     builder: (BuildContext context) {
+  //       return _ReorderableGridContent(
+  //         children: widget.children,
+  //         crossAxisCount: widget.crossAxisCount,
+  //         onReorder: widget.onReorder,
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return Overlay(key: _overlayKey, initialEntries: <OverlayEntry>[
-      _listOverlayEntry,
-    ]);
+      return _ReorderableGridContent(
+        children: widget.children,
+        crossAxisCount: widget.crossAxisCount,
+        onReorder: widget.onReorder,
+      );
+    // return Overlay(key: _overlayKey, initialEntries: <OverlayEntry>[
+    //   _listOverlayEntry,
+    // ]);
   }
 }
 
@@ -50,8 +57,9 @@ class _ReorderableGridContent extends StatefulWidget {
   final List<Widget> children;
   final int crossAxisCount;
   final ReorderCallback onReorder;
+  final bool shrinkWrap;
 
-  _ReorderableGridContent({this.children, this.crossAxisCount, this.onReorder});
+  _ReorderableGridContent({this.children, this.crossAxisCount, this.onReorder, this.shrinkWrap});
 
   @override
   __ReorderableGridContentState createState() =>
@@ -203,38 +211,45 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
       // Determine the size of the drop area to show under the dragging widget.
       Widget spacing = SizedBox(width: _dropAreaExtent);
 
-      // _currentIndex need disappear
-      if (index == _currentIndex) {
-        // how to handle cross line scroll.
-        return SlideTransition(
-          position: Tween<Offset>(begin: Offset(0, 0), end: Offset(-1.0, 0)).animate(
-              _entranceController),
-          child: child,
-        );
-        // _entranceController.forward();
+      var direction = _nextIndex - _currentIndex;
+      var isForward = direction < 0;
+
+
+      if (direction == 0) {
         return child;
-        return child;
-        // still has size?
-        return Container();
+      } else {
+        var row = index / widget.crossAxisCount;
+        var column = index % widget.crossAxisCount;
+        var targetRow = row;
+        var targetColumn = column;
 
-        return SizeTransition(
-          sizeFactor: _entranceController,
-          axis: Axis.horizontal,
-          child: child,
-        );
-        // _currentIndex
+        if (isForward) {// other backward
+          if (column == widget.crossAxisCount - 1) {  // cross line
+            targetRow += 1;
+            targetColumn = 0;
+          } else {
+            targetColumn = column + 1;
+          }
+        } else {
+          if (column == 0) {  // cross line
+            targetRow -= 1;
+            targetColumn = widget.crossAxisCount - 1;
+          } else {
+            targetColumn = column - 1;
+          }
+        }
+
+        var minIndex = min(_nextIndex, _currentIndex);
+        var maxIndex = max(_nextIndex, _currentIndex);
+
+        if (index >= minIndex && index <= maxIndex) {
+          return SlideTransition(
+            position: Tween<Offset>(begin: Offset(0, 0), end: Offset((targetColumn - column).toDouble(), targetRow - row)).animate(
+                _entranceController),
+            child: child,
+          );
+        }
       }
-
-      // show
-      if (index == _ghostIndex) {
-        // return child;
-        return SizeTransition(
-          sizeFactor: _ghostController,
-          axis: Axis.horizontal,
-          child: child,
-        );
-      }
-
       return child;
     }
 
@@ -263,6 +278,8 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        // what we need to know it's every child
+        // The gridView know all his child.
         return GridView.count(
           children: [
             for (int i = 0; i < widget.children.length; i++)
@@ -273,6 +290,15 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
       },
     );
   }
+}
+
+class _GridWrapper extends BoxScrollView {
+
+  @override
+  Widget buildChildLayout(BuildContext context) {
+    return SliverGrid();
+  }
+
 }
 
 // A global key that takes its identity from the object and uses a value of a
@@ -300,3 +326,61 @@ class _ReorderableGridViewChildGlobalKey extends GlobalObjectKey {
   @override
   int get hashCode => hashValues(subKey, state);
 }
+
+
+class _ChildWrapper extends StatefulWidget {
+  final int index;
+  final Widget toWrap;
+
+  _ChildWrapper({this.index, this.toWrap}):
+        assert(index != null), assert(toWrap != null);
+
+  @override
+  __ChildWrapperState createState() => __ChildWrapperState();
+}
+
+class __ChildWrapperState extends State<_ChildWrapper> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+class OverlayWrapper extends StatefulWidget {
+  final Widget child;
+
+  OverlayWrapper({this.child}): assert(child != null);
+
+  @override
+  _OverlayWrapperState createState() => _OverlayWrapperState();
+}
+
+class _OverlayWrapperState extends State<OverlayWrapper> {
+  final GlobalKey _overlayKey = GlobalKey(debugLabel: '$OverlayWrapper overlay key');
+
+  // This entry contains the scrolling list itself.
+  OverlayEntry _listOverlayEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    _listOverlayEntry = OverlayEntry(
+      opaque: true,
+      builder: (BuildContext context) {
+        return this.widget.child;
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Overlay(
+      key: _overlayKey,
+      initialEntries: [
+        _listOverlayEntry
+      ],
+    );
+  }
+}
+
+
