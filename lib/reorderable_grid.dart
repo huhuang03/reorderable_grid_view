@@ -2,6 +2,10 @@ library reorderable_grid;
 
 import 'package:flutter/material.dart';
 
+_Pos _getPos(int index, int crossAxisCount) {
+  return _Pos(row: index ~/ crossAxisCount, col: index % crossAxisCount);
+}
+
 class RecordableGridView extends StatefulWidget {
   final List<Widget> children;
   final int crossAxisCount;
@@ -60,6 +64,8 @@ class _ReorderableGridContent extends StatefulWidget {
 
 class __ReorderableGridContentState extends State<_ReorderableGridContent>
     with TickerProviderStateMixin<_ReorderableGridContent> {
+  List<GridItemWrapper> _items = [];
+
   // The widget to move the dragging widget too after the current index.
   int _nextIndex = 0;
 
@@ -99,15 +105,25 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
   // the currently dragging widget, such as when it first builds.
   static const double _defaultDropAreaExtent = 100.0;
 
+  _initItems() {
+    _items.clear();
+    for (var i = 0; i < widget.children.length; i++) {
+      _items.add(GridItemWrapper(index: i));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    print("initState");
     _entranceController =
         AnimationController(vsync: this, duration: _reorderAnimationDuration);
     _entranceController.addStatusListener(_onEntranceStatusChanged);
 
     _ghostController =
         AnimationController(vsync: this, duration: _reorderAnimationDuration);
+
+    _initItems();
   }
 
   @override
@@ -127,11 +143,13 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
 
   // Places the value from startIndex one space before the element at endIndex.
   void reorder(int startIndex, int endIndex) {
+    // what to do??
     setState(() {
       if (startIndex != endIndex) widget.onReorder(startIndex, endIndex);
       // Animates leftover space in the drop area closed.
-      _ghostController.reverse(from: 0);
+      // _ghostController.reverse(from: 0);
       _entranceController.reverse(from: 0);
+      _initItems();
       _dragging = null;
     });
   }
@@ -149,8 +167,21 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
       if (_nextIndex == _currentIndex) {
         return;
       }
+
+      var temp = new List<int>.generate(_items.length, (index) => index);
+
+      // if (_nextIndex > _dragStartIndex) {
+      //   _nextIndex
+      // }
+      var old = temp.removeAt(_dragStartIndex);
+      temp.insert(_nextIndex, old);
+
+      for (var i = 0; i < _items.length; i++) {
+        _items[i].nextIndex = temp[i];
+      }
+
       _currentIndex = _nextIndex;
-      _ghostController.reverse(from: 1.0);
+      // _ghostController.reverse(from: 1.0);
       _entranceController.forward(from: 0.0);
     }
   }
@@ -164,7 +195,7 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
     }
   }
 
-  Widget _wrap(Widget toWrap, BoxConstraints constraints, int index) {
+  Widget _wrap(Widget toWrap, int index) {
     assert(toWrap.key != null);
     final _ReorderableGridViewChildGlobalKey keyIndexGlobalKey =
         _ReorderableGridViewChildGlobalKey(toWrap.key, this);
@@ -200,37 +231,12 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
         },
       );
 
-      // Determine the size of the drop area to show under the dragging widget.
-      Widget spacing = SizedBox(width: _dropAreaExtent);
-
-      // _currentIndex need disappear
-      if (index == _currentIndex) {
-        // how to handle cross line scroll.
+      var fromPos = _items[index].getBeginOffset(this.widget.crossAxisCount);
+      var toPos = _items[index].getEndOffset(this.widget.crossAxisCount);
+      if (fromPos != toPos) {
         return SlideTransition(
-          position: Tween<Offset>(begin: Offset(0, 0), end: Offset(-1.0, 0)).animate(
-              _entranceController),
-          child: child,
-        );
-        // _entranceController.forward();
-        return child;
-        return child;
-        // still has size?
-        return Container();
-
-        return SizeTransition(
-          sizeFactor: _entranceController,
-          axis: Axis.horizontal,
-          child: child,
-        );
-        // _currentIndex
-      }
-
-      // show
-      if (index == _ghostIndex) {
-        // return child;
-        return SizeTransition(
-          sizeFactor: _ghostController,
-          axis: Axis.horizontal,
+          position: Tween<Offset>(begin: fromPos, end: toPos)
+              .animate(_entranceController),
           child: child,
         );
       }
@@ -261,16 +267,14 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        return GridView.count(
-          children: [
-            for (int i = 0; i < widget.children.length; i++)
-              _wrap(widget.children[i], constraints, i)
-          ],
-          crossAxisCount: widget.crossAxisCount,
-        );
-      },
+    return GridView.count(
+      children: [
+        for (int i = 0; i < widget.children.length; i++)
+          // can we get grid view here??
+          // no we can't
+          _wrap(widget.children[i], i)
+      ],
+      crossAxisCount: widget.crossAxisCount,
     );
   }
 }
@@ -299,4 +303,86 @@ class _ReorderableGridViewChildGlobalKey extends GlobalObjectKey {
 
   @override
   int get hashCode => hashValues(subKey, state);
+}
+
+class GridItemWrapper {
+  int index;
+  int curIndex;
+  int nextIndex;
+
+  GridItemWrapper({this.index}) : assert(index != null) {
+    curIndex = index;
+    nextIndex = index;
+  }
+
+  Offset getBeginOffset(int crossAxisCount) {
+    var origin = _getPos(index, crossAxisCount);
+    var pos = _getPos(curIndex, crossAxisCount);
+    return Offset((pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
+  }
+
+  Offset getEndOffset(int crossAxisCount) {
+    var origin = _getPos(index, crossAxisCount);
+    var pos = _getPos(nextIndex, crossAxisCount);
+    return Offset((pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
+  }
+
+  void animFinish() {
+    nextIndex = curIndex;
+  }
+}
+
+class _GridItemController {
+  // how to trigger animation??
+}
+
+class _GridItem extends StatefulWidget {
+  final int index;
+  final Widget child;
+  final crossAxisCount;
+
+  _GridItem({this.index, this.child, this.crossAxisCount})
+      : assert(index != null),
+        assert(child != null),
+        assert(crossAxisCount != null);
+
+  @override
+  __GridItemState createState() => __GridItemState();
+}
+
+class __GridItemState extends State<_GridItem>
+    with TickerProviderStateMixin<_GridItem> {
+  AnimationController _animController;
+  Offset curOffset;
+
+  @override
+  void initState() {
+    _animController = AnimationController(
+        duration: Duration(milliseconds: 2000), vsync: this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: Tween<Offset>(begin: Offset(0, 0), end: Offset(-1.0, 0))
+          .animate(_animController),
+      child: widget.child,
+    );
+  }
+}
+
+class _Pos {
+  int row;
+  int col;
+
+  _Pos({this.row, this.col})
+      : assert(row != null),
+        assert(col != null);
 }

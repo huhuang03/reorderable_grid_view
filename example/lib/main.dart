@@ -52,7 +52,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     // Size(392.7, 850.9)
-    print("screen size: ${MediaQuery.of(context).size}");
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
