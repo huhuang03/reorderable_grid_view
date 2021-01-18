@@ -176,15 +176,13 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
 
       var temp = new List<int>.generate(_items.length, (index) => index);
 
-      // if (_nextIndex > _dragStartIndex) {
-      //   _nextIndex
-      // }
       var old = temp.removeAt(_dragStartIndex);
       temp.insert(_nextIndex, old);
 
       for (var i = 0; i < _items.length; i++) {
         _items[i].nextIndex = temp[i];
       }
+      print("items: ${_items.join(",")}");
 
       _currentIndex = _nextIndex;
       // _ghostController.reverse(from: 1.0);
@@ -284,15 +282,6 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
   }
 }
 
-class _GridWrapper extends BoxScrollView {
-
-  @override
-  Widget buildChildLayout(BuildContext context) {
-    return SliverGrid();
-  }
-
-}
-
 // A global key that takes its identity from the object and uses a value of a
 // particular type to identify itself.
 //
@@ -343,6 +332,11 @@ class GridItemWrapper {
 
   void animFinish() {
     nextIndex = curIndex;
+  }
+
+  @override
+  String toString() {
+    return 'GridItemWrapper{index: $index, curIndex: $curIndex, nextIndex: $nextIndex}';
   }
 }
 
