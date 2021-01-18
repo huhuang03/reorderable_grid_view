@@ -1,7 +1,5 @@
 library reorderable_grid;
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 _Pos _getPos(int index, int crossAxisCount) {
@@ -221,7 +219,7 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
           constraints: constraints,
           child: Material(elevation: 3.0, child: toWrap),
         ),
-        child: toWrap,
+        child: _dragging == toWrap.key? SizedBox(): toWrap,
         childWhenDragging: const SizedBox(),
         onDragStarted: () {
           _dragStartIndex = index;
@@ -239,7 +237,6 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
         },
       );
 
-<<<<<<< HEAD
       var fromPos = _items[index].getBeginOffset(this.widget.crossAxisCount);
       var toPos = _items[index].getEndOffset(this.widget.crossAxisCount);
       if (fromPos != toPos) {
@@ -248,49 +245,6 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
               .animate(_entranceController),
           child: child,
         );
-=======
-      // Determine the size of the drop area to show under the dragging widget.
-      Widget spacing = SizedBox(width: _dropAreaExtent);
-
-      var direction = _nextIndex - _currentIndex;
-      var isForward = direction < 0;
-
-
-      if (direction == 0) {
-        return child;
-      } else {
-        var row = index / widget.crossAxisCount;
-        var column = index % widget.crossAxisCount;
-        var targetRow = row;
-        var targetColumn = column;
-
-        if (isForward) {// other backward
-          if (column == widget.crossAxisCount - 1) {  // cross line
-            targetRow += 1;
-            targetColumn = 0;
-          } else {
-            targetColumn = column + 1;
-          }
-        } else {
-          if (column == 0) {  // cross line
-            targetRow -= 1;
-            targetColumn = widget.crossAxisCount - 1;
-          } else {
-            targetColumn = column - 1;
-          }
-        }
-
-        var minIndex = min(_nextIndex, _currentIndex);
-        var maxIndex = max(_nextIndex, _currentIndex);
-
-        if (index >= minIndex && index <= maxIndex) {
-          return SlideTransition(
-            position: Tween<Offset>(begin: Offset(0, 0), end: Offset((targetColumn - column).toDouble(), targetRow - row)).animate(
-                _entranceController),
-            child: child,
-          );
-        }
->>>>>>> 1aa0321af7ac1fe01e4293341eed72c48936712c
       }
       return child;
     }
@@ -318,7 +272,6 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
     return GridView.count(
       children: [
         for (int i = 0; i < widget.children.length; i++)
@@ -327,20 +280,6 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
           _wrap(widget.children[i], i)
       ],
       crossAxisCount: widget.crossAxisCount,
-=======
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        // what we need to know it's every child
-        // The gridView know all his child.
-        return GridView.count(
-          children: [
-            for (int i = 0; i < widget.children.length; i++)
-              _wrap(widget.children[i], constraints, i)
-          ],
-          crossAxisCount: widget.crossAxisCount,
-        );
-      },
->>>>>>> 1aa0321af7ac1fe01e4293341eed72c48936712c
     );
   }
 }
@@ -380,7 +319,6 @@ class _ReorderableGridViewChildGlobalKey extends GlobalObjectKey {
   int get hashCode => hashValues(subKey, state);
 }
 
-<<<<<<< HEAD
 class GridItemWrapper {
   int index;
   int curIndex;
@@ -412,102 +350,7 @@ class _GridItemController {
   // how to trigger animation??
 }
 
-class _GridItem extends StatefulWidget {
-  final int index;
-  final Widget child;
-  final crossAxisCount;
 
-  _GridItem({this.index, this.child, this.crossAxisCount})
-      : assert(index != null),
-        assert(child != null),
-        assert(crossAxisCount != null);
-
-  @override
-  __GridItemState createState() => __GridItemState();
-}
-
-class __GridItemState extends State<_GridItem>
-    with TickerProviderStateMixin<_GridItem> {
-  AnimationController _animController;
-  Offset curOffset;
-
-  @override
-  void initState() {
-    _animController = AnimationController(
-        duration: Duration(milliseconds: 2000), vsync: this);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-=======
-
-class _ChildWrapper extends StatefulWidget {
-  final int index;
-  final Widget toWrap;
-
-  _ChildWrapper({this.index, this.toWrap}):
-        assert(index != null), assert(toWrap != null);
-
-  @override
-  __ChildWrapperState createState() => __ChildWrapperState();
-}
-
-class __ChildWrapperState extends State<_ChildWrapper> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
-class OverlayWrapper extends StatefulWidget {
-  final Widget child;
-
-  OverlayWrapper({this.child}): assert(child != null);
-
-  @override
-  _OverlayWrapperState createState() => _OverlayWrapperState();
-}
-
-class _OverlayWrapperState extends State<OverlayWrapper> {
-  final GlobalKey _overlayKey = GlobalKey(debugLabel: '$OverlayWrapper overlay key');
-
-  // This entry contains the scrolling list itself.
-  OverlayEntry _listOverlayEntry;
-
-  @override
-  void initState() {
-    super.initState();
-    _listOverlayEntry = OverlayEntry(
-      opaque: true,
-      builder: (BuildContext context) {
-        return this.widget.child;
-      },
-    );
->>>>>>> 1aa0321af7ac1fe01e4293341eed72c48936712c
-  }
-
-  @override
-  Widget build(BuildContext context) {
-<<<<<<< HEAD
-    return SlideTransition(
-      position: Tween<Offset>(begin: Offset(0, 0), end: Offset(-1.0, 0))
-          .animate(_animController),
-      child: widget.child,
-=======
-    return Overlay(
-      key: _overlayKey,
-      initialEntries: [
-        _listOverlayEntry
-      ],
->>>>>>> 1aa0321af7ac1fe01e4293341eed72c48936712c
-    );
-  }
-}
-
-<<<<<<< HEAD
 class _Pos {
   int row;
   int col;
@@ -516,6 +359,3 @@ class _Pos {
       : assert(row != null),
         assert(col != null);
 }
-=======
-
->>>>>>> 1aa0321af7ac1fe01e4293341eed72c48936712c
