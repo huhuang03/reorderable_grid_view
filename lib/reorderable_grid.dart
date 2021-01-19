@@ -16,10 +16,11 @@ _Pos _getPos(int index, int crossAxisCount) {
 
 class RecordableGridView extends StatefulWidget {
   final List<Widget> children;
+  final List<Widget> footer;
   final int crossAxisCount;
   final ReorderCallback onReorder;
 
-  RecordableGridView({this.children, this.crossAxisCount, this.onReorder})
+  RecordableGridView({this.children, this.crossAxisCount, this.onReorder, this.footer})
       : assert(children != null),
         assert(crossAxisCount != null),
         assert(onReorder != null);
@@ -28,57 +29,9 @@ class RecordableGridView extends StatefulWidget {
   _RecordableGridViewState createState() => _RecordableGridViewState();
 }
 
-class _RecordableGridViewState extends State<RecordableGridView> {
-  // final GlobalKey _overlayKey =
-  //     GlobalKey(debugLabel: '$RecordableGridView overlay key');
-  //
-  // // This entry contains the scrolling list itself.
-  // OverlayEntry _listOverlayEntry;
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _listOverlayEntry = OverlayEntry(
-  //     opaque: true,
-  //     builder: (BuildContext context) {
-  //       return _ReorderableGridContent(
-  //         children: widget.children,
-  //         crossAxisCount: widget.crossAxisCount,
-  //         onReorder: widget.onReorder,
-  //       );
-  //     },
-  //   );
-  // }
 
-  @override
-  Widget build(BuildContext context) {
-    return _ReorderableGridContent(
-      children: widget.children,
-      crossAxisCount: widget.crossAxisCount,
-      onReorder: widget.onReorder,
-    );
-    // return Overlay(key: _overlayKey, initialEntries: <OverlayEntry>[
-    //   _listOverlayEntry,
-    // ]);
-  }
-}
-
-class _ReorderableGridContent extends StatefulWidget {
-  final List<Widget> children;
-  final int crossAxisCount;
-  final ReorderCallback onReorder;
-  final bool shrinkWrap;
-
-  _ReorderableGridContent(
-      {this.children, this.crossAxisCount, this.onReorder, this.shrinkWrap});
-
-  @override
-  __ReorderableGridContentState createState() =>
-      __ReorderableGridContentState();
-}
-
-class __ReorderableGridContentState extends State<_ReorderableGridContent>
-    with TickerProviderStateMixin<_ReorderableGridContent> {
+class _RecordableGridViewState extends State<RecordableGridView>
+    with TickerProviderStateMixin<RecordableGridView> {
   List<GridItemWrapper> _items = [];
 
   // The widget to move the dragging widget too after the current index.
@@ -298,7 +251,7 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
           // can we get grid view here??
           // no we can't
           _wrap(widget.children[i], i)
-      ],
+      ]..addAll(widget.footer?? []),
       crossAxisCount: widget.crossAxisCount,
     );
   }
@@ -316,7 +269,7 @@ class _ReorderableGridViewChildGlobalKey extends GlobalObjectKey {
 
   final Key subKey;
 
-  final __ReorderableGridContentState state;
+  final _RecordableGridViewState state;
 
   @override
   bool operator ==(Object other) {
@@ -366,10 +319,6 @@ class GridItemWrapper {
   String toString() {
     return 'GridItemWrapper{index: $index, curIndex: $curIndex, nextIndex: $nextIndex}';
   }
-}
-
-class _GridItemController {
-  // how to trigger animation??
 }
 
 class _Pos {
