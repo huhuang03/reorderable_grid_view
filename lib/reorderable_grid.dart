@@ -193,6 +193,7 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
   // Requests animation to the latest next index if it changes during an animation.
   void _onEntranceStatusChanged(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
+      _items.forEach((element) {element.animFinish();});
       setState(() {
         _requestAnimationToNextIndex();
       });
@@ -235,9 +236,11 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
         },
       );
 
-      var fromPos = _items[index].getBeginOffset(this.widget.crossAxisCount);
-      var toPos = _items[index].getEndOffset(this.widget.crossAxisCount);
-      if (fromPos != toPos) {
+      var item = _items[index];
+
+      var fromPos = item.getBeginOffset(this.widget.crossAxisCount);
+      var toPos = item.getEndOffset(this.widget.crossAxisCount);
+      if (fromPos != toPos || item.hasMoved()) {
         return SlideTransition(
           position: Tween<Offset>(begin: fromPos, end: toPos)
               .animate(_entranceController),
@@ -331,7 +334,11 @@ class GridItemWrapper {
   }
 
   void animFinish() {
-    nextIndex = curIndex;
+    curIndex = nextIndex;
+  }
+
+  bool hasMoved() {
+    return index != curIndex;
   }
 
   @override
