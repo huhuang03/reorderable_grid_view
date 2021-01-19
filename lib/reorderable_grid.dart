@@ -2,6 +2,14 @@ library reorderable_grid;
 
 import 'package:flutter/material.dart';
 
+const _IS_DEBUG = false;
+
+_debug(String msg) {
+  if (_IS_DEBUG) {
+    print(msg);
+  }
+}
+
 _Pos _getPos(int index, int crossAxisCount) {
   return _Pos(row: index ~/ crossAxisCount, col: index % crossAxisCount);
 }
@@ -44,11 +52,11 @@ class _RecordableGridViewState extends State<RecordableGridView> {
 
   @override
   Widget build(BuildContext context) {
-      return _ReorderableGridContent(
-        children: widget.children,
-        crossAxisCount: widget.crossAxisCount,
-        onReorder: widget.onReorder,
-      );
+    return _ReorderableGridContent(
+      children: widget.children,
+      crossAxisCount: widget.crossAxisCount,
+      onReorder: widget.onReorder,
+    );
     // return Overlay(key: _overlayKey, initialEntries: <OverlayEntry>[
     //   _listOverlayEntry,
     // ]);
@@ -61,7 +69,8 @@ class _ReorderableGridContent extends StatefulWidget {
   final ReorderCallback onReorder;
   final bool shrinkWrap;
 
-  _ReorderableGridContent({this.children, this.crossAxisCount, this.onReorder, this.shrinkWrap});
+  _ReorderableGridContent(
+      {this.children, this.crossAxisCount, this.onReorder, this.shrinkWrap});
 
   @override
   __ReorderableGridContentState createState() =>
@@ -86,6 +95,7 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
   // This is used to show an animation of the widget's position.
   int _ghostIndex = 0;
 
+  // 好像不能共用controller
   // This controls the entrance of the dragging widget into a new place.
   AnimationController _entranceController;
 
@@ -94,7 +104,8 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
   AnimationController _ghostController;
 
   // How long an animation to reorder an element in the list takes.
-  static const Duration _reorderAnimationDuration = Duration(milliseconds: 200);
+  static const Duration _reorderAnimationDuration =
+      Duration(milliseconds: 200);
 
   // The last computed size of the feedback widget being dragged.
   Size _draggingFeedbackSize;
@@ -121,7 +132,7 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
   @override
   void initState() {
     super.initState();
-    print("initState");
+    _debug("initState");
     _entranceController =
         AnimationController(vsync: this, duration: _reorderAnimationDuration);
     _entranceController.addStatusListener(_onEntranceStatusChanged);
@@ -167,7 +178,7 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
 
   // Animates the droppable space from _currentIndex to _nextIndex.
   void _requestAnimationToNextIndex() {
-    print("_requestAnimationToNextIndex, state: ${_entranceController.status}");
+    _debug("_requestAnimationToNextIndex, state: ${_entranceController.status}");
     if (_entranceController.isCompleted) {
       _ghostIndex = _currentIndex;
       if (_nextIndex == _currentIndex) {
@@ -176,13 +187,14 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
 
       var temp = new List<int>.generate(_items.length, (index) => index);
 
+      // 怎么处理连续滑动？？
       var old = temp.removeAt(_dragStartIndex);
       temp.insert(_nextIndex, old);
 
       for (var i = 0; i < _items.length; i++) {
-        _items[i].nextIndex = temp[i];
+        _items[i].nextIndex = temp.indexOf(i);
       }
-      print("items: ${_items.join(",")}");
+      _debug("items: ${_items.map((e) => e.toString()).join(",")}");
 
       _currentIndex = _nextIndex;
       // _ghostController.reverse(from: 1.0);
@@ -193,7 +205,9 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
   // Requests animation to the latest next index if it changes during an animation.
   void _onEntranceStatusChanged(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
-      _items.forEach((element) {element.animFinish();});
+      _items.forEach((element) {
+        element.animFinish();
+      });
       setState(() {
         _requestAnimationToNextIndex();
       });
@@ -218,7 +232,7 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
           constraints: constraints,
           child: Material(elevation: 3.0, child: toWrap),
         ),
-        child: _dragging == toWrap.key? SizedBox(): toWrap,
+        child: _dragging == toWrap.key ? SizedBox() : toWrap,
         childWhenDragging: const SizedBox(),
         onDragStarted: () {
           _dragStartIndex = index;
@@ -241,11 +255,14 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
       var fromPos = item.getBeginOffset(this.widget.crossAxisCount);
       var toPos = item.getEndOffset(this.widget.crossAxisCount);
       if (fromPos != toPos || item.hasMoved()) {
+        // 如何同时移动？？
         return SlideTransition(
           position: Tween<Offset>(begin: fromPos, end: toPos)
               .animate(_entranceController),
           child: child,
         );
+      } else {
+        _debug("build no animation for pos: ${index}");
       }
       return child;
     }
@@ -258,10 +275,12 @@ class __ReorderableGridContentState extends State<_ReorderableGridContent>
               buildDragTarget(
                   context, acceptedCandidates, rejectedCandidates, constraints),
           onWillAccept: (Key toAccept) {
-            print("onWillAccept called for index: $index");
+            _debug("onWillAccept called for index: $index");
             // how can we change the state?
-            _nextIndex = index;
-            _requestAnimationToNextIndex();
+            setState(() {
+              _nextIndex = index;
+              _requestAnimationToNextIndex();
+            });
 
             // now let's try scroll.
             return _dragging == toAccept && toAccept != toWrap.key;
@@ -324,13 +343,15 @@ class GridItemWrapper {
   Offset getBeginOffset(int crossAxisCount) {
     var origin = _getPos(index, crossAxisCount);
     var pos = _getPos(curIndex, crossAxisCount);
-    return Offset((pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
+    return Offset(
+        (pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
   }
 
   Offset getEndOffset(int crossAxisCount) {
     var origin = _getPos(index, crossAxisCount);
     var pos = _getPos(nextIndex, crossAxisCount);
-    return Offset((pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
+    return Offset(
+        (pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
   }
 
   void animFinish() {
@@ -350,7 +371,6 @@ class GridItemWrapper {
 class _GridItemController {
   // how to trigger animation??
 }
-
 
 class _Pos {
   int row;
