@@ -75,6 +75,8 @@ class _MyHomePageState extends State<MyHomePage> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: RecordableGridView(
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
           crossAxisCount: 3,
           children: this.data.map((e) => buildItem("$e")).toList(),
           onReorder: (oldIndex, newIndex) {
