@@ -1,17 +1,17 @@
-* ReorderableGrdiView
+# ReorderableGrdiView
 
 Copy from official ReorderableListView
 
-* Usage:
-#+BEGIN_SRC 
+# Usage:
+```
 dependencies:
   reorderable_list_view: 0.0.1
-#+END_SRC
+```
 
-* Example
-[[https://github.com/huhuang03/reorderable_grid_view/blob/master/example/gifs/example.gif?raw=true][screenshot]]
+# Example
+<img src="https://github.com/huhuang03/reorderable_grid_view/blob/master/example/gifs/example.gif?raw=true" width="360" title="Sceenshot">
 
-#+BEGIN_SRC dart
+``` dart
 class _MyHomePageState extends State<MyHomePage> {
   final data = [1, 2, 3, 4, 5];
 
@@ -56,11 +56,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-#+END_SRC
+```
 
 
 
-* Note
+# Note
 I don't know how to calculate the child's size and the gap size. So when there's `crossAxisSpacing` or `mainAxisSpacing`. The position has deviation.
 
 If you know how to do it, please teach me.
