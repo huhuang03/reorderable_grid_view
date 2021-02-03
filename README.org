@@ -10,7 +10,7 @@ dependencies:
 
 * Example
 Screencap:
-[[https://raw.githubusercontent.com/huhuang03/huhuang03/reorderable_grid_view/master/example/gifs/example.gif][screenshot]]
+[[https://github.com/huhuang03/reorderable_grid_view/blob/master/example/gifs/example.gif?raw=true][screenshot]]
 
 #+BEGIN_SRC dart
 class _MyHomePageState extends State<MyHomePage> {
