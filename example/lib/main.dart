@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reorderable_grid/reorderable_grid.dart';
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 void main() {
   runApp(MyApp());
@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: RecordableGridView(
+        child: ReorderableGridView(
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 3,
@@ -85,6 +85,13 @@ class _MyHomePageState extends State<MyHomePage> {
               data.insert(newIndex, element);
             });
           },
+          footer: [
+            Card(
+              child: Center(
+                child: Icon(Icons.add),
+              ),
+            ),
+          ],
         ),
       ),
     );
