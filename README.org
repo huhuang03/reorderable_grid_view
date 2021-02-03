@@ -9,7 +9,6 @@ dependencies:
 #+END_SRC
 
 * Example
-Screencap:
 [[https://github.com/huhuang03/reorderable_grid_view/blob/master/example/gifs/example.gif?raw=true][screenshot]]
 
 #+BEGIN_SRC dart
@@ -66,3 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 #+END_SRC
 
+
+
+* Note
+I don't know how to calculate the child's size and the gap size. So when there's `crossAxisSpacing` or `mainAxisSpacing`. The position has deviation.
+
+If you know how to do it, please teach me.
