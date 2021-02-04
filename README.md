@@ -58,5 +58,3 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 ```
 
-# TODOS
-- Use offset not the SlideTransition for child should not move. Maybe better performance.

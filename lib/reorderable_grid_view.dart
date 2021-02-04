@@ -215,7 +215,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         },
       );
 
-      _debug('the item size: ${constraints.minWidth}-${constraints.maxWidth}');
+      // _debug('the item size: ${constraints.minWidth}-${constraints.maxWidth}');
       var item = _items[index];
 
       // any better way to do this?
@@ -224,6 +224,23 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
       var begin = item.adjustOffset(fromPos, itemWidth, itemHeight, widget.mainAxisSpacing, widget.crossAxisSpacing);
       var end = item.adjustOffset(toPos, itemWidth, itemHeight, widget.mainAxisSpacing, widget.crossAxisSpacing);
+
+      if (fromPos != toPos) {
+        return SlideTransition(
+          position:
+          Tween<Offset>(begin: begin, end: end)
+              .animate(_entranceController),
+          child: child,
+        );
+      } else if (item.hasMoved()) {
+        // Is Transform better performance than SlideTransition, maybe.
+        return Transform.translate(
+          offset: Offset(end.dx * itemWidth, end.dy * itemHeight),
+          child: child,
+        );
+      } else {
+        return child;
+      }
 
       if (fromPos != toPos || item.hasMoved()) {
         // 如何同时移动？？
@@ -273,7 +290,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       builder: (context, constraints) {
         width = constraints.maxWidth;
         height = width * widget.childAspectRatio;
-        print("Grid's constraints: $constraints");
+        // print("Grid's constraints: $constraints");
         return GridView.count(
           children: children..addAll(widget.footer ?? []),
           crossAxisCount: widget.crossAxisCount,
@@ -363,4 +380,15 @@ class _Pos {
   Offset toOffset() {
     return Offset(col.toDouble(), row.toDouble());
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _Pos &&
+          runtimeType == other.runtimeType &&
+          row == other.row &&
+          col == other.col;
+
+  @override
+  int get hashCode => row.hashCode ^ col.hashCode;
 }
