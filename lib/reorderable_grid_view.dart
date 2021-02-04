@@ -272,6 +272,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     for (var i = 0; i < widget.children.length; i++) {
       children.add(_wrap(widget.children[i], i));
     }
+    children.addAll(widget?.footer?? []);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -279,7 +280,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         height = width * widget.childAspectRatio;
         // print("Grid's constraints: $constraints");
         return GridView.count(
-          children: children..addAll(widget.footer ?? []),
+          children: children,
           crossAxisCount: widget.crossAxisCount,
           primary: widget.primary,
           mainAxisSpacing: widget.mainAxisSpacing,
