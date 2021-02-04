@@ -71,27 +71,30 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: ReorderableGridView(
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          crossAxisCount: 3,
-          children: this.data.map((e) => buildItem("$e")).toList(),
-          onReorder: (oldIndex, newIndex) {
-            setState(() {
-              final element = data.removeAt(oldIndex);
-              data.insert(newIndex, element);
-            });
-          },
-          footer: [
-            Card(
-              child: Center(
-                child: Icon(Icons.add),
+      body: Padding(
+        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: Center(
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: ReorderableGridView(
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            crossAxisCount: 3,
+            children: this.data.map((e) => buildItem("$e")).toList(),
+            onReorder: (oldIndex, newIndex) {
+              setState(() {
+                final element = data.removeAt(oldIndex);
+                data.insert(newIndex, element);
+              });
+            },
+            footer: [
+              Card(
+                child: Center(
+                  child: Icon(Icons.add),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

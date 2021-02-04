@@ -58,9 +58,5 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 ```
 
-
-
-# Note
-I don't know how to calculate the child's size and the gap size. So when there's `crossAxisSpacing` or `mainAxisSpacing`. The position has deviation.
-
-If you know how to do it, please teach me.
+# TODOS
+- Use offset not the SlideTransition for child should not move. Maybe better performance.

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const _IS_DEBUG = false;
+const _IS_DEBUG = true;
 
 _debug(String msg) {
   if (_IS_DEBUG) {
@@ -36,6 +36,9 @@ class ReorderableGridView extends StatefulWidget {
   final bool shrinkWrap;
   final EdgeInsetsGeometry padding;
 
+  /// The ratio of the cross-axis to the main-axis extent of each child.
+  final double childAspectRatio;
+
   ReorderableGridView(
       {this.children,
       this.crossAxisCount,
@@ -44,6 +47,7 @@ class ReorderableGridView extends StatefulWidget {
       this.primary,
       this.mainAxisSpacing = 0.0,
       this.crossAxisSpacing = 0.0,
+      this.childAspectRatio = 1.0,
       this.padding,
       this.shrinkWrap = true})
       : assert(children != null),
@@ -83,6 +87,9 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   //
   // Null if no drag is underway.
   Key _dragging;
+
+  double width;
+  double height;
 
   _initItems() {
     _items.clear();
@@ -157,7 +164,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       _debug("items: ${_items.map((e) => e.toString()).join(",")}");
 
       _currentIndex = _nextIndex;
-      // _ghostController.reverse(from: 1.0);
       _entranceController.forward(from: 0.0);
     }
   }
@@ -175,14 +181,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   }
 
   Widget _wrap(Widget toWrap, int index) {
-    // var box = context.findRenderObject() as RenderBox;
-    // now box is null.
-    // print(box.size);
-    // can I get width and height here?
-
     assert(toWrap.key != null);
     Widget buildDragTarget(BuildContext context, List<Key> acceptedCandidates,
         List<dynamic> rejectedCandidates, BoxConstraints constraints) {
+      var itemWidth = constraints.maxWidth;
+      var itemHeight = constraints.maxHeight;
+
       // now let's try scroll??
       Widget child = LongPressDraggable<Key>(
         data: toWrap.key,
@@ -211,18 +215,22 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         },
       );
 
-      // why at here is 0??
-      print("index: $index, _items's len: ${_items.length}");
+      _debug('the item size: ${constraints.minWidth}-${constraints.maxWidth}');
       var item = _items[index];
 
       // any better way to do this?
       var fromPos = item.getBeginOffset(this.widget.crossAxisCount);
       var toPos = item.getEndOffset(this.widget.crossAxisCount);
+
+      var begin = item.adjustOffset(fromPos, itemWidth, itemHeight, widget.mainAxisSpacing, widget.crossAxisSpacing);
+      var end = item.adjustOffset(toPos, itemWidth, itemHeight, widget.mainAxisSpacing, widget.crossAxisSpacing);
+
       if (fromPos != toPos || item.hasMoved()) {
         // 如何同时移动？？
         return SlideTransition(
-          position: Tween<Offset>(begin: fromPos, end: toPos)
-              .animate(_entranceController),
+          position:
+              Tween<Offset>(begin: begin, end: end)
+                  .animate(_entranceController),
           child: child,
         );
       } else {
@@ -261,14 +269,22 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       children.add(_wrap(widget.children[i], i));
     }
 
-    return GridView.count(
-      children: children..addAll(widget.footer ?? []),
-      crossAxisCount: widget.crossAxisCount,
-      primary: widget.primary,
-      mainAxisSpacing: widget.mainAxisSpacing,
-      crossAxisSpacing: widget.crossAxisSpacing,
-      shrinkWrap: widget.shrinkWrap,
-      padding: widget.padding,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        width = constraints.maxWidth;
+        height = width * widget.childAspectRatio;
+        print("Grid's constraints: $constraints");
+        return GridView.count(
+          children: children..addAll(widget.footer ?? []),
+          crossAxisCount: widget.crossAxisCount,
+          primary: widget.primary,
+          mainAxisSpacing: widget.mainAxisSpacing,
+          crossAxisSpacing: widget.crossAxisSpacing,
+          shrinkWrap: widget.shrinkWrap,
+          padding: widget.padding,
+          childAspectRatio: widget.childAspectRatio,
+        );
+      },
     );
   }
 }
@@ -283,19 +299,38 @@ class GridItemWrapper {
     nextIndex = index;
   }
 
-  Offset getBeginOffset(int crossAxisCount) {
-    var origin = _getPos(index, crossAxisCount);
-    var pos = _getPos(curIndex, crossAxisCount);
-    return Offset(
-        (pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
+  // What's better offset with
+  Offset adjustOffset(_Pos pos, double width, double height, double mainSpace,
+      double crossSpace) {
+    return Offset(pos.col.toDouble() + pos.col * mainSpace / width,
+        pos.row + pos.row * crossSpace / height);
   }
 
-  Offset getEndOffset(int crossAxisCount) {
+  _Pos getBeginOffset(int crossAxisCount) {
+    var origin = _getPos(index, crossAxisCount);
+    var pos = _getPos(curIndex, crossAxisCount);
+    return _Pos(col: (pos.col - origin.col), row: (pos.row - origin.row));
+  }
+
+  _Pos getEndOffset(int crossAxisCount) {
     var origin = _getPos(index, crossAxisCount);
     var pos = _getPos(nextIndex, crossAxisCount);
-    return Offset(
-        (pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
+    return _Pos(col: (pos.col - origin.col), row: (pos.row - origin.row));
   }
+
+  // Offset getBegin(int crossAxisCount) {
+  //   var origin = _getPos(index, crossAxisCount);
+  //   var pos = _getPos(curIndex, crossAxisCount);
+  //   return Offset(
+  //       (pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
+  // }
+  //
+  // Offset getEndOffset(int crossAxisCount) {
+  //   var origin = _getPos(index, crossAxisCount);
+  //   var pos = _getPos(nextIndex, crossAxisCount);
+  //   return Offset(
+  //       (pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
+  // }
 
   void animFinish() {
     curIndex = nextIndex;
@@ -318,4 +353,14 @@ class _Pos {
   _Pos({this.row, this.col})
       : assert(row != null),
         assert(col != null);
+
+  _Pos operator -(_Pos other) =>
+      _Pos(row: row - other.row, col: col - other.col);
+
+  _Pos operator +(_Pos other) =>
+      _Pos(row: row + other.row, col: col + other.col);
+
+  Offset toOffset() {
+    return Offset(col.toDouble(), row.toDouble());
+  }
 }
