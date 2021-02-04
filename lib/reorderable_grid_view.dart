@@ -241,19 +241,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       } else {
         return child;
       }
-
-      if (fromPos != toPos || item.hasMoved()) {
-        // 如何同时移动？？
-        return SlideTransition(
-          position:
-              Tween<Offset>(begin: begin, end: end)
-                  .animate(_entranceController),
-          child: child,
-        );
-      } else {
-        _debug("build no animation for pos: $index");
-      }
-      return child;
     }
 
     return LayoutBuilder(
