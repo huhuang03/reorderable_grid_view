@@ -76,9 +76,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   // This controls the entrance of the dragging widget into a new place.
   AnimationController _entranceController;
 
-  // This controls the 'ghost' of the dragging widget, which is left behind
-  // where the widget used to be.
-  AnimationController _ghostController;
 
   // How long an animation to reorder an element in the list takes.
   static const Duration _reorderAnimationDuration = Duration(milliseconds: 200);
@@ -106,9 +103,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         AnimationController(vsync: this, duration: _reorderAnimationDuration);
     _entranceController.addStatusListener(_onEntranceStatusChanged);
 
-    _ghostController =
-        AnimationController(vsync: this, duration: _reorderAnimationDuration);
-
     _initItems();
   }
 
@@ -121,7 +115,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   @override
   void dispose() {
     _entranceController.dispose();
-    _ghostController.dispose();
     super.dispose();
   }
 
@@ -131,7 +124,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     setState(() {
       if (startIndex != endIndex) widget.onReorder(startIndex, endIndex);
       // Animates leftover space in the drop area closed.
-      // _ghostController.reverse(from: 0);
       _entranceController.reverse(from: 0);
       _initItems();
       _dragging = null;
@@ -182,6 +174,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   Widget _wrap(Widget toWrap, int index) {
     assert(toWrap.key != null);
+
     Widget buildDragTarget(BuildContext context, List<Key> acceptedCandidates,
         List<dynamic> rejectedCandidates, BoxConstraints constraints) {
       var itemWidth = constraints.maxWidth;
@@ -225,6 +218,27 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       var begin = item.adjustOffset(fromPos, itemWidth, itemHeight, widget.mainAxisSpacing, widget.crossAxisSpacing);
       var end = item.adjustOffset(toPos, itemWidth, itemHeight, widget.mainAxisSpacing, widget.crossAxisSpacing);
 
+
+      // it's worse performance
+      // if (fromPos != toPos) {
+      //   return SlideTransition(
+      //     position:
+      //     Tween<Offset>(begin: begin, end: end)
+      //         .animate(_entranceController),
+      //     child: child,
+      //   );
+      // } else if (item.hasMoved()) {
+      //   return SlideTransition(
+      //     position:
+      //     Tween<Offset>(begin: end, end: end)
+      //         .animate(_entranceController),
+      //     child: child,
+      //   );
+      // } else {
+      //   return child;
+      // }
+
+
       if (fromPos != toPos) {
         return SlideTransition(
           position:
@@ -241,6 +255,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       } else {
         return child;
       }
+
     }
 
     return LayoutBuilder(
@@ -268,7 +283,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   @override
   Widget build(BuildContext context) {
-    var children = List<Widget>();
+    var children = <Widget>[];
     for (var i = 0; i < widget.children.length; i++) {
       children.add(_wrap(widget.children[i], i));
     }
@@ -322,20 +337,6 @@ class GridItemWrapper {
     var pos = _getPos(nextIndex, crossAxisCount);
     return _Pos(col: (pos.col - origin.col), row: (pos.row - origin.row));
   }
-
-  // Offset getBegin(int crossAxisCount) {
-  //   var origin = _getPos(index, crossAxisCount);
-  //   var pos = _getPos(curIndex, crossAxisCount);
-  //   return Offset(
-  //       (pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
-  // }
-  //
-  // Offset getEndOffset(int crossAxisCount) {
-  //   var origin = _getPos(index, crossAxisCount);
-  //   var pos = _getPos(nextIndex, crossAxisCount);
-  //   return Offset(
-  //       (pos.col - origin.col).toDouble(), (pos.row - origin.row).toDouble());
-  // }
 
   void animFinish() {
     curIndex = nextIndex;
