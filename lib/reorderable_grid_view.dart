@@ -1,17 +1,5 @@
 import 'package:flutter/material.dart';
 
-const _IS_DEBUG = true;
-
-_debug(String msg) {
-  if (_IS_DEBUG) {
-    print("ReorderableGridView: " + msg);
-  }
-}
-
-_Pos _getPos(int index, int crossAxisCount) {
-  return _Pos(row: index ~/ crossAxisCount, col: index % crossAxisCount);
-}
-
 /// Usage:
 /// ```
 /// ReorderableGridView(
@@ -35,24 +23,47 @@ class ReorderableGridView extends StatefulWidget {
   final double crossAxisSpacing;
   final bool shrinkWrap;
   final EdgeInsetsGeometry padding;
+  final ScrollPhysics physics;
+  final bool reverse;
+  final double cacheExtent;
+  final int semanticChildCount;
+  final bool addAutomaticKeepAlives;
+  final bool addRepaintBoundaries;
+  final addSemanticIndexes;
+
+  final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
+  final Clip clipBehavior;
+  final String restorationId;
 
   /// The ratio of the cross-axis to the main-axis extent of each child.
   final double childAspectRatio;
 
   ReorderableGridView(
-      {this.children,
-      this.crossAxisCount,
-      this.onReorder,
-      this.footer,
-      this.primary,
-      this.mainAxisSpacing = 0.0,
-      this.crossAxisSpacing = 0.0,
-      this.childAspectRatio = 1.0,
-      this.padding,
-      this.shrinkWrap = true})
-      : assert(children != null),
-        assert(crossAxisCount != null),
-        assert(onReorder != null);
+    {Key key,
+    this.children,
+    this.clipBehavior = Clip.hardEdge,
+    this.cacheExtent,
+    this.semanticChildCount,
+    this.keyboardDismissBehavior  = ScrollViewKeyboardDismissBehavior.manual,
+    this.restorationId,
+    this.reverse = false,
+    this.crossAxisCount,
+    this.padding,
+    this.onReorder,
+    this.physics,
+    this.footer,
+    this.primary,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
+    this.childAspectRatio = 1.0,
+    this.addAutomaticKeepAlives = true,
+    this.addRepaintBoundaries = true,
+    this.addSemanticIndexes = true,
+    this.shrinkWrap = true})
+    : assert(children != null),
+      assert(crossAxisCount != null),
+      assert(onReorder != null),
+      super(key: key);
 
   @override
   _ReorderableGridViewState createState() => _ReorderableGridViewState();
@@ -296,13 +307,23 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         // print("Grid's constraints: $constraints");
         return GridView.count(
           children: children,
-          crossAxisCount: widget.crossAxisCount,
+          reverse: widget.reverse,
           primary: widget.primary,
+          physics: widget.physics,
+          cacheExtent: widget.cacheExtent,
+          semanticChildCount: widget.semanticChildCount,
+          restorationId: widget.restorationId,
+          clipBehavior: widget.clipBehavior,
+          crossAxisCount: widget.crossAxisCount,
           mainAxisSpacing: widget.mainAxisSpacing,
           crossAxisSpacing: widget.crossAxisSpacing,
+          childAspectRatio: widget.childAspectRatio,
+          addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
+          addRepaintBoundaries: widget.addRepaintBoundaries,
+          addSemanticIndexes: widget.addSemanticIndexes,
           shrinkWrap: widget.shrinkWrap,
           padding: widget.padding,
-          childAspectRatio: widget.childAspectRatio,
+
         );
       },
     );
@@ -381,3 +402,16 @@ class _Pos {
   @override
   int get hashCode => row.hashCode ^ col.hashCode;
 }
+
+const _IS_DEBUG = false;
+
+_debug(String msg) {
+  if (_IS_DEBUG) {
+    print("ReorderableGridView: " + msg);
+  }
+}
+
+_Pos _getPos(int index, int crossAxisCount) {
+  return _Pos(row: index ~/ crossAxisCount, col: index % crossAxisCount);
+}
+

@@ -1,3 +1,6 @@
+## [0.0.2+2] - 2021-4-14
+- add GridView construct params, like physics etc.
+
 ## [0.0.2+1] - 2021-02-04
 fix add footer issue
 
