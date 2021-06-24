@@ -15,25 +15,25 @@ import 'package:flutter/material.dart';
 ///```
 class ReorderableGridView extends StatefulWidget {
   final List<Widget> children;
-  final List<Widget> footer;
+  final List<Widget>? footer;
   final int crossAxisCount;
   final ReorderCallback onReorder;
-  final bool primary;
+  final bool? primary;
   final double mainAxisSpacing;
   final double crossAxisSpacing;
   final bool shrinkWrap;
-  final EdgeInsetsGeometry padding;
-  final ScrollPhysics physics;
+  final EdgeInsetsGeometry? padding;
+  final ScrollPhysics? physics;
   final bool reverse;
-  final double cacheExtent;
-  final int semanticChildCount;
+  final double? cacheExtent;
+  final int? semanticChildCount;
   final bool addAutomaticKeepAlives;
   final bool addRepaintBoundaries;
   final addSemanticIndexes;
 
   final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
   final Clip clipBehavior;
-  final String restorationId;
+  final String? restorationId;
 
   /// The ratio of the cross-axis to the main-axis extent of each child.
   final double childAspectRatio;
@@ -44,17 +44,17 @@ class ReorderableGridView extends StatefulWidget {
 
   ReorderableGridView(
     {
-      Key key,
-      this.children,
+      Key? key,
+      required this.children,
       this.clipBehavior = Clip.hardEdge,
       this.cacheExtent,
       this.semanticChildCount,
       this.keyboardDismissBehavior  = ScrollViewKeyboardDismissBehavior.manual,
       this.restorationId,
       this.reverse = false,
-      this.crossAxisCount,
+      required this.crossAxisCount,
       this.padding,
-      this.onReorder,
+      required this.onReorder,
       this.physics,
       this.footer,
       this.primary,
@@ -94,7 +94,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   // 好像不能共用controller
   // This controls the entrance of the dragging widget into a new place.
-  AnimationController _entranceController;
+  late AnimationController _entranceController;
 
   // How long an animation to reorder an element in the list takes.
   static const Duration _reorderAnimationDuration = Duration(milliseconds: 200);
@@ -102,10 +102,10 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   // The member of widget.children currently being dragged.
   //
   // Null if no drag is underway.
-  Key _dragging;
+  Key? _dragging;
 
-  double width;
-  double height;
+  late double width;
+  double? height;
 
   _initItems() {
     _items.clear();
@@ -200,7 +200,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       var isDragging = _dragging != null;
       canDrag = (_touchingIndex == -1 || _touchingIndex == index) && !isDragging;
     }
-    Widget buildDragTarget(BuildContext context, List<Key> acceptedCandidates,
+    Widget buildDragTarget(BuildContext context, List<Key?> acceptedCandidates,
         List<dynamic> rejectedCandidates, BoxConstraints constraints) {
       var itemWidth = constraints.maxWidth;
       var itemHeight = constraints.maxHeight;
@@ -295,7 +295,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           builder: (context, acceptedCandidates, rejectedCandidates) =>
               buildDragTarget(
                   context, acceptedCandidates, rejectedCandidates, constraints),
-          onWillAccept: (Key toAccept) {
+          onWillAccept: (Key? toAccept) {
             _debug("onWillAccept called for index: $index");
             // how can we change the state?
             setState(() {
@@ -376,10 +376,10 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
 class GridItemWrapper {
   int index;
-  int curIndex;
-  int nextIndex;
+  int? curIndex;
+  int? nextIndex;
 
-  GridItemWrapper({this.index}) : assert(index != null) {
+  GridItemWrapper({required this.index}) : assert(index != null) {
     curIndex = index;
     nextIndex = index;
   }
@@ -393,13 +393,13 @@ class GridItemWrapper {
 
   _Pos getBeginOffset(int crossAxisCount) {
     var origin = _getPos(index, crossAxisCount);
-    var pos = _getPos(curIndex, crossAxisCount);
+    var pos = _getPos(curIndex!, crossAxisCount);
     return _Pos(col: (pos.col - origin.col), row: (pos.row - origin.row));
   }
 
   _Pos getEndOffset(int crossAxisCount) {
     var origin = _getPos(index, crossAxisCount);
-    var pos = _getPos(nextIndex, crossAxisCount);
+    var pos = _getPos(nextIndex!, crossAxisCount);
     return _Pos(col: (pos.col - origin.col), row: (pos.row - origin.row));
   }
 
@@ -421,7 +421,7 @@ class _Pos {
   int row;
   int col;
 
-  _Pos({this.row, this.col})
+  _Pos({required this.row, required this.col})
       : assert(row != null),
         assert(col != null);
 

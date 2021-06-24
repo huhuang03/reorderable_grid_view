@@ -1,3 +1,7 @@
+## [0.0.2+3] - 2021-6-25
+- add null-safety
+- add option antiMultiDrag
+
 ## [0.0.2+2] - 2021-4-14
 - add GridView construct params, like physics etc.
 
