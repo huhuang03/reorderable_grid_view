@@ -1,4 +1,4 @@
-## [0.0.2+3] - 2021-6-25
+## [1.0.0] - 2021-6-25
 - add null-safety
 - add option antiMultiDrag
 
