@@ -117,7 +117,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   @override
   void initState() {
     super.initState();
-    _debug("initState, child count: ${this.widget.children?.length ?? -1}");
+    _debug("initState, child count: ${this.widget.children.length}");
     _entranceController =
         AnimationController(vsync: this, duration: _reorderAnimationDuration);
     _entranceController.addStatusListener(_onEntranceStatusChanged);
@@ -343,7 +343,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     for (var i = 0; i < widget.children.length; i++) {
       children.add(_wrap(widget.children[i], i));
     }
-    children.addAll(widget?.footer?? []);
+    children.addAll(widget.footer?? []);
 
     return LayoutBuilder(
       builder: (context, constraints) {
