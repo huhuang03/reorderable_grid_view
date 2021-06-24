@@ -38,28 +38,35 @@ class ReorderableGridView extends StatefulWidget {
   /// The ratio of the cross-axis to the main-axis extent of each child.
   final double childAspectRatio;
 
+  /// I think anti multi drag is loss performance.
+  /// So default is false, and only set if you care this case.
+  final bool antiMultiDrag;
+
   ReorderableGridView(
-    {Key key,
-    this.children,
-    this.clipBehavior = Clip.hardEdge,
-    this.cacheExtent,
-    this.semanticChildCount,
-    this.keyboardDismissBehavior  = ScrollViewKeyboardDismissBehavior.manual,
-    this.restorationId,
-    this.reverse = false,
-    this.crossAxisCount,
-    this.padding,
-    this.onReorder,
-    this.physics,
-    this.footer,
-    this.primary,
-    this.mainAxisSpacing = 0.0,
-    this.crossAxisSpacing = 0.0,
-    this.childAspectRatio = 1.0,
-    this.addAutomaticKeepAlives = true,
-    this.addRepaintBoundaries = true,
-    this.addSemanticIndexes = true,
-    this.shrinkWrap = true})
+    {
+      Key key,
+      this.children,
+      this.clipBehavior = Clip.hardEdge,
+      this.cacheExtent,
+      this.semanticChildCount,
+      this.keyboardDismissBehavior  = ScrollViewKeyboardDismissBehavior.manual,
+      this.restorationId,
+      this.reverse = false,
+      this.crossAxisCount,
+      this.padding,
+      this.onReorder,
+      this.physics,
+      this.footer,
+      this.primary,
+      this.mainAxisSpacing = 0.0,
+      this.crossAxisSpacing = 0.0,
+      this.childAspectRatio = 1.0,
+      this.addAutomaticKeepAlives = true,
+      this.addRepaintBoundaries = true,
+      this.addSemanticIndexes = true,
+      this.shrinkWrap = true,
+      this.antiMultiDrag = false,
+    })
     : assert(children != null),
       assert(crossAxisCount != null),
       assert(onReorder != null),
@@ -83,10 +90,11 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   // The index that the dragging widget currently occupies.
   int _currentIndex = 0;
 
+  int _touchingIndex = -1;
+
   // 好像不能共用controller
   // This controls the entrance of the dragging widget into a new place.
   AnimationController _entranceController;
-
 
   // How long an animation to reorder an element in the list takes.
   static const Duration _reorderAnimationDuration = Duration(milliseconds: 200);
@@ -186,15 +194,22 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   Widget _wrap(Widget toWrap, int index) {
     assert(toWrap.key != null);
 
+    _debug("_wrap called for index: $index");
+    var canDrag = true;
+    if (widget.antiMultiDrag) {
+      var isDragging = _dragging != null;
+      canDrag = (_touchingIndex == -1 || _touchingIndex == index) && !isDragging;
+    }
     Widget buildDragTarget(BuildContext context, List<Key> acceptedCandidates,
         List<dynamic> rejectedCandidates, BoxConstraints constraints) {
       var itemWidth = constraints.maxWidth;
       var itemHeight = constraints.maxHeight;
 
-      // now let's try scroll??
+      // you can't access other's state, so why your _maxDragCount work?
+      // I think I need a preCheck to let longPressDraggable to begin drag.
       Widget child = LongPressDraggable<Key>(
         data: toWrap.key,
-        maxSimultaneousDrags: 1,
+        maxSimultaneousDrags: canDrag? 1: 0,
         // feed back is the view follow pointer
         feedback: Container(
           // actually, this constraints is not necessary here.
@@ -205,6 +220,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         child: _dragging == toWrap.key ? SizedBox() : toWrap,
         childWhenDragging: const SizedBox(),
         onDragStarted: () {
+          // _isDragging = true;
           _dragStartIndex = index;
           _currentIndex = index;
 
@@ -250,6 +266,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       // }
 
 
+      // Better same struct??
+      // How entranceController work? If it's actioning, I setState, how it will eb?
       if (fromPos != toPos) {
         return SlideTransition(
           position:
@@ -269,10 +287,11 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
     }
 
+    // If I want in a Gesture?
     return LayoutBuilder(
       builder: (context, constraints) {
         // I think it's strange that I can get the right constraints at here.
-        return DragTarget<Key>(
+        var content = DragTarget<Key>(
           builder: (context, acceptedCandidates, rejectedCandidates) =>
               buildDragTarget(
                   context, acceptedCandidates, rejectedCandidates, constraints),
@@ -288,6 +307,32 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
             return _dragging == toAccept && toAccept != toWrap.key;
           },
         );
+
+        if (widget.antiMultiDrag) {
+          return GestureDetector(
+            onTapDown: (e) {
+              setState(() {
+                _touchingIndex = index;
+              });
+            },
+            onTapUp: (e) {
+              setState(() {
+                _debug("onTapUp");
+                _touchingIndex = -1;
+              });
+            },
+            onTapCancel: () {
+              setState(() {
+                // If drag start, onTapCancel will trigger.
+                _debug("onTapCancel");
+                _touchingIndex = -1;
+              });
+            },
+            child: content,
+          );
+        } else {
+          return content;
+        }
       },
     );
   }
@@ -304,7 +349,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       builder: (context, constraints) {
         width = constraints.maxWidth;
         height = width * widget.childAspectRatio;
-        // print("Grid's constraints: $constraints");
         return GridView.count(
           children: children,
           reverse: widget.reverse,
