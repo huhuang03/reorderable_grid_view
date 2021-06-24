@@ -67,10 +67,7 @@ class ReorderableGridView extends StatefulWidget {
       this.shrinkWrap = true,
       this.antiMultiDrag = false,
     })
-    : assert(children != null),
-      assert(crossAxisCount != null),
-      assert(onReorder != null),
-      super(key: key);
+    : super(key: key);
 
   @override
   _ReorderableGridViewState createState() => _ReorderableGridViewState();
@@ -379,7 +376,7 @@ class GridItemWrapper {
   int? curIndex;
   int? nextIndex;
 
-  GridItemWrapper({required this.index}) : assert(index != null) {
+  GridItemWrapper({required this.index}) {
     curIndex = index;
     nextIndex = index;
   }
@@ -421,9 +418,7 @@ class _Pos {
   int row;
   int col;
 
-  _Pos({required this.row, required this.col})
-      : assert(row != null),
-        assert(col != null);
+  _Pos({required this.row, required this.col});
 
   _Pos operator -(_Pos other) =>
       _Pos(row: row - other.row, col: col - other.col);
