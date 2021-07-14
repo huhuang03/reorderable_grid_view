@@ -1,1 +1,19 @@
-ReorderableList -> ReorderableListState -> CustomScrollView(slivers: [SliverReorderableList]) -> SliverReorderableListState
+ReorderableList -> ReorderableListState -> CustomScrollView(slivers: [SliverReorderableList]) -> SliverReorderableListState -> SliverList(SliverChildBuilderDelegate(_itemBuilder))
+or
+ReorderableListView -> ReorderableListViewState -> CustomScrollView(slivers: [SliverReorderableList]) -> SliverReorderableListState -> SliverList(SliverChildBuilderDelegate(_itemBuilder))
+
+#+BEGIN_SRC dart
+_itemBuilder() {
+    return _ReorderableItem(
+      key: _ReorderableItemGlobalKey(child.key!, index, this),
+      index: index,
+      child: child,
+      capturedThemes: InheritedTheme.capture(from: context, to: overlay.context),
+    );
+}
+#+END_SRC
+
+* SliverReorderableListState
+
+MultiDragGestureRecognizer<MultiDragPointerState>? _recognizer;
+
