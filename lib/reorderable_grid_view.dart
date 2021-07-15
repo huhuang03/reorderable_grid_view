@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 /// Usage:
 /// ```
@@ -82,7 +81,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     with TickerProviderStateMixin<ReorderableGridView> {
 
 
-  OverlayEntry? _overlayEntry;
   MultiDragGestureRecognizer? _recognizer;
 
   void startDragRecognizer(int index, PointerDownEvent event, MultiDragGestureRecognizer<MultiDragPointerState> recognizer) {
@@ -104,12 +102,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     item.dragging = true;
     item.rebuild();
 
-    final OverlayState overlay = Overlay.of(context)!;
-    assert(_overlayEntry == null);
 
-    _dragInfo = _DragInfo(
+    _dragInfo = _Drag(
         item: item,
         tickerProvider: this,
+        context: context,
+        onStart: _onDragStart,
         dragPosition: position,
         onUpdate: _onDragUpdate,
         onCancel: _onDragCancel,
@@ -117,26 +115,20 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     );
     _dragInfo!.startDrag();
 
-    _overlayEntry = OverlayEntry(builder: _dragInfo!.createProxy);
-    print("insert overlay");
-    overlay.insert(_overlayEntry!);
-
     return _dragInfo!;
   }
 
-  _onDragUpdate(_DragInfo item, Offset position, Offset delta) {
-    print("onDrag Update called");
-    _overlayEntry?.markNeedsBuild();
+  _onDragUpdate(_Drag item, Offset position, Offset delta) {
   }
 
-  _onDragCancel(_DragInfo item) {
+  _onDragCancel(_Drag item) {
     _dragReset();
     setState(() {
 
     });
   }
 
-  _onDragEnd(_DragInfo item) {
+  _onDragEnd(_Drag item) {
     _dragReset();
     setState(() {
 
@@ -144,9 +136,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   }
 
   _dragReset() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-
     if (_dragIndex != null)  {
       final _ReorderableGridItemState item = __items[_dragIndex!]!;
       _dragIndex = null;
@@ -199,7 +188,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   final Map<int, _ReorderableGridItemState> __items = <int, _ReorderableGridItemState>{};
 
-  _DragInfo? _dragInfo;
+  _Drag? _dragInfo;
 
   void _registerItem(_ReorderableGridItemState item) {
     __items[item.index] = item;
@@ -218,87 +207,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   }
 }
 
-class GridItemWrapper {
-  int index;
-  int? curIndex;
-  int? nextIndex;
-
-  GridItemWrapper({required this.index}) {
-    curIndex = index;
-    nextIndex = index;
-  }
-
-  // What's better offset with
-  Offset adjustOffset(_Pos pos, double width, double height, double mainSpace,
-      double crossSpace) {
-    return Offset(pos.col.toDouble() + pos.col * mainSpace / width,
-        pos.row + pos.row * crossSpace / height);
-  }
-
-  _Pos getBeginOffset(int crossAxisCount) {
-    var origin = _getPos(index, crossAxisCount);
-    var pos = _getPos(curIndex!, crossAxisCount);
-    return _Pos(col: (pos.col - origin.col), row: (pos.row - origin.row));
-  }
-
-  _Pos getEndOffset(int crossAxisCount) {
-    var origin = _getPos(index, crossAxisCount);
-    var pos = _getPos(nextIndex!, crossAxisCount);
-    return _Pos(col: (pos.col - origin.col), row: (pos.row - origin.row));
-  }
-
-  void animFinish() {
-    curIndex = nextIndex;
-  }
-
-  bool hasMoved() {
-    return index != curIndex;
-  }
-
-  @override
-  String toString() {
-    return 'GridItemWrapper{index: $index, curIndex: $curIndex, nextIndex: $nextIndex}';
-  }
-}
-
-class _Pos {
-  int row;
-  int col;
-
-  _Pos({required this.row, required this.col});
-
-  _Pos operator -(_Pos other) =>
-      _Pos(row: row - other.row, col: col - other.col);
-
-  _Pos operator +(_Pos other) =>
-      _Pos(row: row + other.row, col: col + other.col);
-
-  Offset toOffset() {
-    return Offset(col.toDouble(), row.toDouble());
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is _Pos &&
-          runtimeType == other.runtimeType &&
-          row == other.row &&
-          col == other.col;
-
-  @override
-  int get hashCode => row.hashCode ^ col.hashCode;
-}
-
 const _IS_DEBUG = true;
 
 _debug(String msg) {
   if (_IS_DEBUG) {
     print("ReorderableGridView: " + msg);
   }
-}
-
-_Pos _getPos(int index, int crossAxisCount) {
-  return _Pos(row: index ~/ crossAxisCount, col: index % crossAxisCount);
 }
 
 class _ReorderableGridItem extends StatefulWidget {
@@ -413,30 +327,40 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerP
   }
 }
 
-typedef _DragItemUpdate = void Function(_DragInfo item, Offset position, Offset delta);
-typedef _DragItemCallback = void Function(_DragInfo item);
+typedef _DragItemUpdate = void Function(_Drag item, Offset position, Offset delta);
+typedef _DragItemCallback = void Function(_Drag item);
 
 // OnStart give to you?
 // Strange that you are create at onStart?
-class _DragInfo extends Drag {
+class _Drag extends Drag {
   late int index;
   final _DragItemUpdate? onUpdate;
   final _DragItemCallback? onCancel;
   final _DragItemCallback? onEnd;
+
   final TickerProvider tickerProvider;
   final GestureMultiDragStartCallback onStart;
-  late Offset dragPosition;
 
   late Size itemSize;
   late Widget child;
+
+  // Drag position always is the finger position in global
+  Offset dragPosition;
   late Offset dragOffset;
+
   late CapturedThemes _capturedThemes;
   AnimationController? _proxyAnimationController;
 
-  _DragInfo({
+  // Give to _Drag?? You want more control of the drag??
+  OverlayEntry? _overlayEntry;
+  BuildContext context;
+
+  _Drag({
     required _ReorderableGridItemState item,
     required this.tickerProvider,
     required this.onStart,
+    required this.dragPosition,
+    required this.context,
     this.onUpdate,
     this.onCancel,
     this.onEnd,
@@ -446,8 +370,10 @@ class _DragInfo extends Drag {
     itemSize = item.context.size!;
     _capturedThemes = item.widget.capturedThemes;
     final RenderBox itemRenderBox = item.context.findRenderObject()! as RenderBox;
+    // 为什么是>?
+    // 注意这里是反
     dragOffset = itemRenderBox.globalToLocal(dragPosition);
-    print("itemSize: ${itemSize}");
+    print("dragOffset: ${dragOffset}");
  }
 
   void dispose() {
@@ -470,8 +396,8 @@ class _DragInfo extends Drag {
   Widget createProxy(BuildContext context) {
     var position = this.dragPosition - this.dragOffset;
     return Positioned(
-      top: position.dx,
-      left: position.dy,
+      top: position.dy,
+      left: position.dx,
       child: SizedBox.fromSize(
         size: itemSize,
         child: child,
@@ -479,29 +405,41 @@ class _DragInfo extends Drag {
     );
   }
 
-  void _onStart(Offset position) {
+  void startDrag() {
+    _overlayEntry = OverlayEntry(builder: createProxy);
+    print("insert overlay");
 
+    // Can you give the overlay to _Drag?
+    final OverlayState overlay = Overlay.of(context)!;
+    overlay.insert(_overlayEntry!);
   }
 
-  void startDrag() {
-    _proxyAnimationController = AnimationController(
-      vsync: tickerProvider,
-      duration: const Duration(microseconds: 250)
-    );
-    _proxyAnimationController!.forward();
+  @override
+  void update(DragUpdateDetails details) {
+    dragPosition += details.delta;
+    onUpdate?.call(this, dragPosition, details.delta);
+
+    _overlayEntry?.markNeedsBuild();
   }
 
   @override
   void end(DragEndDetails details) {
     _debug("onDrag end");
-    super.end(details);
     onEnd?.call(this);
+
+    this._endOrCancel();
   }
 
   @override
   void cancel() {
     _debug("onDrag cancel");
-    super.cancel();
     onCancel?.call(this);
+
+    this._endOrCancel();
+  }
+
+  void _endOrCancel()  {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 }
