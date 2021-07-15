@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -79,6 +82,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     with TickerProviderStateMixin<ReorderableGridView> {
 
 
+  OverlayEntry? _overlayEntry;
   MultiDragGestureRecognizer? _recognizer;
 
   void startDragRecognizer(int index, PointerDownEvent event, MultiDragGestureRecognizer<MultiDragPointerState> recognizer) {
@@ -90,27 +94,38 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   int? _dragIndex;
 
+  // position is the global position
   Drag _onDragStart(Offset position) {
-    print("drag start!!, __items size: ${__items.length}, _dragIndex: ${_dragIndex}");
+    // print("drag start!!, _dragIndex: $_dragIndex, position: ${position}");
     // how can you do this?
     assert(_dragInfo == null);
 
-    final __ReorderableGridItemState item = __items[_dragIndex!]!;
+    final _ReorderableGridItemState item = __items[_dragIndex!]!;
     item.dragging = true;
     item.rebuild();
 
+    final OverlayState overlay = Overlay.of(context)!;
+    assert(_overlayEntry == null);
+
     _dragInfo = _DragInfo(
         item: item,
+        tickerProvider: this,
         onUpdate: _onDragUpdate,
         onCancel: _onDragCancel,
         onEnd: _onDragEnd,
     );
+    _dragInfo!.startDrag();
+
+    _overlayEntry = OverlayEntry(builder: _dragInfo!.createProxy);
+    print("insert overlay");
+    overlay.insert(_overlayEntry!);
 
     return _dragInfo!;
   }
 
   _onDragUpdate(_DragInfo item, Offset position, Offset delta) {
     print("onDrag Update called");
+    _overlayEntry?.markNeedsBuild();
   }
 
   _onDragCancel(_DragInfo item) {
@@ -128,8 +143,11 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   }
 
   _dragReset() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+
     if (_dragIndex != null)  {
-      final __ReorderableGridItemState item = __items[_dragIndex!]!;
+      final _ReorderableGridItemState item = __items[_dragIndex!]!;
       _dragIndex = null;
       item.dragging = false;
       item.rebuild();
@@ -158,7 +176,10 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     for (var i = 0; i < widget.children.length; i++) {
       var child = widget.children[i];
       // children.add(child);
-      children.add(_ReorderableGridItem(child: child, key: child.key!, index: i));
+      children.add(_ReorderableGridItem(child: child,
+        key: child.key!,
+        index: i,
+        capturedThemes: InheritedTheme.capture(from: context, to: Overlay.of(context)!.context),));
     }
 
     children.addAll(widget.footer?? []);
@@ -175,11 +196,11 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   }
 
-  final Map<int, __ReorderableGridItemState> __items = <int, __ReorderableGridItemState>{};
+  final Map<int, _ReorderableGridItemState> __items = <int, _ReorderableGridItemState>{};
 
   _DragInfo? _dragInfo;
 
-  void _registerItem(__ReorderableGridItemState item) {
+  void _registerItem(_ReorderableGridItemState item) {
     __items[item.index] = item;
     if (item.index == _dragInfo?.index) {
       item.dragging = true;
@@ -187,7 +208,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     }
   }
 
-  void _unRegisterItem(int index, __ReorderableGridItemState item) {
+  void _unRegisterItem(int index, _ReorderableGridItemState item) {
     // why you check the item?
     var current = __items[index];
     if (current == item) {
@@ -283,18 +304,20 @@ class _ReorderableGridItem extends StatefulWidget {
   final Widget child;
   final Key key;
   final int index;
+  final CapturedThemes capturedThemes;
 
   const _ReorderableGridItem({
     required this.child,
     required this.key,
-    required this.index
+    required this.index,
+    required this.capturedThemes
   }): super(key: key);
 
   @override
-  __ReorderableGridItemState createState() => __ReorderableGridItemState();
+  _ReorderableGridItemState createState() => _ReorderableGridItemState();
 }
 
-class __ReorderableGridItemState extends State<_ReorderableGridItem> {
+class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerProviderStateMixin {
   late _ReorderableGridViewState _listState;
 
   Key get key => widget.key;
@@ -356,16 +379,18 @@ class __ReorderableGridItemState extends State<_ReorderableGridItem> {
 
     Widget _buildChild(Widget child) {
       // why you register at here?
-      print("build called with at ${index}, _dragging: ${_dragging}");
-      if (_dragging) {
-        // why put you in the Listener??
-        return SizedBox();
-      }
-      var _offset = offset;
-      return Transform(
+      // print("build called with at ${index}, _dragging: ${_dragging}");
+      return LayoutBuilder(builder: (context, constraints) {
+        if (_dragging) {
+          // why put you in the Listener??
+          return Text("Hello");
+        }
+        var _offset = offset;
+        return Transform(
           transform: Matrix4.translationValues(_offset.dx, _offset.dy, 0),
           child: child,
-      );
+        );
+      },);
     }
 
     return Listener(
@@ -390,19 +415,71 @@ class __ReorderableGridItemState extends State<_ReorderableGridItem> {
 typedef _DragItemUpdate = void Function(_DragInfo item, Offset position, Offset delta);
 typedef _DragItemCallback = void Function(_DragInfo item);
 
+// Give a a reason why I need you??
+// Actually I don't think you are good.
+// I will give you any you need.
 class _DragInfo extends Drag {
   late int index;
   final _DragItemUpdate? onUpdate;
   final _DragItemCallback? onCancel;
   final _DragItemCallback? onEnd;
+  final TickerProvider tickerProvider;
+
+  late Size itemSize;
+  late Widget child;
+  late CapturedThemes _capturedThemes;
+  Offset initialPosition;
+  AnimationController? _proxyAnimationController;
 
   _DragInfo({
-    required __ReorderableGridItemState item,
+    required _ReorderableGridItemState item,
+    required this.tickerProvider,
+    required initialPosition,
     this.onUpdate,
     this.onCancel,
-    this.onEnd
+    this.onEnd,
   }) {
     index = item.index;
+    child = item.widget.child;
+    itemSize = item.context.size!;
+    _capturedThemes = item.widget.capturedThemes;
+    print("itemSize: ${itemSize}");
+ }
+
+  void dispose() {
+    _proxyAnimationController?.dispose();
+  }
+
+  Widget _proxyDecorator(Widget child) {
+    return AnimatedBuilder(animation: _proxyAnimationController!.view, builder: (context, child) {
+      print("animation value: ${_proxyAnimationController!.view.value}");
+      final double animValue = Curves.easeIn.transform(_proxyAnimationController!.view.value);
+      final double elevation = lerpDouble(0, 6, animValue)!;
+      return Material(
+        child: child,
+        elevation: elevation,
+      );
+    }, child: child,);
+  }
+
+  Widget createProxy(BuildContext context) {
+    return Positioned(
+      top: 50,
+      left: 50,
+      child: SizedBox(
+        width: 50,
+        height: 50,
+        child: child,
+      ),
+    );
+  }
+
+  void startDrag() {
+    _proxyAnimationController = AnimationController(
+      vsync: tickerProvider,
+      duration: const Duration(microseconds: 250)
+    );
+    _proxyAnimationController!.forward();
   }
 
   @override
@@ -418,5 +495,4 @@ class _DragInfo extends Drag {
     super.cancel();
     onCancel?.call(this);
   }
-
 }

@@ -1,4 +1,5 @@
 import 'package:example/example_reorderable_list.dart';
+import 'package:example/test_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
@@ -52,13 +53,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 2,
+        length: 3,
         child: Scaffold(
           appBar: AppBar(
             bottom: TabBar(
               tabs: [
                 Tab(text: "Grid",),
-                Tab(text: "List",)
+                Tab(text: "List",),
+                Tab(text: "Test Overlay",)
               ],
             ),
             title: Text(widget.title),
@@ -67,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               DemoReorderableGrid(),
               ExampleReorderableList(),
+              TestOverlay()
             ],
           ),
         ),
