@@ -370,10 +370,7 @@ class _Drag extends Drag {
     itemSize = item.context.size!;
     _capturedThemes = item.widget.capturedThemes;
     final RenderBox itemRenderBox = item.context.findRenderObject()! as RenderBox;
-    // 为什么是>?
-    // 注意这里是反
     dragOffset = itemRenderBox.globalToLocal(dragPosition);
-    print("dragOffset: ${dragOffset}");
  }
 
   void dispose() {
