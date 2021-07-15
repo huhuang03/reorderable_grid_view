@@ -15,6 +15,7 @@ class _ExampleReorderableListState extends State<ExampleReorderableList> {
      final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
 
      return ReorderableListView(
+       buildDefaultDragHandles: false,
        padding: const EdgeInsets.symmetric(horizontal: 40),
        children: <Widget>[
          for (int index = 0; index < _items.length; index++)

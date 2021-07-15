@@ -314,7 +314,7 @@ class __ReorderableGridItemState extends State<_ReorderableGridItem> {
 
   // Ok, for now we use multiDragRecognizer
   MultiDragGestureRecognizer<MultiDragPointerState> _createDragRecognizer() {
-    return ImmediateMultiDragGestureRecognizer(debugOwner: this);
+    return DelayedMultiDragGestureRecognizer(debugOwner: this);
   }
 
   @override
