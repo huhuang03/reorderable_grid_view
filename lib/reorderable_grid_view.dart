@@ -110,6 +110,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     _dragInfo = _DragInfo(
         item: item,
         tickerProvider: this,
+        dragPosition: position,
         onUpdate: _onDragUpdate,
         onCancel: _onDragCancel,
         onEnd: _onDragEnd,
@@ -383,7 +384,7 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerP
       return LayoutBuilder(builder: (context, constraints) {
         if (_dragging) {
           // why put you in the Listener??
-          return Text("Hello");
+          return SizedBox();
         }
         var _offset = offset;
         return Transform(
@@ -415,26 +416,27 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerP
 typedef _DragItemUpdate = void Function(_DragInfo item, Offset position, Offset delta);
 typedef _DragItemCallback = void Function(_DragInfo item);
 
-// Give a a reason why I need you??
-// Actually I don't think you are good.
-// I will give you any you need.
+// OnStart give to you?
+// Strange that you are create at onStart?
 class _DragInfo extends Drag {
   late int index;
   final _DragItemUpdate? onUpdate;
   final _DragItemCallback? onCancel;
   final _DragItemCallback? onEnd;
   final TickerProvider tickerProvider;
+  final GestureMultiDragStartCallback onStart;
+  late Offset dragPosition;
 
   late Size itemSize;
   late Widget child;
+  late Offset dragOffset;
   late CapturedThemes _capturedThemes;
-  Offset initialPosition;
   AnimationController? _proxyAnimationController;
 
   _DragInfo({
     required _ReorderableGridItemState item,
     required this.tickerProvider,
-    required initialPosition,
+    required this.onStart,
     this.onUpdate,
     this.onCancel,
     this.onEnd,
@@ -443,6 +445,8 @@ class _DragInfo extends Drag {
     child = item.widget.child;
     itemSize = item.context.size!;
     _capturedThemes = item.widget.capturedThemes;
+    final RenderBox itemRenderBox = item.context.findRenderObject()! as RenderBox;
+    dragOffset = itemRenderBox.globalToLocal(dragPosition);
     print("itemSize: ${itemSize}");
  }
 
@@ -462,16 +466,21 @@ class _DragInfo extends Drag {
     }, child: child,);
   }
 
+  // why you need other calls?
   Widget createProxy(BuildContext context) {
+    var position = this.dragPosition - this.dragOffset;
     return Positioned(
-      top: 50,
-      left: 50,
-      child: SizedBox(
-        width: 50,
-        height: 50,
+      top: position.dx,
+      left: position.dy,
+      child: SizedBox.fromSize(
+        size: itemSize,
         child: child,
       ),
     );
+  }
+
+  void _onStart(Offset position) {
+
   }
 
   void startDrag() {
