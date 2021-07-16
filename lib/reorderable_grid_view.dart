@@ -114,6 +114,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         onEnd: _onDragEnd,
     );
     _dragInfo!.startDrag();
+    autoScrollIfNecessary();
 
     return _dragInfo!;
   }
@@ -205,6 +206,28 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       __items.remove(index);
     }
   }
+
+  var _autoScrolling = false;
+
+  Future<void> autoScrollIfNecessary() async {
+    if (!_autoScrolling && _dragInfo != null) {
+      double? newOffset;
+      final ScrollPosition position = _dragInfo!.scrollable.position;
+      final RenderBox scrollRenderBox = _dragInfo!.scrollable.context.findRenderObject()! as RenderBox;
+      print("renderBox size: ${scrollRenderBox.size}");
+      // Will change if has position.pixels??
+      final scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
+      print("scrollOrigin: ${scrollOrigin}");
+      // print("window size: ${MediaQuery.of(context).size}");
+      // print("offset: ${position.pixels}");
+      
+      if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
+        _autoScrolling = true;
+        await position.animateTo(newOffset, duration: const Duration(milliseconds: 14), curve: Curves.linear);
+        _autoScrolling = false;
+      }
+    }
+  }
 }
 
 const _IS_DEBUG = true;
@@ -230,6 +253,7 @@ class _ReorderableGridItem extends StatefulWidget {
 
   @override
   _ReorderableGridItemState createState() => _ReorderableGridItemState();
+
 }
 
 class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerProviderStateMixin {
@@ -325,6 +349,7 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerP
       setState(() {});
     }
   }
+
 }
 
 typedef _DragItemUpdate = void Function(_Drag item, Offset position, Offset delta);
@@ -343,6 +368,7 @@ class _Drag extends Drag {
 
   late Size itemSize;
   late Widget child;
+  late ScrollableState scrollable;
 
   // Drag position always is the finger position in global
   Offset dragPosition;
@@ -371,6 +397,8 @@ class _Drag extends Drag {
     _capturedThemes = item.widget.capturedThemes;
     final RenderBox itemRenderBox = item.context.findRenderObject()! as RenderBox;
     dragOffset = itemRenderBox.globalToLocal(dragPosition);
+
+    scrollable = Scrollable.of(context)!;
  }
 
   void dispose() {
