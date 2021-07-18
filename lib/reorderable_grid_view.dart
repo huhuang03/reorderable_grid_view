@@ -303,6 +303,28 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerP
 
   bool _dragging = false;
 
+  /// We can only check the items between startIndex and the targetIndex, but for simply, we check all <= targetDropIndex
+  void updateForGap(int targetDropIndex, Size itemSize) {
+    if (!mounted) return;
+    // fuck, we still need the pos! but I have deleted it.
+    // we need the target position. fuck!
+    Offset newPos = Offset.zero;
+    if (this.index <= targetDropIndex) {
+      // (this.context.findRenderObject() as RenderBox).size
+      // final containerWidth = (Scrollable.of(context)!.context.findRenderObject() as RenderBox).size.width;
+    }
+  }
+
+  void resetGap() {
+    if (_offsetAnimation != null) {
+      _offsetAnimation!.dispose();
+      _offsetAnimation = null;
+    }
+    _startOffset = Offset.zero;
+    _targetOffset = Offset.zero;
+    rebuild();
+  }
+
   // Ok, for now we use multiDragRecognizer
   MultiDragGestureRecognizer<MultiDragPointerState> _createDragRecognizer() {
     return DelayedMultiDragGestureRecognizer(debugOwner: this);
@@ -315,14 +337,16 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerP
     super.initState();
   }
 
+
+  // ths is strange thing.
   Offset _startOffset = Offset.zero;
   Offset _targetOffset = Offset.zero;
-  AnimationController? _animationController;
+  // Ok, how can we calculate the _offsetAnimation
+  AnimationController? _offsetAnimation;
 
   Offset get offset {
-    // why you can erase?? not the pointer under the finger??
-    if (_animationController != null) {
-      return Offset.lerp(_startOffset, _targetOffset, Curves.easeInOut.transform(_animationController!.value))!;
+    if (_offsetAnimation != null) {
+      return Offset.lerp(_startOffset, _targetOffset, Curves.easeInOut.transform(_offsetAnimation!.value))!;
     }
     return _targetOffset;
   }
@@ -353,8 +377,10 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerP
           // why put you in the Listener??
           return SizedBox();
         }
+
         var _offset = offset;
         return Transform(
+          // you are strange.
           transform: Matrix4.translationValues(_offset.dx, _offset.dy, 0),
           child: child,
         );
@@ -462,9 +488,12 @@ class _Drag extends Drag {
     return Positioned(
       top: position.dy,
       left: position.dx,
-      child: SizedBox.fromSize(
-        size: itemSize,
-        child: child,
+      child: Material(
+        elevation: 3.0,
+        child: SizedBox.fromSize(
+          size: itemSize,
+          child: child,
+        ),
       ),
     );
   }
@@ -493,7 +522,7 @@ class _Drag extends Drag {
   void ifYouScroll() async {
     if (hasEnd) return;
     if (!_autoScrolling) {
-      print("enter autoScrollIfNecessary");
+      // _debug("enter autoScrollIfNecessary");
       double? newOffset;
       // you are strange!
       final ScrollPosition position = scrollable.position;
@@ -573,4 +602,5 @@ class _Drag extends Drag {
     _overlayEntry?.remove();
     _overlayEntry = null;
   }
+
 }
