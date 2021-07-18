@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -120,6 +121,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   }
 
   _onDragUpdate(_Drag item, Offset position, Offset delta) {
+    autoScrollIfNecessary();
   }
 
   _onDragCancel(_Drag item) {
@@ -132,7 +134,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   _onDragEnd(_Drag item) {
     _dragReset();
     setState(() {
-
     });
   }
 
@@ -210,21 +211,49 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   var _autoScrolling = false;
 
   Future<void> autoScrollIfNecessary() async {
+    return;
     if (!_autoScrolling && _dragInfo != null) {
+      print("enter autoScrollIfNecessary");
       double? newOffset;
+      // you are strange!
       final ScrollPosition position = _dragInfo!.scrollable.position;
       final RenderBox scrollRenderBox = _dragInfo!.scrollable.context.findRenderObject()! as RenderBox;
-      print("renderBox size: ${scrollRenderBox.size}");
-      // Will change if has position.pixels??
+
+      // you find the tab??
+      // _debug("scrollable: ${_dragInfo!.scrollable}");
+      // _debug("renderBox size: ${scrollRenderBox.size}");
+
+      // yes the global is the window global
+      // so if i't scrollable, render box just the viewport.
+      // But the
       final scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
-      print("scrollOrigin: ${scrollOrigin}");
-      // print("window size: ${MediaQuery.of(context).size}");
-      // print("offset: ${position.pixels}");
-      
+      final scrollStart = scrollOrigin.dy;
+      // your renderBox can't over window, but the dragInfo can??
+      // So strange.
+      final scrollEnd = scrollStart + scrollRenderBox.size.height;
+
+      final dragInfoStart = _dragInfo!.getPosInGlobal().dy;
+      final dragInfoEnd = dragInfoStart + _dragInfo!.dragExtent;
+      // print("scrollOrigin: ${scrollOrigin}, scrollEnd: ${scrollEnd}, dragInfoEnd: ${dragInfoEnd}");
+
+      // final diff = dragInfoEnd - scrollEnd;
+      final overBottom = dragInfoEnd > scrollEnd;
+      if (overBottom && position.pixels < position.maxScrollExtent) {
+        newOffset = min(dragInfoEnd - scrollEnd, position.maxScrollExtent - position.pixels);
+      }
+
       if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
         _autoScrolling = true;
+        // why you scroll horizontal??
+        _debug("scroll begin, ${newOffset}");
         await position.animateTo(newOffset, duration: const Duration(milliseconds: 14), curve: Curves.linear);
         _autoScrolling = false;
+        _debug("scroll end, ${newOffset}");
+
+        if (_dragInfo != null) {
+          _debug("check scroll again");
+          autoScrollIfNecessary();
+        }
       }
     }
   }
@@ -344,7 +373,7 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerP
   }
 
   void rebuild() {
-    print("rebuild called for index: ${this.index}, mounted: ${mounted}");
+    // _debug("rebuild called for index: ${this.index}, mounted: ${mounted}");
     if (mounted) {
       setState(() {});
     }
@@ -372,7 +401,10 @@ class _Drag extends Drag {
 
   // Drag position always is the finger position in global
   Offset dragPosition;
+  // dragOffset is the position finger pointer in local(renderObject's left top is (0, 0))
   late Offset dragOffset;
+  // = renderBox.size.height
+  late double dragExtent;
 
   late CapturedThemes _capturedThemes;
   AnimationController? _proxyAnimationController;
@@ -380,6 +412,7 @@ class _Drag extends Drag {
   // Give to _Drag?? You want more control of the drag??
   OverlayEntry? _overlayEntry;
   BuildContext context;
+  var hasEnd = false;
 
   _Drag({
     required _ReorderableGridItemState item,
@@ -397,8 +430,14 @@ class _Drag extends Drag {
     _capturedThemes = item.widget.capturedThemes;
     final RenderBox itemRenderBox = item.context.findRenderObject()! as RenderBox;
     dragOffset = itemRenderBox.globalToLocal(dragPosition);
+    // why you renderBox can over window?
+    dragExtent = itemRenderBox.size.height;
 
-    scrollable = Scrollable.of(context)!;
+    scrollable = Scrollable.of(item.context)!;
+ }
+
+ Offset getPosInGlobal() {
+    return this.dragPosition - this.dragOffset;
  }
 
   void dispose() {
@@ -407,7 +446,7 @@ class _Drag extends Drag {
 
   Widget _proxyDecorator(Widget child) {
     return AnimatedBuilder(animation: _proxyAnimationController!.view, builder: (context, child) {
-      print("animation value: ${_proxyAnimationController!.view.value}");
+      // print("animation value: ${_proxyAnimationController!.view.value}");
       final double animValue = Curves.easeIn.transform(_proxyAnimationController!.view.value);
       final double elevation = lerpDouble(0, 6, animValue)!;
       return Material(
@@ -432,11 +471,12 @@ class _Drag extends Drag {
 
   void startDrag() {
     _overlayEntry = OverlayEntry(builder: createProxy);
-    print("insert overlay");
+    // print("insert overlay");
 
     // Can you give the overlay to _Drag?
     final OverlayState overlay = Overlay.of(context)!;
     overlay.insert(_overlayEntry!);
+    ifYouScroll();
   }
 
   @override
@@ -445,6 +485,71 @@ class _Drag extends Drag {
     onUpdate?.call(this, dragPosition, details.delta);
 
     _overlayEntry?.markNeedsBuild();
+    ifYouScroll();
+  }
+
+  var _autoScrolling = false;
+
+  void ifYouScroll() async {
+    if (hasEnd) return;
+    if (!_autoScrolling) {
+      print("enter autoScrollIfNecessary");
+      double? newOffset;
+      // you are strange!
+      final ScrollPosition position = scrollable.position;
+      final RenderBox scrollRenderBox = scrollable.context.findRenderObject()! as RenderBox;
+
+      // you find the tab??
+      // _debug("scrollable: ${scrollable}");
+      // _debug("renderBox size: ${scrollRenderBox.size}");
+
+      // yes the global is the window global
+      // so if i't scrollable, render box just the viewport.
+      // But the
+      final scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
+      final scrollStart = scrollOrigin.dy;
+      // your renderBox can't over window, but the dragInfo can??
+      // So strange.
+      final scrollEnd = scrollStart + scrollRenderBox.size.height;
+
+      final dragInfoStart = getPosInGlobal().dy;
+      final dragInfoEnd = dragInfoStart + dragExtent;
+      // print("scrollOrigin: ${scrollOrigin}, scrollEnd: ${scrollEnd}, dragInfoEnd: ${dragInfoEnd}");
+
+
+      // scroll bottom
+      // final diff = dragInfoEnd - scrollEnd;
+      final overBottom = dragInfoEnd > scrollEnd;
+      final overTop = dragInfoStart < scrollStart;
+
+      double oneStepMax = 5;
+
+
+      if (overBottom && position.pixels < position.maxScrollExtent) {
+        oneStepMax = min(dragInfoEnd - scrollEnd, oneStepMax);
+        newOffset = min(position.maxScrollExtent, position.pixels + oneStepMax);
+      } else if (overTop && position.pixels > position.minScrollExtent) {
+        oneStepMax = min(scrollStart - dragInfoStart, oneStepMax);
+        newOffset = max(position.minScrollExtent, position.pixels - oneStepMax);
+      }
+
+      // scroll top
+
+      // print("pixels: ${position.pixels}, newOffset: ${newOffset}, dragInfoEnd: ${dragInfoEnd}, scrollEnd: ${scrollEnd}, overBottom: ${overBottom}");
+
+      // &&
+      if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
+        _autoScrolling = true;
+        // why you scroll horizontal??
+        // _debug("scroll begin, ${newOffset}");
+        await position.animateTo(newOffset, duration: const Duration(milliseconds: 14), curve: Curves.linear);
+        _autoScrolling = false;
+        // _debug("scroll end, ${newOffset}");
+
+        ifYouScroll();
+      }
+    }
+
   }
 
   @override
@@ -464,6 +569,7 @@ class _Drag extends Drag {
   }
 
   void _endOrCancel()  {
+    hasEnd = true;
     _overlayEntry?.remove();
     _overlayEntry = null;
   }

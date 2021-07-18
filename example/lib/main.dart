@@ -25,6 +25,9 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
+      // home: Scaffold(
+      //   body: DemoReorderableGrid(),
+      // ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
