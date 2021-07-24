@@ -97,9 +97,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   // Insert index is the index to insert to .
   int? _insertIndex;
 
-  //
-  int _calcInsertIndex() {
-  }
+  // int _calcInsertIndex() {
+  // }
 
   // position is the global position
   Drag _onDragStart(Offset position) {
@@ -198,6 +197,13 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   }
 
+  // /**
+  //  * How you canculate the size?
+  //  */
+  // Offset getOffsetOfItem(int item) {
+  //
+  // }
+
   final Map<int, _ReorderableGridItemState> __items = <int, _ReorderableGridItemState>{};
 
   _Drag? _dragInfo;
@@ -269,12 +275,18 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerP
   bool _dragging = false;
 
   /// We can only check the items between startIndex and the targetIndex, but for simply, we check all <= targetDropIndex
-  void updateForGap(int targetDropIndex, Size itemSize) {
+  void updateForGap(int targetDropIndex, Size dragSize) {
     // Actually I can use only use the targetDropIndex to decide the target pos, but what to do I change middle
     if (!mounted) return;
+    // How can I calculate the target?
+
+    // let's try use dragSize.
+
+
     // fuck, we still need the pos! but I have deleted it.
     // we need the target position. fuck!
-    Offset newPos = Offset.zero;
+    // Offset newPos = Offset.zero;
+
     if (this.index <= targetDropIndex) {
       // (this.context.findRenderObject() as RenderBox).size
       // final containerWidth = (Scrollable.of(context)!.context.findRenderObject() as RenderBox).size.width;
