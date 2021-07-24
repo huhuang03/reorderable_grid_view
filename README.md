@@ -59,3 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
 # Advance setting.
 ## Option antiMultiDrag
 If `antiMultiDrag` set, this widget will try to anti multi drag behavior.
+
+# Notes
+For now, I only test for the child all same size item. If not, please test youself.

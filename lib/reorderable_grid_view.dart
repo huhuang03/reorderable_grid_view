@@ -84,6 +84,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   MultiDragGestureRecognizer? _recognizer;
 
+  // it's not as drag start?
   void startDragRecognizer(int index, PointerDownEvent event, MultiDragGestureRecognizer<MultiDragPointerState> recognizer) {
     _dragIndex = index;
     _recognizer = recognizer
@@ -92,6 +93,13 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   }
 
   int? _dragIndex;
+
+  // Insert index is the index to insert to .
+  int? _insertIndex;
+
+  //
+  int _calcInsertIndex() {
+  }
 
   // position is the global position
   Drag _onDragStart(Offset position) {
@@ -102,6 +110,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     final _ReorderableGridItemState item = __items[_dragIndex!]!;
     item.dragging = true;
     item.rebuild();
+
+    _insertIndex = _dragIndex;
 
 
     _dragInfo = _Drag(
@@ -208,54 +218,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     }
   }
 
-  var _autoScrolling = false;
-
   Future<void> autoScrollIfNecessary() async {
     return;
-    if (!_autoScrolling && _dragInfo != null) {
-      print("enter autoScrollIfNecessary");
-      double? newOffset;
-      // you are strange!
-      final ScrollPosition position = _dragInfo!.scrollable.position;
-      final RenderBox scrollRenderBox = _dragInfo!.scrollable.context.findRenderObject()! as RenderBox;
-
-      // you find the tab??
-      // _debug("scrollable: ${_dragInfo!.scrollable}");
-      // _debug("renderBox size: ${scrollRenderBox.size}");
-
-      // yes the global is the window global
-      // so if i't scrollable, render box just the viewport.
-      // But the
-      final scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
-      final scrollStart = scrollOrigin.dy;
-      // your renderBox can't over window, but the dragInfo can??
-      // So strange.
-      final scrollEnd = scrollStart + scrollRenderBox.size.height;
-
-      final dragInfoStart = _dragInfo!.getPosInGlobal().dy;
-      final dragInfoEnd = dragInfoStart + _dragInfo!.dragExtent;
-      // print("scrollOrigin: ${scrollOrigin}, scrollEnd: ${scrollEnd}, dragInfoEnd: ${dragInfoEnd}");
-
-      // final diff = dragInfoEnd - scrollEnd;
-      final overBottom = dragInfoEnd > scrollEnd;
-      if (overBottom && position.pixels < position.maxScrollExtent) {
-        newOffset = min(dragInfoEnd - scrollEnd, position.maxScrollExtent - position.pixels);
-      }
-
-      if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
-        _autoScrolling = true;
-        // why you scroll horizontal??
-        _debug("scroll begin, ${newOffset}");
-        await position.animateTo(newOffset, duration: const Duration(milliseconds: 14), curve: Curves.linear);
-        _autoScrolling = false;
-        _debug("scroll end, ${newOffset}");
-
-        if (_dragInfo != null) {
-          _debug("check scroll again");
-          autoScrollIfNecessary();
-        }
-      }
-    }
   }
 }
 
@@ -285,6 +249,7 @@ class _ReorderableGridItem extends StatefulWidget {
 
 }
 
+// Hello you can use the self or parent's size. to decide the new position.
 class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerProviderStateMixin {
   late _ReorderableGridViewState _listState;
 
@@ -305,6 +270,7 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerP
 
   /// We can only check the items between startIndex and the targetIndex, but for simply, we check all <= targetDropIndex
   void updateForGap(int targetDropIndex, Size itemSize) {
+    // Actually I can use only use the targetDropIndex to decide the target pos, but what to do I change middle
     if (!mounted) return;
     // fuck, we still need the pos! but I have deleted it.
     // we need the target position. fuck!
