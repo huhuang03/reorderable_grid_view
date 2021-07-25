@@ -97,8 +97,8 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: ReorderableGridView(
-          crossAxisSpacing: 0,
-          mainAxisSpacing: 0,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
           crossAxisCount: 3,
           children: this.data.map((e) => buildItem("$e")).toList(),
           onReorder: (oldIndex, newIndex) {
