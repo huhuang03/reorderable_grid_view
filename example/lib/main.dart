@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -45,41 +45,45 @@ class MyHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
+  final String? title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 3,
-        child: Scaffold(
-          appBar: AppBar(
-            bottom: TabBar(
-              tabs: [
-                Tab(text: "Grid",),
-                Tab(text: "List",),
-                Tab(text: "Test Overlay",)
-              ],
-            ),
-            title: Text(widget.title),
-          ),
-          body: TabBarView(
-            children: [
-              DemoReorderableGrid(),
-              ExampleReorderableList(),
-              TestOverlay()
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          bottom: TabBar(
+            tabs: [
+              Tab(
+                text: "Grid",
+              ),
+              Tab(
+                text: "List",
+              ),
+              Tab(
+                text: "Test Overlay",
+              )
             ],
           ),
+          title: Text(widget.title!),
         ),
+        body: TabBarView(
+          children: [
+            DemoReorderableGrid(),
+            ExampleReorderableList(),
+            TestOverlay()
+          ],
+        ),
+      ),
     );
   }
 }
-
 
 class DemoReorderableGrid extends StatefulWidget {
   @override
@@ -100,7 +104,8 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 3,
-          children: this.data.map((e) => buildItem("$e")).toList(),
+          childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
+          children: this.data.map((e) => buildItem(e)).toList(),
           onReorder: (oldIndex, newIndex) {
             print("reorder: $oldIndex -> $newIndex");
             setState(() {
@@ -120,10 +125,10 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
     );
   }
 
-  Widget buildItem(String text) {
+  Widget buildItem(int index) {
     return Card(
-      key: ValueKey(text),
-      child: Text(text),
+      key: ValueKey(index),
+      child: Text(index.toString()),
     );
   }
 }
