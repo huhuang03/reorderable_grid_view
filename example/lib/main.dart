@@ -97,7 +97,6 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: ReorderableGridView(
-          antiMultiDrag: true,
           crossAxisSpacing: 0,
           mainAxisSpacing: 0,
           crossAxisCount: 3,
