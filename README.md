@@ -1,11 +1,11 @@
-# ReorderableGrdiView
+# ReorderableGridView
 
 Copy from official ReorderableListView
 
 # Usage:
 ```
 dependencies:
-  reorderable_grid_view: ^0.0.2+2
+  reorderable_grid_view: ^1.1.0-alpha
 ```
 
 # Example
@@ -55,10 +55,6 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 ```
 
-
-# Advance setting.
-## Option antiMultiDrag
-If `antiMultiDrag` set, this widget will try to anti multi drag behavior.
 
 # Notes
 For now, I only test for the child all same size item. If not, please test youself.
