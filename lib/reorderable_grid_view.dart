@@ -70,6 +70,7 @@ class ReorderableGridView extends StatefulWidget {
       this.addRepaintBoundaries = true,
       this.addSemanticIndexes = true,
       this.shrinkWrap = true,
+      @Deprecated("Not used any more, because always anti multiDrag now.")
       this.antiMultiDrag = false,
     })
     : super(key: key);
@@ -86,6 +87,9 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   // it's not as drag start?
   void startDragRecognizer(int index, PointerDownEvent event, MultiDragGestureRecognizer<MultiDragPointerState> recognizer) {
+    if (_dragInfo != null) {
+      _dragReset();
+    }
     _dragIndex = index;
     _recognizer = recognizer
         ..onStart = _onDragStart
