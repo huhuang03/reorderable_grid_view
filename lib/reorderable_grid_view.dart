@@ -222,9 +222,11 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   // ok, drag is end.
   _dragReset() {
     if (_dragIndex != null)  {
-      final _ReorderableGridItemState item = __items[_dragIndex!]!;
-      item.dragging = false;
-      item.rebuild();
+      if (__items.containsKey(_dragIndex!)) {
+        final _ReorderableGridItemState item = __items[_dragIndex!]!;
+        item.dragging = false;
+        item.rebuild();
+      }
 
       _dragIndex = null;
       _dropIndex = null;
