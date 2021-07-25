@@ -98,11 +98,12 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
         // in the middle of the parent.
         child: ReorderableGridView(
           antiMultiDrag: true,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
+          crossAxisSpacing: 0,
+          mainAxisSpacing: 0,
           crossAxisCount: 3,
           children: this.data.map((e) => buildItem("$e")).toList(),
           onReorder: (oldIndex, newIndex) {
+            print("reorder: $oldIndex -> $newIndex");
             setState(() {
               final element = data.removeAt(oldIndex);
               data.insert(newIndex, element);
