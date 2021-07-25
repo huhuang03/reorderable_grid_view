@@ -1,3 +1,5 @@
+import 'package:example/example_reorderable_list.dart';
+import 'package:example/test_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
@@ -23,6 +25,9 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
+      // home: Scaffold(
+      //   body: DemoReorderableGrid(),
+      // ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -47,57 +52,78 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final data = [1, 2, 3, 4, 5];
 
   @override
   Widget build(BuildContext context) {
-    // Size(392.7, 850.9)
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    Widget buildItem(String text) {
-      return Card(
-        key: ValueKey(text),
-        child: Text(text),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Padding(
-        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-        child: Center(
-          // Center is a layout widget. It takes a single child and positions it
-          // in the middle of the parent.
-          child: ReorderableGridView(
-            antiMultiDrag: true,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            crossAxisCount: 3,
-            children: this.data.map((e) => buildItem("$e")).toList(),
-            onReorder: (oldIndex, newIndex) {
-              setState(() {
-                final element = data.removeAt(oldIndex);
-                data.insert(newIndex, element);
-              });
-            },
-            footer: [
-              Card(
-                child: Center(
-                  child: Icon(Icons.add),
-                ),
-              ),
+    return DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            bottom: TabBar(
+              tabs: [
+                Tab(text: "Grid",),
+                Tab(text: "List",),
+                Tab(text: "Test Overlay",)
+              ],
+            ),
+            title: Text(widget.title),
+          ),
+          body: TabBarView(
+            children: [
+              DemoReorderableGrid(),
+              ExampleReorderableList(),
+              TestOverlay()
             ],
           ),
         ),
+    );
+  }
+}
+
+
+class DemoReorderableGrid extends StatefulWidget {
+  @override
+  _DemoReorderableGridState createState() => _DemoReorderableGridState();
+}
+
+class _DemoReorderableGridState extends State<DemoReorderableGrid> {
+  final data = List<int>.generate(50, (index) => index);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+      child: Center(
+        // Center is a layout widget. It takes a single child and positions it
+        // in the middle of the parent.
+        child: ReorderableGridView(
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          crossAxisCount: 3,
+          children: this.data.map((e) => buildItem("$e")).toList(),
+          onReorder: (oldIndex, newIndex) {
+            print("reorder: $oldIndex -> $newIndex");
+            setState(() {
+              final element = data.removeAt(oldIndex);
+              data.insert(newIndex, element);
+            });
+          },
+          footer: [
+            Card(
+              child: Center(
+                child: Icon(Icons.add),
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget buildItem(String text) {
+    return Card(
+      key: ValueKey(text),
+      child: Text(text),
     );
   }
 }

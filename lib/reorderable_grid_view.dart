@@ -1,3 +1,8 @@
+import 'dart:math';
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 /// Usage:
@@ -65,6 +70,7 @@ class ReorderableGridView extends StatefulWidget {
       this.addRepaintBoundaries = true,
       this.addSemanticIndexes = true,
       this.shrinkWrap = true,
+      @Deprecated("Not used any more, because always anti multiDrag now.")
       this.antiMultiDrag = false,
     })
     : super(key: key);
@@ -75,63 +81,176 @@ class ReorderableGridView extends StatefulWidget {
 
 class _ReorderableGridViewState extends State<ReorderableGridView>
     with TickerProviderStateMixin<ReorderableGridView> {
-  List<GridItemWrapper> _items = [];
 
-  // The widget to move the dragging widget too after the current index.
-  int _nextIndex = 0;
 
-  // The location that the dragging widget occupied before it started to drag.
-  int _dragStartIndex = 0;
+  MultiDragGestureRecognizer? _recognizer;
 
-  // occupies 占用
-  // The index that the dragging widget currently occupies.
-  int _currentIndex = 0;
+  // it's not as drag start?
+  void startDragRecognizer(int index, PointerDownEvent event, MultiDragGestureRecognizer<MultiDragPointerState> recognizer) {
+    if (_dragInfo != null) {
+      _dragReset();
+    }
+    _dragIndex = index;
+    _recognizer = recognizer
+        ..onStart = _onDragStart
+        ..addPointer(event);
+  }
 
-  int _touchingIndex = -1;
+  int? _dragIndex;
 
-  // 好像不能共用controller
-  // This controls the entrance of the dragging widget into a new place.
-  late AnimationController _entranceController;
+  int? _dropIndex;
 
-  // How long an animation to reorder an element in the list takes.
-  static const Duration _reorderAnimationDuration = Duration(milliseconds: 200);
+  // how to return row, col?
 
-  // The member of widget.children currently being dragged.
-  //
-  // Null if no drag is underway.
-  Key? _dragging;
+  // The pos is relate to the container's 0, 0
+  Offset getPos(int index, {bool safe = true}) {
+    if (safe) {
+      if (index < 0) {
+        index = 0;
+      }
 
-  late double width;
-  double? height;
+      if (index > widget.children.length - 1) {
+        index = widget.children.length - 1;
+      }
+    }
 
-  _initItems() {
-    _items.clear();
-    for (var i = 0; i < widget.children.length; i++) {
-      _items.add(GridItemWrapper(index: i));
+    RenderBox? renderBox = this.context.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      return Offset.zero;
+    }
+
+    double itemWidth = (renderBox.size.width - (widget.crossAxisCount - 1) * widget.crossAxisSpacing) / widget.crossAxisCount;
+
+    int row = index ~/ widget.crossAxisCount;
+    int col = index % widget.crossAxisCount;
+
+    double x = (col - 1) * (itemWidth + widget.crossAxisSpacing);
+    double y = (row - 1) * (itemWidth + widget.mainAxisSpacing);
+    return Offset(x, y);
+  }
+
+  // Ok, let's no calc the dropIndex
+  // Check the dragInfo before you call this function.
+  int _calcDropIndex(int defaultIndex) {
+    // _debug("_calcDropIndex");
+
+    if (_dragInfo == null) {
+      // _debug("_dragInfo is null, so return: $defaultIndex");
+      return defaultIndex;
+    }
+
+    for (var item in __items.values) {
+      RenderBox box = item.context.findRenderObject() as RenderBox;
+      Offset pos = box.globalToLocal(_dragInfo!.getCenterInGlobal());
+      if (pos.dx > 0 && pos.dy > 0 && pos.dx < box.size.width && pos.dy < box.size.height) {
+        // _debug("return item.index: ${item.index}");
+        return item.index;
+      }
+    }
+    return defaultIndex;
+  }
+
+
+  Offset getOffsetInDrag(int index) {
+    if (_dragInfo == null || _dropIndex == null || _dragIndex == _dropIndex) {
+      return Offset.zero;
+    }
+
+    // ok now we check.
+    bool inDragRange = false;
+    bool isMoveLeft = _dropIndex! > _dragIndex!;
+
+    int minPos = min(_dragIndex!, _dropIndex!);
+    int maxPos = max(_dragIndex!, _dropIndex!);
+
+    if (index >= minPos && index <= maxPos) {
+      inDragRange = true;
+    }
+
+    if (!inDragRange) {
+      return Offset.zero;
+    } else {
+      if (isMoveLeft) {
+        return getPos(index - 1) - getPos(index);
+      } else {
+        return getPos(index + 1) - getPos(index);
+      }
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _debug("initState, child count: ${this.widget.children.length}");
-    _entranceController =
-        AnimationController(vsync: this, duration: _reorderAnimationDuration);
-    _entranceController.addStatusListener(_onEntranceStatusChanged);
+  // position is the global position
+  Drag _onDragStart(Offset position) {
+    // print("drag start!!, _dragIndex: $_dragIndex, position: ${position}");
+    // how can you do this?
+    assert(_dragInfo == null);
 
-    _initItems();
+    final _ReorderableGridItemState item = __items[_dragIndex!]!;
+    item.dragging = true;
+    item.rebuild();
+
+    _dropIndex = _dragIndex;
+
+
+    _dragInfo = _Drag(
+        item: item,
+        tickerProvider: this,
+        context: context,
+        onStart: _onDragStart,
+        dragPosition: position,
+        onUpdate: _onDragUpdate,
+        onCancel: _onDragCancel,
+        onEnd: _onDragEnd,
+    );
+    _dragInfo!.startDrag();
+    updateDragTarget();
+
+    return _dragInfo!;
   }
 
-  @override
-  void didUpdateWidget(covariant ReorderableGridView oldWidget) {
-    _initItems();
-    super.didUpdateWidget(oldWidget);
+  _onDragUpdate(_Drag item, Offset position, Offset delta) {
+    updateDragTarget();
   }
 
-  @override
-  void dispose() {
-    _entranceController.dispose();
-    super.dispose();
+  _onDragCancel(_Drag item) {
+    _dragReset();
+    setState(() {
+
+    });
+  }
+
+  _onDragEnd(_Drag item) {
+    widget.onReorder(_dragIndex!, _dropIndex!);
+    _dragReset();
+  }
+
+  // ok, drag is end.
+  _dragReset() {
+    if (_dragIndex != null)  {
+      if (__items.containsKey(_dragIndex!)) {
+        final _ReorderableGridItemState item = __items[_dragIndex!]!;
+        item.dragging = false;
+        item.rebuild();
+      }
+
+      _dragIndex = null;
+      _dropIndex = null;
+
+      _recognizer?.dispose();
+      _recognizer = null;
+
+      _dragInfo?.dispose();
+      _dragInfo = null;
+
+      for (var item in __items.values) {
+        item.resetGap();
+      }
+      // reset the overlay?
+    }
+    _dragInfo = null;
+  }
+
+  static _ReorderableGridViewState of(BuildContext context) {
+    return context.findAncestorStateOfType<_ReorderableGridViewState>()!;
   }
 
   // Places the value from startIndex one space before the element at endIndex.
@@ -140,309 +259,78 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     setState(() {
       if (startIndex != endIndex) widget.onReorder(startIndex, endIndex);
       // Animates leftover space in the drop area closed.
-      _entranceController.reverse(from: 0);
-      _initItems();
-      _dragging = null;
     });
-  }
-
-  // Drops toWrap into the last position it was hovering over.
-  void onDragEnded() {
-    reorder(_dragStartIndex, _currentIndex);
-  }
-
-  // Animates the droppable space from _currentIndex to _nextIndex.
-  void _requestAnimationToNextIndex() {
-    _debug(
-        "_requestAnimationToNextIndex, state: ${_entranceController.status}");
-    if (_entranceController.isCompleted) {
-      if (_nextIndex == _currentIndex) {
-        return;
-      }
-
-      var temp = new List<int>.generate(_items.length, (index) => index);
-
-      // 怎么处理连续滑动？？
-      var old = temp.removeAt(_dragStartIndex);
-      temp.insert(_nextIndex, old);
-
-      for (var i = 0; i < _items.length; i++) {
-        _items[i].nextIndex = temp.indexOf(i);
-      }
-      _debug("items: ${_items.map((e) => e.toString()).join(",")}");
-
-      _currentIndex = _nextIndex;
-      _entranceController.forward(from: 0.0);
-    }
-  }
-
-  // Requests animation to the latest next index if it changes during an animation.
-  void _onEntranceStatusChanged(AnimationStatus status) {
-    if (status == AnimationStatus.completed) {
-      _items.forEach((element) {
-        element.animFinish();
-      });
-      setState(() {
-        _requestAnimationToNextIndex();
-      });
-    }
-  }
-
-  Widget _wrap(Widget toWrap, int index) {
-    assert(toWrap.key != null);
-
-    _debug("_wrap called for index: $index");
-    var canDrag = true;
-    if (widget.antiMultiDrag) {
-      var isDragging = _dragging != null;
-      canDrag = (_touchingIndex == -1 || _touchingIndex == index) && !isDragging;
-    }
-    Widget buildDragTarget(BuildContext context, List<Key?> acceptedCandidates,
-        List<dynamic> rejectedCandidates, BoxConstraints constraints) {
-      var itemWidth = constraints.maxWidth;
-      var itemHeight = constraints.maxHeight;
-
-      // you can't access other's state, so why your _maxDragCount work?
-      // I think I need a preCheck to let longPressDraggable to begin drag.
-      Widget child = LongPressDraggable<Key>(
-        data: toWrap.key,
-        maxSimultaneousDrags: canDrag? 1: 0,
-        // feed back is the view follow pointer
-        feedback: Container(
-          // actually, this constraints is not necessary here.
-          // but how to calculate the toWrap size and give feedback.
-          constraints: constraints,
-          child: Material(elevation: 3.0, child: toWrap),
-        ),
-        child: _dragging == toWrap.key ? SizedBox() : toWrap,
-        childWhenDragging: const SizedBox(),
-        onDragStarted: () {
-          // _isDragging = true;
-          _dragStartIndex = index;
-          _currentIndex = index;
-
-          // this is will set _entranceController to complete state.
-          // ok ready to start animation
-          _entranceController.value = 1.0;
-          _dragging = toWrap.key;
-        },
-        onDragCompleted: onDragEnded,
-        onDraggableCanceled: (Velocity velocity, Offset offset) {
-          onDragEnded();
-        },
-      );
-
-      // _debug('the item size: ${constraints.minWidth}-${constraints.maxWidth}');
-      var item = _items[index];
-
-      // any better way to do this?
-      var fromPos = item.getBeginOffset(this.widget.crossAxisCount);
-      var toPos = item.getEndOffset(this.widget.crossAxisCount);
-
-      var begin = item.adjustOffset(fromPos, itemWidth, itemHeight, widget.mainAxisSpacing, widget.crossAxisSpacing);
-      var end = item.adjustOffset(toPos, itemWidth, itemHeight, widget.mainAxisSpacing, widget.crossAxisSpacing);
-
-
-      // it's worse performance
-      // if (fromPos != toPos) {
-      //   return SlideTransition(
-      //     position:
-      //     Tween<Offset>(begin: begin, end: end)
-      //         .animate(_entranceController),
-      //     child: child,
-      //   );
-      // } else if (item.hasMoved()) {
-      //   return SlideTransition(
-      //     position:
-      //     Tween<Offset>(begin: end, end: end)
-      //         .animate(_entranceController),
-      //     child: child,
-      //   );
-      // } else {
-      //   return child;
-      // }
-
-
-      // Better same struct??
-      // How entranceController work? If it's actioning, I setState, how it will eb?
-      if (fromPos != toPos) {
-        return SlideTransition(
-          position:
-          Tween<Offset>(begin: begin, end: end)
-              .animate(_entranceController),
-          child: child,
-        );
-      } else if (item.hasMoved()) {
-        // Is Transform better performance than SlideTransition, maybe.
-        return Transform.translate(
-          offset: Offset(end.dx * itemWidth, end.dy * itemHeight),
-          child: child,
-        );
-      } else {
-        return child;
-      }
-
-    }
-
-    // If I want in a Gesture?
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // I think it's strange that I can get the right constraints at here.
-        var content = DragTarget<Key>(
-          builder: (context, acceptedCandidates, rejectedCandidates) =>
-              buildDragTarget(
-                  context, acceptedCandidates, rejectedCandidates, constraints),
-          onWillAccept: (Key? toAccept) {
-            _debug("onWillAccept called for index: $index");
-            // how can we change the state?
-            setState(() {
-              _nextIndex = index;
-              _requestAnimationToNextIndex();
-            });
-
-            // now let's try scroll.
-            return _dragging == toAccept && toAccept != toWrap.key;
-          },
-        );
-
-        if (widget.antiMultiDrag) {
-          return GestureDetector(
-            onTapDown: (e) {
-              setState(() {
-                _touchingIndex = index;
-              });
-            },
-            onTapUp: (e) {
-              setState(() {
-                _debug("onTapUp");
-                _touchingIndex = -1;
-              });
-            },
-            onTapCancel: () {
-              setState(() {
-                // If drag start, onTapCancel will trigger.
-                _debug("onTapCancel");
-                _touchingIndex = -1;
-              });
-            },
-            child: content,
-          );
-        } else {
-          return content;
-        }
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    // create the draggable item in build function?
     var children = <Widget>[];
     for (var i = 0; i < widget.children.length; i++) {
-      children.add(_wrap(widget.children[i], i));
+      var child = widget.children[i];
+      // children.add(child);
+      children.add(_ReorderableGridItem(child: child,
+        key: child.key!,
+        index: i,
+        capturedThemes: InheritedTheme.capture(from: context, to: Overlay.of(context)!.context),));
     }
+
     children.addAll(widget.footer?? []);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        width = constraints.maxWidth;
-        height = width * widget.childAspectRatio;
-        return GridView.count(
-          children: children,
-          reverse: widget.reverse,
-          primary: widget.primary,
-          physics: widget.physics,
-          cacheExtent: widget.cacheExtent,
-          semanticChildCount: widget.semanticChildCount,
-          restorationId: widget.restorationId,
-          clipBehavior: widget.clipBehavior,
-          crossAxisCount: widget.crossAxisCount,
-          mainAxisSpacing: widget.mainAxisSpacing,
-          crossAxisSpacing: widget.crossAxisSpacing,
-          childAspectRatio: widget.childAspectRatio,
-          addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
-          addRepaintBoundaries: widget.addRepaintBoundaries,
-          addSemanticIndexes: widget.addSemanticIndexes,
-          shrinkWrap: widget.shrinkWrap,
-          padding: widget.padding,
-
-        );
-      },
+    // why we can't use GridView? Because we can't handle the scroll event??
+    // return Text("hello");
+    return GridView.count(
+      crossAxisCount: this.widget.crossAxisCount,
+      children: children,
+      reverse: widget.reverse,
+      primary: widget.primary,
+      physics: widget.physics,
+      cacheExtent: widget.cacheExtent,
+      semanticChildCount: widget.semanticChildCount,
+      restorationId: widget.restorationId,
+      clipBehavior: widget.clipBehavior,
+      mainAxisSpacing: widget.mainAxisSpacing,
+      crossAxisSpacing: widget.crossAxisSpacing,
+      childAspectRatio: widget.childAspectRatio,
+      addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
+      addRepaintBoundaries: widget.addRepaintBoundaries,
+      addSemanticIndexes: widget.addSemanticIndexes,
+      shrinkWrap: widget.shrinkWrap,
+      padding: widget.padding,
     );
   }
-}
 
-class GridItemWrapper {
-  int index;
-  int? curIndex;
-  int? nextIndex;
+  final Map<int, _ReorderableGridItemState> __items = <int, _ReorderableGridItemState>{};
 
-  GridItemWrapper({required this.index}) {
-    curIndex = index;
-    nextIndex = index;
+  _Drag? _dragInfo;
+
+  void _registerItem(_ReorderableGridItemState item) {
+    __items[item.index] = item;
+    if (item.index == _dragInfo?.index) {
+      item.dragging = true;
+      item.rebuild();
+    }
   }
 
-  // What's better offset with
-  Offset adjustOffset(_Pos pos, double width, double height, double mainSpace,
-      double crossSpace) {
-    return Offset(pos.col.toDouble() + pos.col * mainSpace / width,
-        pos.row + pos.row * crossSpace / height);
+  void _unRegisterItem(int index, _ReorderableGridItemState item) {
+    // why you check the item?
+    var current = __items[index];
+    if (current == item) {
+      __items.remove(index);
+    }
   }
 
-  _Pos getBeginOffset(int crossAxisCount) {
-    var origin = _getPos(index, crossAxisCount);
-    var pos = _getPos(curIndex!, crossAxisCount);
-    return _Pos(col: (pos.col - origin.col), row: (pos.row - origin.row));
-  }
-
-  _Pos getEndOffset(int crossAxisCount) {
-    var origin = _getPos(index, crossAxisCount);
-    var pos = _getPos(nextIndex!, crossAxisCount);
-    return _Pos(col: (pos.col - origin.col), row: (pos.row - origin.row));
-  }
-
-  void animFinish() {
-    curIndex = nextIndex;
-  }
-
-  bool hasMoved() {
-    return index != curIndex;
-  }
-
-  @override
-  String toString() {
-    return 'GridItemWrapper{index: $index, curIndex: $curIndex, nextIndex: $nextIndex}';
+  Future<void> updateDragTarget() async {
+    int newTargetIndex = _calcDropIndex(_dropIndex!);
+    if (newTargetIndex != _dropIndex) {
+      _dropIndex = newTargetIndex;
+      for (var item in __items.values) {
+        item.updateForGap(_dropIndex!);
+      }
+    }
   }
 }
 
-class _Pos {
-  int row;
-  int col;
-
-  _Pos({required this.row, required this.col});
-
-  _Pos operator -(_Pos other) =>
-      _Pos(row: row - other.row, col: col - other.col);
-
-  _Pos operator +(_Pos other) =>
-      _Pos(row: row + other.row, col: col + other.col);
-
-  Offset toOffset() {
-    return Offset(col.toDouble(), row.toDouble());
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is _Pos &&
-          runtimeType == other.runtimeType &&
-          row == other.row &&
-          col == other.col;
-
-  @override
-  int get hashCode => row.hashCode ^ col.hashCode;
-}
-
-const _IS_DEBUG = false;
+const _IS_DEBUG = true;
 
 _debug(String msg) {
   if (_IS_DEBUG) {
@@ -450,7 +338,361 @@ _debug(String msg) {
   }
 }
 
-_Pos _getPos(int index, int crossAxisCount) {
-  return _Pos(row: index ~/ crossAxisCount, col: index % crossAxisCount);
+// What will happen If I separate this two?
+class _ReorderableGridItem extends StatefulWidget {
+  final Widget child;
+  final Key key;
+  final int index;
+  final CapturedThemes capturedThemes;
+
+  const _ReorderableGridItem({
+    required this.child,
+    required this.key,
+    required this.index,
+    required this.capturedThemes
+  }): super(key: key);
+
+  @override
+  _ReorderableGridItemState createState() => _ReorderableGridItemState();
+
 }
 
+// Hello you can use the self or parent's size. to decide the new position.
+class _ReorderableGridItemState extends State<_ReorderableGridItem> with TickerProviderStateMixin {
+  late _ReorderableGridViewState _listState;
+
+  Key get key => widget.key;
+  Widget get child => widget.child;
+
+  int get index => widget.index;
+
+  bool get dragging => _dragging;
+  set dragging(bool dragging) {
+    if (mounted) {
+      this.setState(() {
+        _dragging = dragging;
+      });
+    }
+  }
+
+  bool _dragging = false;
+
+  /// We can only check the items between startIndex and the targetIndex, but for simply, we check all <= targetDropIndex
+  void updateForGap(int targetDropIndex) {
+    // Actually I can use only use the targetDropIndex to decide the target pos, but what to do I change middle
+    if (!mounted) return;
+    // How can I calculate the target?
+
+    // let's try use dragSize.
+    Offset newOffset = _listState.getOffsetInDrag(this.index);
+    if (newOffset != _targetOffset) {
+      _targetOffset = newOffset;
+
+      if (this._offsetAnimation == null) {
+        this._offsetAnimation = AnimationController(vsync: _listState)
+            ..duration = Duration(milliseconds: 250)
+            ..addListener(rebuild)
+            ..addStatusListener((status) {
+              if (status == AnimationStatus.completed) {
+                _startOffset = _targetOffset;
+                this._offsetAnimation?.dispose();
+                this._offsetAnimation = null;
+              }
+            })..forward(from: 0.0);
+      } else {
+        // 调转方向
+        _startOffset = offset;
+        this._offsetAnimation?.forward(from: 0.0);
+      }
+    }
+  }
+
+  void resetGap() {
+    if (_offsetAnimation != null) {
+      _offsetAnimation!.dispose();
+      _offsetAnimation = null;
+    }
+
+    _startOffset = Offset.zero;
+    _targetOffset = Offset.zero;
+    rebuild();
+  }
+
+  // Ok, for now we use multiDragRecognizer
+  MultiDragGestureRecognizer<MultiDragPointerState> _createDragRecognizer() {
+    return DelayedMultiDragGestureRecognizer(debugOwner: this);
+  }
+
+  @override
+  void initState() {
+    _listState = _ReorderableGridViewState.of(context);
+    _listState._registerItem(this);
+    super.initState();
+  }
+
+
+  // ths is strange thing.
+  Offset _startOffset = Offset.zero;
+  Offset _targetOffset = Offset.zero;
+  // Ok, how can we calculate the _offsetAnimation
+  AnimationController? _offsetAnimation;
+
+  Offset get offset {
+    if (_offsetAnimation != null) {
+      return Offset.lerp(_startOffset, _targetOffset, Curves.easeInOut.transform(_offsetAnimation!.value))!;
+    }
+    return _targetOffset;
+  }
+
+  @override
+  void dispose() {
+    _listState._unRegisterItem(this.index, this);
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ReorderableGridItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.index != widget.index) {
+      _listState._unRegisterItem(oldWidget.index, this);
+      _listState._registerItem(this);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_dragging) {
+      // _debug("pos $index is dragging.");
+      return SizedBox();
+    }
+
+    Widget _buildChild(Widget child) {
+      // why you register at here?
+      // print("build called with at ${index}, _dragging: ${_dragging}");
+      return LayoutBuilder(builder: (context, constraints) {
+        if (_dragging) {
+          // why put you in the Listener??
+          return SizedBox();
+        }
+
+        final _offset = offset;
+        return Transform(
+          // you are strange.
+          transform: Matrix4.translationValues(_offset.dx, _offset.dy, 0),
+          child: child,
+        );
+      },);
+    }
+
+    return Listener(
+      onPointerDown: (PointerDownEvent e) {
+           // remember th pointer down??
+        // _debug("onPointerDown at $index");
+        var listState = _ReorderableGridViewState.of(context);
+        listState.startDragRecognizer(index, e, _createDragRecognizer());
+      },
+      child: _buildChild(child),
+    );
+  }
+
+  void rebuild() {
+    // _debug("rebuild called for index: ${this.index}, mounted: ${mounted}");
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+}
+
+typedef _DragItemUpdate = void Function(_Drag item, Offset position, Offset delta);
+typedef _DragItemCallback = void Function(_Drag item);
+
+// OnStart give to you?
+// Strange that you are create at onStart?
+class _Drag extends Drag {
+  late int index;
+  final _DragItemUpdate? onUpdate;
+  final _DragItemCallback? onCancel;
+  final _DragItemCallback? onEnd;
+
+  final TickerProvider tickerProvider;
+  final GestureMultiDragStartCallback onStart;
+
+  late Size itemSize;
+  late Widget child;
+  late ScrollableState scrollable;
+
+  // Drag position always is the finger position in global
+  Offset dragPosition;
+  // dragOffset is the position finger pointer in local(renderObject's left top is (0, 0))
+  // how to get the center of dragInfo in global.
+  late Offset dragOffset;
+  // = renderBox.size.height
+  late double dragExtent;
+  late Size dragSize;
+
+  AnimationController? _proxyAnimationController;
+
+  // Give to _Drag?? You want more control of the drag??
+  OverlayEntry? _overlayEntry;
+  BuildContext context;
+  var hasEnd = false;
+
+  _Drag({
+    required _ReorderableGridItemState item,
+    required this.tickerProvider,
+    required this.onStart,
+    required this.dragPosition,
+    required this.context,
+    this.onUpdate,
+    this.onCancel,
+    this.onEnd,
+  }) {
+    index = item.index;
+    child = item.widget.child;
+    itemSize = item.context.size!;
+
+    final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
+    dragOffset = renderBox.globalToLocal(dragPosition);
+    dragExtent = renderBox.size.height;
+    dragSize = renderBox.size;
+
+    scrollable = Scrollable.of(item.context)!;
+ }
+
+ Offset getCenterInGlobal() {
+    return getPosInGlobal() + dragSize.center(Offset.zero);
+ }
+
+ Offset getPosInGlobal() {
+    return this.dragPosition - this.dragOffset;
+ }
+
+  void dispose() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+
+    _proxyAnimationController?.dispose();
+    _proxyAnimationController = null;
+  }
+
+  // why you need other calls?
+  Widget createProxy(BuildContext context) {
+    var position = this.dragPosition - this.dragOffset;
+    return Positioned(
+      top: position.dy,
+      left: position.dx,
+      child: Material(
+        elevation: 3.0,
+        child: SizedBox.fromSize(
+          size: itemSize,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  void startDrag() {
+    _overlayEntry = OverlayEntry(builder: createProxy);
+    // print("insert overlay");
+
+    // Can you give the overlay to _Drag?
+    final OverlayState overlay = Overlay.of(context)!;
+    overlay.insert(_overlayEntry!);
+    ifYouScroll();
+  }
+
+  @override
+  void update(DragUpdateDetails details) {
+    dragPosition += details.delta;
+    onUpdate?.call(this, dragPosition, details.delta);
+
+    _overlayEntry?.markNeedsBuild();
+    ifYouScroll();
+  }
+
+  var _autoScrolling = false;
+
+  void ifYouScroll() async {
+    if (hasEnd) return;
+    if (!_autoScrolling) {
+      // _debug("enter autoScrollIfNecessary");
+      double? newOffset;
+      // you are strange!
+      final ScrollPosition position = scrollable.position;
+      final RenderBox scrollRenderBox = scrollable.context.findRenderObject()! as RenderBox;
+
+      // you find the tab??
+      // _debug("scrollable: ${scrollable}");
+      // _debug("renderBox size: ${scrollRenderBox.size}");
+
+      // yes the global is the window global
+      // so if i't scrollable, render box just the viewport.
+      // But the
+      final scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
+      final scrollStart = scrollOrigin.dy;
+      // your renderBox can't over window, but the dragInfo can??
+      // So strange.
+      final scrollEnd = scrollStart + scrollRenderBox.size.height;
+
+      final dragInfoStart = getPosInGlobal().dy;
+      final dragInfoEnd = dragInfoStart + dragExtent;
+      // print("scrollOrigin: ${scrollOrigin}, scrollEnd: ${scrollEnd}, dragInfoEnd: ${dragInfoEnd}");
+
+
+      // scroll bottom
+      // final diff = dragInfoEnd - scrollEnd;
+      final overBottom = dragInfoEnd > scrollEnd;
+      final overTop = dragInfoStart < scrollStart;
+
+      double oneStepMax = 5;
+
+
+      if (overBottom && position.pixels < position.maxScrollExtent) {
+        oneStepMax = min(dragInfoEnd - scrollEnd, oneStepMax);
+        newOffset = min(position.maxScrollExtent, position.pixels + oneStepMax);
+      } else if (overTop && position.pixels > position.minScrollExtent) {
+        oneStepMax = min(scrollStart - dragInfoStart, oneStepMax);
+        newOffset = max(position.minScrollExtent, position.pixels - oneStepMax);
+      }
+
+      // scroll top
+
+      // print("pixels: ${position.pixels}, newOffset: ${newOffset}, dragInfoEnd: ${dragInfoEnd}, scrollEnd: ${scrollEnd}, overBottom: ${overBottom}");
+
+      // &&
+      if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
+        _autoScrolling = true;
+        // why you scroll horizontal??
+        // _debug("scroll begin, ${newOffset}");
+        await position.animateTo(newOffset, duration: const Duration(milliseconds: 14), curve: Curves.linear);
+        _autoScrolling = false;
+        // _debug("scroll end, ${newOffset}");
+
+        ifYouScroll();
+      }
+    }
+
+  }
+
+  @override
+  void end(DragEndDetails details) {
+    // _debug("onDrag end");
+    onEnd?.call(this);
+
+    this._endOrCancel();
+  }
+
+  @override
+  void cancel() {
+    // _debug("onDrag cancel");
+    onCancel?.call(this);
+
+    this._endOrCancel();
+  }
+
+  void _endOrCancel()  {
+    hasEnd = true;
+  }
+
+}
