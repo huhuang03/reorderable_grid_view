@@ -1,3 +1,8 @@
+## [1.1.0-alpha] - 2021-7-25
+- use new impl correspond to new reorderable_listview impl
+- add drag scroll ability
+- deprecate option antiMultiDrag
+
 ## [1.0.0] - 2021-6-25
 - add null-safety
 - add option antiMultiDrag
