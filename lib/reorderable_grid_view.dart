@@ -482,8 +482,6 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem>
     }
 
     Widget _buildChild(Widget child) {
-      // why you register at here?
-      // print("build called with at ${index}, _dragging: ${_dragging}");
       return LayoutBuilder(
         builder: (context, constraints) {
           if (_dragging) {
@@ -622,7 +620,7 @@ class _Drag extends Drag {
     // Can you give the overlay to _Drag?
     final OverlayState overlay = Overlay.of(context)!;
     overlay.insert(_overlayEntry!);
-    _updateForGap();
+    _scrollIfNeed();
   }
 
   @override
@@ -631,12 +629,12 @@ class _Drag extends Drag {
     onUpdate?.call(this, dragPosition, details.delta);
 
     _overlayEntry?.markNeedsBuild();
-    _updateForGap();
+    _scrollIfNeed();
   }
 
   var _autoScrolling = false;
 
-  void _updateForGap() async {
+  void _scrollIfNeed() async {
     if (hasEnd) return;
 
     if (!_autoScrolling) {
@@ -671,7 +669,7 @@ class _Drag extends Drag {
         _autoScrolling = true;
         await position.animateTo(newOffset, duration: const Duration(milliseconds: 14), curve: Curves.linear);
         _autoScrolling = false;
-        _updateForGap();
+        _scrollIfNeed();
       }
     }
   }
