@@ -8,6 +8,13 @@ import 'package:flutter/material.dart';
 /// Build the drag widget under finger when dragging.
 typedef DragWidgetBuilder = Widget Function(Widget child);
 
+/// Control the scroll speed if drag over the boundary.
+/// We can pass time here??
+/// [timeInMilliSecond] is the time passed.
+/// [overPercentage] is the scroll over the boundary percentage
+/// Maybe you need decide the scroll speed by [timeInMilliSecond] or [overPercentage]
+typedef ScrollSpeedController = double Function(int timeInMilliSecond, double overPercentage, double defaultDuration);
+
 /// Usage:
 /// ```
 /// ReorderableGridView(
@@ -27,6 +34,7 @@ class ReorderableGridView extends StatefulWidget {
   final int crossAxisCount;
   final ReorderCallback onReorder;
   final DragWidgetBuilder? dragWidgetBuilder;
+  final ScrollSpeedController? scrollSpeedController;
 
   final bool? primary;
   final double mainAxisSpacing;
@@ -57,6 +65,8 @@ class ReorderableGridView extends StatefulWidget {
       Key? key,
       required this.children,
       this.dragWidgetBuilder,
+      this.scrollSpeedController,
+
       this.clipBehavior = Clip.hardEdge,
       this.cacheExtent,
       this.semanticChildCount,
@@ -208,6 +218,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         tickerProvider: this,
         context: context,
         dragWidgetBuilder: this.widget.dragWidgetBuilder,
+        scrollSpeedController: this.widget.scrollSpeedController,
         onStart: _onDragStart,
         dragPosition: position,
         onUpdate: _onDragUpdate,
@@ -522,13 +533,14 @@ typedef _DragItemUpdate = void Function(
     _Drag item, Offset position, Offset delta);
 typedef _DragItemCallback = void Function(_Drag item);
 
-// OnStart give to you?
 // Strange that you are create at onStart?
+// It's boring that pass you so many params
 class _Drag extends Drag {
   late int index;
   final _DragItemUpdate? onUpdate;
   final _DragItemCallback? onCancel;
   final _DragItemCallback? onEnd;
+  final ScrollSpeedController? scrollSpeedController;
 
   final TickerProvider tickerProvider;
   final GestureMultiDragStartCallback onStart;
@@ -560,6 +572,7 @@ class _Drag extends Drag {
     required this.onStart,
     required this.dragPosition,
     required this.context,
+    this.scrollSpeedController,
     this.dragWidgetBuilder,
     this.onUpdate,
     this.onCancel,
@@ -634,7 +647,15 @@ class _Drag extends Drag {
 
   var _autoScrolling = false;
 
+  var _scrollBeginTime = 0;
+
+  static const _DEFAULT_SCROLL_DURATION = 14.0;
+
   void _scrollIfNeed() async {
+    if (hasEnd) {
+      _scrollBeginTime = 0;
+      return;
+    }
     if (hasEnd) return;
 
     if (!_autoScrolling) {
@@ -657,19 +678,46 @@ class _Drag extends Drag {
 
       double oneStepMax = 5;
 
+      double overSize = 0;
+
       if (overBottom && position.pixels < position.maxScrollExtent) {
-        oneStepMax = min(dragInfoEnd - scrollEnd, oneStepMax);
+        overSize = dragInfoEnd - scrollEnd;
+        oneStepMax = min(overSize, oneStepMax);
         newOffset = min(position.maxScrollExtent, position.pixels + oneStepMax);
       } else if (overTop && position.pixels > position.minScrollExtent) {
-        oneStepMax = min(scrollStart - dragInfoStart, oneStepMax);
+        overSize = scrollStart - dragInfoStart;
+        oneStepMax = min(overSize, oneStepMax);
         newOffset = max(position.minScrollExtent, position.pixels - oneStepMax);
       }
 
       if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
         _autoScrolling = true;
-        await position.animateTo(newOffset, duration: const Duration(milliseconds: 14), curve: Curves.linear);
+        // how to adjust the duration?
+        var duration = _DEFAULT_SCROLL_DURATION;
+        if (this.scrollSpeedController != null) {
+          if (_scrollBeginTime <= 0) {
+            _scrollBeginTime = DateTime.now().millisecondsSinceEpoch;
+          }
+
+          duration = this.scrollSpeedController!(
+            DateTime.now().millisecondsSinceEpoch - _scrollBeginTime,
+            (overSize / itemSize.height),
+            _DEFAULT_SCROLL_DURATION
+          );
+        }
+        var intDuration = (duration * 1000).toInt();
+        if (intDuration <= 0) {
+          intDuration = 1;
+        }
+        print("duration: $intDuration");
+        // 好像不起作用，也是比较奇怪啊。。哈哈
+        // 好像1和14都一样啊
+        await position.animateTo(newOffset, duration: Duration(microseconds: 1), curve: Curves.linear);
         _autoScrolling = false;
         _scrollIfNeed();
+      } else {
+        // don't need scroll
+        _scrollBeginTime = 0;
       }
     }
   }
