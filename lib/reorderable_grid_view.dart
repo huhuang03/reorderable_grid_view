@@ -5,6 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+/// Build the drag widget under finger when dragging.
+typedef DragWidgetBuilder = Widget Function(Widget child);
+
 /// Usage:
 /// ```
 /// ReorderableGridView(
@@ -23,6 +26,8 @@ class ReorderableGridView extends StatefulWidget {
   final List<Widget>? footer;
   final int crossAxisCount;
   final ReorderCallback onReorder;
+  final DragWidgetBuilder? dragWidgetBuilder;
+
   final bool? primary;
   final double mainAxisSpacing;
   final double crossAxisSpacing;
@@ -51,6 +56,7 @@ class ReorderableGridView extends StatefulWidget {
     {
       Key? key,
       required this.children,
+      this.dragWidgetBuilder,
       this.clipBehavior = Clip.hardEdge,
       this.cacheExtent,
       this.semanticChildCount,
@@ -181,7 +187,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   // position is the global position
   Drag _onDragStart(Offset position) {
     // print("drag start!!, _dragIndex: $_dragIndex, position: ${position}");
-    // how can you do this?
     assert(_dragInfo == null);
 
     final _ReorderableGridItemState item = __items[_dragIndex!]!;
@@ -195,6 +200,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         item: item,
         tickerProvider: this,
         context: context,
+        dragWidgetBuilder: this.widget.dragWidgetBuilder,
         onStart: _onDragStart,
         dragPosition: position,
         onUpdate: _onDragUpdate,
@@ -518,6 +524,7 @@ class _Drag extends Drag {
   final TickerProvider tickerProvider;
   final GestureMultiDragStartCallback onStart;
 
+  final DragWidgetBuilder? dragWidgetBuilder;
   late Size itemSize;
   late Widget child;
   late ScrollableState scrollable;
@@ -544,6 +551,7 @@ class _Drag extends Drag {
     required this.onStart,
     required this.dragPosition,
     required this.context,
+    this.dragWidgetBuilder,
     this.onUpdate,
     this.onCancel,
     this.onEnd,
@@ -582,10 +590,14 @@ class _Drag extends Drag {
     return Positioned(
       top: position.dy,
       left: position.dx,
-      child: Material(
-        elevation: 3.0,
-        child: SizedBox.fromSize(
-          size: itemSize,
+      child: Container(
+        width: itemSize.width,
+        height: itemSize.height,
+        child: dragWidgetBuilder != null?
+            dragWidgetBuilder!(child)
+            :
+        Material(
+          elevation: 3.0,
           child: child,
         ),
       ),
@@ -599,7 +611,7 @@ class _Drag extends Drag {
     // Can you give the overlay to _Drag?
     final OverlayState overlay = Overlay.of(context)!;
     overlay.insert(_overlayEntry!);
-    ifYouScroll();
+    _updateForGap();
   }
 
   @override
@@ -608,40 +620,28 @@ class _Drag extends Drag {
     onUpdate?.call(this, dragPosition, details.delta);
 
     _overlayEntry?.markNeedsBuild();
-    ifYouScroll();
+    _updateForGap();
   }
 
   var _autoScrolling = false;
 
-  void ifYouScroll() async {
+  void _updateForGap() async {
     if (hasEnd) return;
+
     if (!_autoScrolling) {
-      // _debug("enter autoScrollIfNecessary");
       double? newOffset;
-      // you are strange!
       final ScrollPosition position = scrollable.position;
       final RenderBox scrollRenderBox = scrollable.context.findRenderObject()! as RenderBox;
 
-      // you find the tab??
-      // _debug("scrollable: ${scrollable}");
-      // _debug("renderBox size: ${scrollRenderBox.size}");
-
-      // yes the global is the window global
-      // so if i't scrollable, render box just the viewport.
-      // But the
       final scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
       final scrollStart = scrollOrigin.dy;
-      // your renderBox can't over window, but the dragInfo can??
-      // So strange.
+
       final scrollEnd = scrollStart + scrollRenderBox.size.height;
 
       final dragInfoStart = getPosInGlobal().dy;
       final dragInfoEnd = dragInfoStart + dragExtent;
-      // print("scrollOrigin: ${scrollOrigin}, scrollEnd: ${scrollEnd}, dragInfoEnd: ${dragInfoEnd}");
-
 
       // scroll bottom
-      // final diff = dragInfoEnd - scrollEnd;
       final overBottom = dragInfoEnd > scrollEnd;
       final overTop = dragInfoStart < scrollStart;
 
@@ -656,20 +656,11 @@ class _Drag extends Drag {
         newOffset = max(position.minScrollExtent, position.pixels - oneStepMax);
       }
 
-      // scroll top
-
-      // print("pixels: ${position.pixels}, newOffset: ${newOffset}, dragInfoEnd: ${dragInfoEnd}, scrollEnd: ${scrollEnd}, overBottom: ${overBottom}");
-
-      // &&
       if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
         _autoScrolling = true;
-        // why you scroll horizontal??
-        // _debug("scroll begin, ${newOffset}");
         await position.animateTo(newOffset, duration: const Duration(milliseconds: 14), curve: Curves.linear);
         _autoScrolling = false;
-        // _debug("scroll end, ${newOffset}");
-
-        ifYouScroll();
+        _updateForGap();
       }
     }
 
@@ -685,7 +676,6 @@ class _Drag extends Drag {
 
   @override
   void cancel() {
-    // _debug("onDrag cancel");
     onCancel?.call(this);
 
     this._endOrCancel();
