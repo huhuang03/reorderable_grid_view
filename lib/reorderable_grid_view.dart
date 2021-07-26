@@ -124,7 +124,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     int col = index % widget.crossAxisCount;
 
     double x = (col - 1) * (itemWidth + widget.crossAxisSpacing);
-    double y = (row - 1) * (itemWidth + widget.mainAxisSpacing);
+    double y = (row - 1) * (itemWidth / (widget.childAspectRatio?? 1.0) + widget.mainAxisSpacing);
     return Offset(x, y);
   }
 

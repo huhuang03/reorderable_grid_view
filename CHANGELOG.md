@@ -1,3 +1,6 @@
+## [1.1.0-alpha.1] - 2021-7-26
+- fix childAspectRatio bug
+
 ## [1.1.0-alpha] - 2021-7-25
 - use new impl correspond to new reorderable_listview impl
 - add drag scroll ability
