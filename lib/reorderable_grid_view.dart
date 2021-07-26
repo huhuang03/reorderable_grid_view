@@ -47,6 +47,9 @@ class ReorderableGridView extends StatefulWidget {
   /// So default is false, and only set if you care this case.
   final bool antiMultiDrag;
 
+  ///proxyChildren widget would replace the dragging widget. Use it to show custom dragging widget with properties like elevation, different color etc.
+  final List<Widget>? proxyChildren;
+
   ReorderableGridView({
     Key? key,
     required this.children,
@@ -69,6 +72,7 @@ class ReorderableGridView extends StatefulWidget {
     this.addRepaintBoundaries = true,
     this.addSemanticIndexes = true,
     this.shrinkWrap = true,
+    this.proxyChildren,
     @Deprecated("Not used any more, because always anti multiDrag now.")
         this.antiMultiDrag = false,
   }) : super(key: key);
@@ -124,7 +128,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     int col = index % widget.crossAxisCount;
 
     double x = (col - 1) * (itemWidth + widget.crossAxisSpacing);
-    double y = (row - 1) * (itemWidth / (widget.childAspectRatio?? 1.0) + widget.mainAxisSpacing);
+    double y = (row - 1) *
+        (itemWidth / (widget.childAspectRatio ?? 1.0) + widget.mainAxisSpacing);
     return Offset(x, y);
   }
 
@@ -267,12 +272,19 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     for (var i = 0; i < widget.children.length; i++) {
       var child = widget.children[i];
       // children.add(child);
+
+      ///proxyChild would replace the child widget in createProxy
+      var proxyChild = widget.proxyChildren == null
+          ? widget.children[i]
+          : widget.proxyChildren![i];
+
       children.add(_ReorderableGridItem(
         child: child,
         key: child.key!,
         index: i,
         capturedThemes: InheritedTheme.capture(
             from: context, to: Overlay.of(context)!.context),
+        proxyChild: proxyChild,
       ));
     }
 
@@ -343,6 +355,7 @@ _debug(String msg) {
 // What will happen If I separate this two?
 class _ReorderableGridItem extends StatefulWidget {
   final Widget child;
+  final Widget proxyChild;
   final Key key;
   final int index;
   final CapturedThemes capturedThemes;
@@ -351,7 +364,8 @@ class _ReorderableGridItem extends StatefulWidget {
       {required this.child,
       required this.key,
       required this.index,
-      required this.capturedThemes})
+      required this.capturedThemes,
+      required this.proxyChild})
       : super(key: key);
 
   @override
@@ -365,6 +379,8 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem>
 
   Key get key => widget.key;
   Widget get child => widget.child;
+
+  Widget get proxyChild => widget.proxyChild;
 
   int get index => widget.index;
 
@@ -524,7 +540,7 @@ class _Drag extends Drag {
   final GestureMultiDragStartCallback onStart;
 
   late Size itemSize;
-  late Widget child;
+  late Widget proxyChild;
   late ScrollableState scrollable;
 
   // Drag position always is the finger position in global
@@ -554,7 +570,7 @@ class _Drag extends Drag {
     this.onEnd,
   }) {
     index = item.index;
-    child = item.widget.child;
+    proxyChild = item.widget.proxyChild;
     itemSize = item.context.size!;
 
     final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
@@ -588,10 +604,10 @@ class _Drag extends Drag {
       top: position.dy,
       left: position.dx,
       child: Material(
-        elevation: 3.0,
+        type: MaterialType.transparency,
         child: SizedBox.fromSize(
           size: itemSize,
-          child: child,
+          child: proxyChild,
         ),
       ),
     );

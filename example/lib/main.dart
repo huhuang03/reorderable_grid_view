@@ -103,9 +103,10 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
         child: ReorderableGridView(
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          crossAxisCount: 3,
+          crossAxisCount: 2,
           childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
           children: this.data.map((e) => buildItem(e)).toList(),
+          proxyChildren: this.data.map((e) => buildItem2(e)).toList(),
           onReorder: (oldIndex, newIndex) {
             print("reorder: $oldIndex -> $newIndex");
             setState(() {
@@ -128,7 +129,22 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
   Widget buildItem(int index) {
     return Card(
       key: ValueKey(index),
-      child: Text(index.toString()),
+      child: Text(
+        index.toString(),
+        style: TextStyle(color: Colors.black),
+      ),
+    );
+  }
+
+  Widget buildItem2(int index) {
+    return Card(
+      key: ValueKey(index),
+      elevation: 3.0,
+      color: Colors.cyanAccent,
+      child: Text(
+        index.toString(),
+        style: TextStyle(color: Colors.red),
+      ),
     );
   }
 }
