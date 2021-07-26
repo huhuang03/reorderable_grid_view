@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TestOverlay extends StatefulWidget {
-  const TestOverlay({Key key}) : super(key: key);
+  const TestOverlay({Key? key}) : super(key: key);
 
   @override
   _TestOverlayState createState() => _TestOverlayState();
@@ -29,7 +29,7 @@ class _TestOverlayState extends State<TestOverlay> {
       children: [
         TextButton(onPressed: () {
           print("insert overlay");
-          var overlay = Overlay.of(context);
+          var overlay = Overlay.of(context)!;
           curPos += 5;
           // 这么奇怪吗？？
           // passed by reference??
