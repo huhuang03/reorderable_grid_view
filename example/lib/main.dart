@@ -103,7 +103,7 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
         child: ReorderableGridView(
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          crossAxisCount: 2,
+          crossAxisCount: 3,
           childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
           children: this.data.map((e) => buildItem(e)).toList(),
           proxyChildren: this.data.map((e) => buildItem2(e)).toList(),
