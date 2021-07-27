@@ -1,3 +1,6 @@
+## [1.1.0-alpha.3] - 2021-7-27
+- update dragWidgetBuilder(child) to dragWidgetBuilder(index, child)
+
 ## [1.1.0-alpha.2] - 2021-7-27
 - add option dragWidgetBuilder, can config custom drag widget.
 - add option scrollSpeedController, can config the scroll speed.
