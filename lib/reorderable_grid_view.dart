@@ -6,7 +6,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 /// Build the drag widget under finger when dragging.
-typedef DragWidgetBuilder = Widget Function(Widget child);
+/// The index here represents the index of current dragging widget
+typedef DragWidgetBuilder = Widget Function(int index);
 
 /// Control the scroll speed if drag over the boundary.
 /// We can pass time here??
@@ -16,7 +17,8 @@ typedef DragWidgetBuilder = Widget Function(Widget child);
 /// [itemSize] is the drag item size
 /// Maybe you need decide the scroll speed by the given param.
 /// return how many pixels when scroll in 14ms(maybe a frame). 5 is the default
-typedef ScrollSpeedController = double Function(int timeInMilliSecond, double overSize, double itemSize);
+typedef ScrollSpeedController = double Function(
+    int timeInMilliSecond, double overSize, double itemSize);
 
 /// Usage:
 /// ```
@@ -63,36 +65,33 @@ class ReorderableGridView extends StatefulWidget {
   /// So default is false, and only set if you care this case.
   final bool antiMultiDrag;
 
-  ReorderableGridView(
-    {
-      Key? key,
-      required this.children,
-      this.dragWidgetBuilder,
-      this.scrollSpeedController,
-
-      this.clipBehavior = Clip.hardEdge,
-      this.cacheExtent,
-      this.semanticChildCount,
-      this.keyboardDismissBehavior  = ScrollViewKeyboardDismissBehavior.manual,
-      this.restorationId,
-      this.reverse = false,
-      required this.crossAxisCount,
-      this.padding,
-      required this.onReorder,
-      this.physics,
-      this.footer,
-      this.primary,
-      this.mainAxisSpacing = 0.0,
-      this.crossAxisSpacing = 0.0,
-      this.childAspectRatio = 1.0,
-      this.addAutomaticKeepAlives = true,
-      this.addRepaintBoundaries = true,
-      this.addSemanticIndexes = true,
-      this.shrinkWrap = true,
-      @Deprecated("Not used any more, because always anti multiDrag now.")
-      this.antiMultiDrag = false,
-    })
-    : super(key: key);
+  ReorderableGridView({
+    Key? key,
+    required this.children,
+    this.dragWidgetBuilder,
+    this.scrollSpeedController,
+    this.clipBehavior = Clip.hardEdge,
+    this.cacheExtent,
+    this.semanticChildCount,
+    this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
+    this.restorationId,
+    this.reverse = false,
+    required this.crossAxisCount,
+    this.padding,
+    required this.onReorder,
+    this.physics,
+    this.footer,
+    this.primary,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
+    this.childAspectRatio = 1.0,
+    this.addAutomaticKeepAlives = true,
+    this.addRepaintBoundaries = true,
+    this.addSemanticIndexes = true,
+    this.shrinkWrap = true,
+    @Deprecated("Not used any more, because always anti multiDrag now.")
+        this.antiMultiDrag = false,
+  }) : super(key: key);
 
   @override
   _ReorderableGridViewState createState() => _ReorderableGridViewState();
@@ -105,7 +104,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   // it's not as drag start?
   void startDragRecognizer(int index, PointerDownEvent event,
       MultiDragGestureRecognizer<MultiDragPointerState> recognizer) {
-
     // how to fix enter this twice?
     setState(() {
       if (_dragIndex != null) {
@@ -150,7 +148,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     int col = index % widget.crossAxisCount;
 
     double x = (col - 1) * (itemWidth + widget.crossAxisSpacing);
-    double y = (row - 1) * (itemWidth / (widget.childAspectRatio?? 1.0) + widget.mainAxisSpacing);
+    double y = (row - 1) *
+        (itemWidth / (widget.childAspectRatio ?? 1.0) + widget.mainAxisSpacing);
     return Offset(x, y);
   }
 
@@ -217,16 +216,16 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     _dropIndex = _dragIndex;
 
     _dragInfo = _Drag(
-        item: item,
-        tickerProvider: this,
-        context: context,
-        dragWidgetBuilder: this.widget.dragWidgetBuilder,
-        scrollSpeedController: this.widget.scrollSpeedController,
-        onStart: _onDragStart,
-        dragPosition: position,
-        onUpdate: _onDragUpdate,
-        onCancel: _onDragCancel,
-        onEnd: _onDragEnd,
+      item: item,
+      tickerProvider: this,
+      context: context,
+      dragWidgetBuilder: this.widget.dragWidgetBuilder,
+      scrollSpeedController: this.widget.scrollSpeedController,
+      onStart: _onDragStart,
+      dragPosition: position,
+      onUpdate: _onDragUpdate,
+      onCancel: _onDragCancel,
+      onEnd: _onDragEnd,
     );
     _dragInfo!.startDrag();
     updateDragTarget();
@@ -267,7 +266,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
     _recognizer?.dispose();
     _recognizer = null;
-
 
     _dragInfo?.dispose();
     _dragInfo = null;
@@ -618,13 +616,12 @@ class _Drag extends Drag {
       child: Container(
         width: itemSize.width,
         height: itemSize.height,
-        child: dragWidgetBuilder != null?
-            dragWidgetBuilder!(child)
-            :
-        Material(
-          elevation: 3.0,
-          child: child,
-        ),
+        child: dragWidgetBuilder != null
+            ? dragWidgetBuilder!(index)
+            : Material(
+                elevation: 3.0,
+                child: child,
+              ),
       ),
     );
   }
@@ -680,8 +677,10 @@ class _Drag extends Drag {
       final overBottom = dragInfoEnd > scrollEnd;
       final overTop = dragInfoStart < scrollStart;
 
-      final needScrollBottom = overBottom && position.pixels < position.maxScrollExtent;
-      final needScrollTop = overTop && position.pixels > position.minScrollExtent;
+      final needScrollBottom =
+          overBottom && position.pixels < position.maxScrollExtent;
+      final needScrollTop =
+          overTop && position.pixels > position.minScrollExtent;
 
       final double oneStepMax = 5;
       double scroll = oneStepMax;
@@ -691,19 +690,19 @@ class _Drag extends Drag {
       if (needScrollBottom) {
         overSize = dragInfoEnd - scrollEnd;
         scroll = min(overSize, oneStepMax);
-
       } else if (needScrollTop) {
         overSize = scrollStart - dragInfoStart;
         scroll = min(overSize, oneStepMax);
       }
 
       final calcOffset = () {
-        if (needScrollBottom)  {
+        if (needScrollBottom) {
           newOffset = min(position.maxScrollExtent, position.pixels + scroll);
         } else if (needScrollTop) {
           newOffset = max(position.minScrollExtent, position.pixels - scroll);
         }
-        needScroll = newOffset != null && (newOffset! - position.pixels).abs() >= 1.0;
+        needScroll =
+            newOffset != null && (newOffset! - position.pixels).abs() >= 1.0;
       };
 
       calcOffset();
@@ -724,7 +723,9 @@ class _Drag extends Drag {
 
       if (needScroll) {
         _autoScrolling = true;
-        await position.animateTo(newOffset!, duration: Duration(milliseconds: _DEFAULT_SCROLL_DURATION), curve: Curves.linear);
+        await position.animateTo(newOffset!,
+            duration: Duration(milliseconds: _DEFAULT_SCROLL_DURATION),
+            curve: Curves.linear);
         _autoScrolling = false;
         _scrollIfNeed();
       } else {
