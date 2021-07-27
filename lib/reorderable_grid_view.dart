@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 
 /// Build the drag widget under finger when dragging.
 /// The index here represents the index of current dragging widget
-typedef DragWidgetBuilder = Widget Function(int index);
+/// The child here represents the current index widget
+typedef DragWidgetBuilder = Widget Function(int index, Widget child);
 
 /// Control the scroll speed if drag over the boundary.
 /// We can pass time here??
@@ -617,7 +618,7 @@ class _Drag extends Drag {
         width: itemSize.width,
         height: itemSize.height,
         child: dragWidgetBuilder != null
-            ? dragWidgetBuilder!(index)
+            ? dragWidgetBuilder!(index, child)
             : Material(
                 elevation: 3.0,
                 child: child,

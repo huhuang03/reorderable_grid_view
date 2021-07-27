@@ -125,7 +125,7 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
               data.insert(newIndex, element);
             });
           },
-          dragWidgetBuilder: (index) {
+          dragWidgetBuilder: (index, child) {
             int newText = index + 1;
             return Card(
               color: Colors.blue,
