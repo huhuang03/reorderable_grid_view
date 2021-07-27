@@ -106,9 +106,9 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
           crossAxisCount: 3,
           childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
           children: this.data.map((e) => buildItem(e)).toList(),
-          scrollSpeedController: (int timeInMilliSecond, double overPercentage, double defaultDuration) {
-            print("timeInMilliSecond: $timeInMilliSecond, overPercentage: $overPercentage, double $defaultDuration");
-            return defaultDuration / 1860;
+          scrollSpeedController: (int timeInMilliSecond, double overSize, double itemSize) {
+            print("timeInMilliSecond: $timeInMilliSecond, overSize: $overSize, itemSize $itemSize");
+            return 5;
           },
           onReorder: (oldIndex, newIndex) {
             print("reorder: $oldIndex -> $newIndex");

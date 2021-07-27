@@ -12,8 +12,11 @@ typedef DragWidgetBuilder = Widget Function(Widget child);
 /// We can pass time here??
 /// [timeInMilliSecond] is the time passed.
 /// [overPercentage] is the scroll over the boundary percentage
-/// Maybe you need decide the scroll speed by [timeInMilliSecond] or [overPercentage]
-typedef ScrollSpeedController = double Function(int timeInMilliSecond, double overPercentage, double defaultDuration);
+/// [overSize] is the pixel drag over the boundary
+/// [itemSize] is the drag item size
+/// Maybe you need decide the scroll speed by the given param.
+/// return how many pixels when scroll in 14ms(maybe a frame). 5 is the default
+typedef ScrollSpeedController = double Function(int timeInMilliSecond, double overSize, double itemSize);
 
 /// Usage:
 /// ```
@@ -649,7 +652,7 @@ class _Drag extends Drag {
 
   var _scrollBeginTime = 0;
 
-  static const _DEFAULT_SCROLL_DURATION = 14.0;
+  static const _DEFAULT_SCROLL_DURATION = 14;
 
   void _scrollIfNeed() async {
     if (hasEnd) {
@@ -660,6 +663,7 @@ class _Drag extends Drag {
 
     if (!_autoScrolling) {
       double? newOffset;
+      bool needScroll = false;
       final ScrollPosition position = scrollable.position;
       final RenderBox scrollRenderBox =
           scrollable.context.findRenderObject()! as RenderBox;
@@ -676,43 +680,51 @@ class _Drag extends Drag {
       final overBottom = dragInfoEnd > scrollEnd;
       final overTop = dragInfoStart < scrollStart;
 
-      double oneStepMax = 5;
+      final needScrollBottom = overBottom && position.pixels < position.maxScrollExtent;
+      final needScrollTop = overTop && position.pixels > position.minScrollExtent;
+
+      final double oneStepMax = 5;
+      double scroll = oneStepMax;
 
       double overSize = 0;
 
-      if (overBottom && position.pixels < position.maxScrollExtent) {
+      if (needScrollBottom) {
         overSize = dragInfoEnd - scrollEnd;
-        oneStepMax = min(overSize, oneStepMax);
-        newOffset = min(position.maxScrollExtent, position.pixels + oneStepMax);
-      } else if (overTop && position.pixels > position.minScrollExtent) {
+        scroll = min(overSize, oneStepMax);
+
+      } else if (needScrollTop) {
         overSize = scrollStart - dragInfoStart;
-        oneStepMax = min(overSize, oneStepMax);
-        newOffset = max(position.minScrollExtent, position.pixels - oneStepMax);
+        scroll = min(overSize, oneStepMax);
       }
 
-      if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
-        _autoScrolling = true;
-        // how to adjust the duration?
-        var duration = _DEFAULT_SCROLL_DURATION;
-        if (this.scrollSpeedController != null) {
-          if (_scrollBeginTime <= 0) {
-            _scrollBeginTime = DateTime.now().millisecondsSinceEpoch;
-          }
+      final calcOffset = () {
+        if (needScrollBottom)  {
+          newOffset = min(position.maxScrollExtent, position.pixels + scroll);
+        } else if (needScrollTop) {
+          newOffset = max(position.minScrollExtent, position.pixels - scroll);
+        }
+        needScroll = newOffset != null && (newOffset! - position.pixels).abs() >= 1.0;
+      };
 
-          duration = this.scrollSpeedController!(
-            DateTime.now().millisecondsSinceEpoch - _scrollBeginTime,
-            (overSize / itemSize.height),
-            _DEFAULT_SCROLL_DURATION
-          );
+      calcOffset();
+
+      if (needScroll && this.scrollSpeedController != null) {
+        if (_scrollBeginTime <= 0) {
+          _scrollBeginTime = DateTime.now().millisecondsSinceEpoch;
         }
-        var intDuration = (duration * 1000).toInt();
-        if (intDuration <= 0) {
-          intDuration = 1;
-        }
-        print("duration: $intDuration");
-        // 好像不起作用，也是比较奇怪啊。。哈哈
-        // 好像1和14都一样啊
-        await position.animateTo(newOffset, duration: Duration(microseconds: 1), curve: Curves.linear);
+
+        scroll = this.scrollSpeedController!(
+          DateTime.now().millisecondsSinceEpoch - _scrollBeginTime,
+          overSize,
+          itemSize.height,
+        );
+
+        calcOffset();
+      }
+
+      if (needScroll) {
+        _autoScrolling = true;
+        await position.animateTo(newOffset!, duration: Duration(milliseconds: _DEFAULT_SCROLL_DURATION), curve: Curves.linear);
         _autoScrolling = false;
         _scrollIfNeed();
       } else {
