@@ -92,6 +92,7 @@ class DemoReorderableGrid extends StatefulWidget {
 
 class _DemoReorderableGridState extends State<DemoReorderableGrid> {
   final data = List<int>.generate(50, (index) => index);
+  double scrollSpeedVariable = 5;
 
   @override
   Widget build(BuildContext context) {
@@ -106,9 +107,16 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
           crossAxisCount: 3,
           childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
           children: this.data.map((e) => buildItem(e)).toList(),
-          scrollSpeedController: (int timeInMilliSecond, double overSize, double itemSize) {
-            print("timeInMilliSecond: $timeInMilliSecond, overSize: $overSize, itemSize $itemSize");
-            return 5;
+          scrollSpeedController:
+              (int timeInMilliSecond, double overSize, double itemSize) {
+            print(
+                "timeInMilliSecond: $timeInMilliSecond, overSize: $overSize, itemSize $itemSize");
+            if (timeInMilliSecond > 1500) {
+              scrollSpeedVariable = 15;
+            } else {
+              scrollSpeedVariable = 5;
+            }
+            return scrollSpeedVariable;
           },
           onReorder: (oldIndex, newIndex) {
             print("reorder: $oldIndex -> $newIndex");
@@ -117,9 +125,11 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
               data.insert(newIndex, element);
             });
           },
-          dragWidgetBuilder: (child) {
+          dragWidgetBuilder: (index, child) {
+            int newText = index + 1;
             return Card(
               color: Colors.blue,
+              child: Text(newText.toString()),
             );
           },
           footer: [
