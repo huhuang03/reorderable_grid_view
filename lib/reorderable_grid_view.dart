@@ -8,6 +8,16 @@ import 'package:flutter/material.dart';
 /// Build the drag widget under finger when dragging.
 typedef DragWidgetBuilder = Widget Function(Widget child);
 
+/// Control the scroll speed if drag over the boundary.
+/// We can pass time here??
+/// [timeInMilliSecond] is the time passed.
+/// [overPercentage] is the scroll over the boundary percentage
+/// [overSize] is the pixel drag over the boundary
+/// [itemSize] is the drag item size
+/// Maybe you need decide the scroll speed by the given param.
+/// return how many pixels when scroll in 14ms(maybe a frame). 5 is the default
+typedef ScrollSpeedController = double Function(int timeInMilliSecond, double overSize, double itemSize);
+
 /// Usage:
 /// ```
 /// ReorderableGridView(
@@ -27,6 +37,7 @@ class ReorderableGridView extends StatefulWidget {
   final int crossAxisCount;
   final ReorderCallback onReorder;
   final DragWidgetBuilder? dragWidgetBuilder;
+  final ScrollSpeedController? scrollSpeedController;
 
   final bool? primary;
   final double mainAxisSpacing;
@@ -57,6 +68,8 @@ class ReorderableGridView extends StatefulWidget {
       Key? key,
       required this.children,
       this.dragWidgetBuilder,
+      this.scrollSpeedController,
+
       this.clipBehavior = Clip.hardEdge,
       this.cacheExtent,
       this.semanticChildCount,
@@ -208,6 +221,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         tickerProvider: this,
         context: context,
         dragWidgetBuilder: this.widget.dragWidgetBuilder,
+        scrollSpeedController: this.widget.scrollSpeedController,
         onStart: _onDragStart,
         dragPosition: position,
         onUpdate: _onDragUpdate,
@@ -522,13 +536,14 @@ typedef _DragItemUpdate = void Function(
     _Drag item, Offset position, Offset delta);
 typedef _DragItemCallback = void Function(_Drag item);
 
-// OnStart give to you?
 // Strange that you are create at onStart?
+// It's boring that pass you so many params
 class _Drag extends Drag {
   late int index;
   final _DragItemUpdate? onUpdate;
   final _DragItemCallback? onCancel;
   final _DragItemCallback? onEnd;
+  final ScrollSpeedController? scrollSpeedController;
 
   final TickerProvider tickerProvider;
   final GestureMultiDragStartCallback onStart;
@@ -560,6 +575,7 @@ class _Drag extends Drag {
     required this.onStart,
     required this.dragPosition,
     required this.context,
+    this.scrollSpeedController,
     this.dragWidgetBuilder,
     this.onUpdate,
     this.onCancel,
@@ -634,11 +650,20 @@ class _Drag extends Drag {
 
   var _autoScrolling = false;
 
+  var _scrollBeginTime = 0;
+
+  static const _DEFAULT_SCROLL_DURATION = 14;
+
   void _scrollIfNeed() async {
+    if (hasEnd) {
+      _scrollBeginTime = 0;
+      return;
+    }
     if (hasEnd) return;
 
     if (!_autoScrolling) {
       double? newOffset;
+      bool needScroll = false;
       final ScrollPosition position = scrollable.position;
       final RenderBox scrollRenderBox =
           scrollable.context.findRenderObject()! as RenderBox;
@@ -655,21 +680,56 @@ class _Drag extends Drag {
       final overBottom = dragInfoEnd > scrollEnd;
       final overTop = dragInfoStart < scrollStart;
 
-      double oneStepMax = 5;
+      final needScrollBottom = overBottom && position.pixels < position.maxScrollExtent;
+      final needScrollTop = overTop && position.pixels > position.minScrollExtent;
 
-      if (overBottom && position.pixels < position.maxScrollExtent) {
-        oneStepMax = min(dragInfoEnd - scrollEnd, oneStepMax);
-        newOffset = min(position.maxScrollExtent, position.pixels + oneStepMax);
-      } else if (overTop && position.pixels > position.minScrollExtent) {
-        oneStepMax = min(scrollStart - dragInfoStart, oneStepMax);
-        newOffset = max(position.minScrollExtent, position.pixels - oneStepMax);
+      final double oneStepMax = 5;
+      double scroll = oneStepMax;
+
+      double overSize = 0;
+
+      if (needScrollBottom) {
+        overSize = dragInfoEnd - scrollEnd;
+        scroll = min(overSize, oneStepMax);
+
+      } else if (needScrollTop) {
+        overSize = scrollStart - dragInfoStart;
+        scroll = min(overSize, oneStepMax);
       }
 
-      if (newOffset != null && (newOffset - position.pixels).abs() >= 1.0) {
+      final calcOffset = () {
+        if (needScrollBottom)  {
+          newOffset = min(position.maxScrollExtent, position.pixels + scroll);
+        } else if (needScrollTop) {
+          newOffset = max(position.minScrollExtent, position.pixels - scroll);
+        }
+        needScroll = newOffset != null && (newOffset! - position.pixels).abs() >= 1.0;
+      };
+
+      calcOffset();
+
+      if (needScroll && this.scrollSpeedController != null) {
+        if (_scrollBeginTime <= 0) {
+          _scrollBeginTime = DateTime.now().millisecondsSinceEpoch;
+        }
+
+        scroll = this.scrollSpeedController!(
+          DateTime.now().millisecondsSinceEpoch - _scrollBeginTime,
+          overSize,
+          itemSize.height,
+        );
+
+        calcOffset();
+      }
+
+      if (needScroll) {
         _autoScrolling = true;
-        await position.animateTo(newOffset, duration: const Duration(milliseconds: 14), curve: Curves.linear);
+        await position.animateTo(newOffset!, duration: Duration(milliseconds: _DEFAULT_SCROLL_DURATION), curve: Curves.linear);
         _autoScrolling = false;
         _scrollIfNeed();
+      } else {
+        // don't need scroll
+        _scrollBeginTime = 0;
       }
     }
   }
