@@ -1,3 +1,6 @@
+## [1.1.0-alpha.4] - 2021-7-28
+- support alpha.3. For the merge mistake.
+
 ## [1.1.0-alpha.3] - 2021-7-27
 - update dragWidgetBuilder(child) to dragWidgetBuilder(index, child)
 
