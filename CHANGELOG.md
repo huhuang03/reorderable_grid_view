@@ -1,3 +1,6 @@
+## [1.1.0] - 2021-8-2
+- 1.1.0-alpha.4 is ok, release version.
+
 ## [1.1.0-alpha.4] - 2021-7-28
 - support alpha.3. For the merge mistake.
 
