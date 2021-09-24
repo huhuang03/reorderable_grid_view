@@ -1,3 +1,6 @@
+## [1.2.0-alpha.1] - 2021-9-25
+- look like the official MultiDragGestureRecognizer api has changed after(maybe earlier) flutter 2.5.1
+
 ## [1.1.0] - 2021-8-2
 - 1.1.0-alpha.4 is ok, release version.
 
