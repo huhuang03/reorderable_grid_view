@@ -34,6 +34,7 @@ typedef ScrollSpeedController = double Function(
 ///   },
 /// )
 ///```
+/// I think it's borrowing to pass those params.
 class ReorderableGridView extends StatefulWidget {
   final List<Widget> children;
   final List<Widget>? footer;
@@ -60,15 +61,126 @@ class ReorderableGridView extends StatefulWidget {
   final String? restorationId;
 
   /// The ratio of the cross-axis to the main-axis extent of each child.
-  final double? childAspectRatio;
+  final double childAspectRatio;
 
-  /// I think anti multi drag is loss performance.
-  /// So default is false, and only set if you care this case.
-  final bool antiMultiDrag;
+  late final SliverChildDelegate childrenDelegate;
+
+  late final SliverGridDelegate gridDelegate;
+
+  static List<Widget> _wrapChildren(List<Widget> children,
+      List<Widget>? footer) {
+    var rst = <Widget>[];
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+      rst.add(_ReorderableGridItem(
+        child: child,
+        key: child.key!,
+        index: i,
+      ));
+    }
+
+    rst.addAll(footer ?? []);
+    return rst;
+  }
+
+  // ReorderableGridView.count({
+  //   Key? key,
+  //   ReorderCallback? onReorder,
+  //   DragWidgetBuilder? dragWidgetBuilder,
+  //   ScrollSpeedController? scrollSpeedController,
+  //   Axis scrollDirection = Axis.vertical,
+  //   bool reverse = false,
+  //   ScrollController? controller,
+  //   bool? primary,
+  //   ScrollPhysics? physics,
+  //   bool shrinkWrap = false,
+  //   EdgeInsetsGeometry? padding,
+  //   required int crossAxisCount,
+  //   double mainAxisSpacing = 0.0,
+  //   double crossAxisSpacing = 0.0,
+  //   double childAspectRatio = 1.0,
+  //   bool addAutomaticKeepAlives = true,
+  //   bool addRepaintBoundaries = true,
+  //   bool addSemanticIndexes = true,
+  //   double? cacheExtent,
+  //   List<Widget> children = const <Widget>[],
+  //   int? semanticChildCount,
+  //   DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+  //   ScrollViewKeyboardDismissBehavior keyboardDismissBehavior =
+  //       ScrollViewKeyboardDismissBehavior.manual,
+  //   String? restorationId,
+  //   Clip clipBehavior = Clip.hardEdge,
+  // })  : gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+  //         crossAxisCount: crossAxisCount,
+  //         mainAxisSpacing: mainAxisSpacing,
+  //         crossAxisSpacing: crossAxisSpacing,
+  //         childAspectRatio: childAspectRatio,
+  //       ),
+  //       childrenDelegate = SliverChildListDelegate(
+  //         children,
+  //         addAutomaticKeepAlives: addAutomaticKeepAlives,
+  //         addRepaintBoundaries: addRepaintBoundaries,
+  //         addSemanticIndexes: addSemanticIndexes,
+  //       ),
+  //       this();
+  ReorderableGridView.count({
+    Key? key,
+    Axis scrollDirection = Axis.vertical,
+    bool reverse = false,
+    ScrollController? controller,
+    bool? primary,
+    ScrollPhysics? physics,
+    bool shrinkWrap = false,
+    EdgeInsetsGeometry? padding,
+    required int crossAxisCount,
+    double mainAxisSpacing = 0.0,
+    double crossAxisSpacing = 0.0,
+    double childAspectRatio = 1.0,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+    double? cacheExtent,
+    List<Widget> children = const <Widget>[],
+    int? semanticChildCount,
+    DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+    ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior
+        .manual,
+    String? restorationId,
+    Clip clipBehavior = Clip.hardEdge,
+  })
+      : gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: crossAxisCount,
+    mainAxisSpacing: mainAxisSpacing,
+    crossAxisSpacing: crossAxisSpacing,
+    childAspectRatio: childAspectRatio,
+  ),
+        childrenDelegate = SliverChildListDelegate(
+          children,
+          addAutomaticKeepAlives: addAutomaticKeepAlives,
+          addRepaintBoundaries: addRepaintBoundaries,
+          addSemanticIndexes: addSemanticIndexes,
+        ),
+        this(
+        key: key,
+        reverse: reverse,
+        controller: controller,
+        primary: primary,
+        physics: physics,
+        shrinkWrap: shrinkWrap,
+        padding: padding,
+        cacheExtent: cacheExtent,
+        semanticChildCount: semanticChildCount ?? children.length,
+        dragStartBehavior: dragStartBehavior,
+        keyboardDismissBehavior: keyboardDismissBehavior,
+        restorationId: restorationId,
+        clipBehavior: clipBehavior,
+      );
 
   ReorderableGridView({
     Key? key,
     required this.children,
+    required this.crossAxisCount,
+    required this.onReorder,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
     this.clipBehavior = Clip.hardEdge,
@@ -77,9 +189,7 @@ class ReorderableGridView extends StatefulWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.restorationId,
     this.reverse = false,
-    required this.crossAxisCount,
     this.padding,
-    required this.onReorder,
     this.physics,
     this.footer,
     this.primary,
@@ -90,9 +200,22 @@ class ReorderableGridView extends StatefulWidget {
     this.addRepaintBoundaries = true,
     this.addSemanticIndexes = true,
     this.shrinkWrap = true,
-    @Deprecated("Not used any more, because always anti multiDrag now.")
-        this.antiMultiDrag = false,
-  }) : super(key: key);
+    @Deprecated(
+        "Not used any more, because always anti multiDrag now.") bool antiMultiDrag = false,
+  })
+      : gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: crossAxisCount,
+    mainAxisSpacing: mainAxisSpacing,
+    crossAxisSpacing: crossAxisSpacing,
+    childAspectRatio: childAspectRatio,
+  ),
+        childrenDelegate = SliverChildListDelegate(
+          _wrapChildren(children, footer),
+          addAutomaticKeepAlives: addAutomaticKeepAlives,
+          addRepaintBoundaries: addRepaintBoundaries,
+          addSemanticIndexes: addSemanticIndexes,
+        ),
+        super(key: key);
 
   @override
   _ReorderableGridViewState createState() => _ReorderableGridViewState();
@@ -142,7 +265,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     }
 
     double itemWidth = (renderBox.size.width -
-            (widget.crossAxisCount - 1) * widget.crossAxisSpacing) /
+        (widget.crossAxisCount - 1) * widget.crossAxisSpacing) /
         widget.crossAxisCount;
 
     int row = index ~/ widget.crossAxisCount;
@@ -288,45 +411,26 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   @override
   Widget build(BuildContext context) {
     // create the draggable item in build function?
-    var children = <Widget>[];
-    for (var i = 0; i < widget.children.length; i++) {
-      var child = widget.children[i];
-      // children.add(child);
-      children.add(_ReorderableGridItem(
-        child: child,
-        key: child.key!,
-        index: i,
-        capturedThemes: InheritedTheme.capture(
-            from: context, to: Overlay.of(context)!.context),
-      ));
-    }
-
-    children.addAll(widget.footer ?? []);
-    // why we can't use GridView? Because we can't handle the scroll event??
     // return Text("hello");
-    return GridView.count(
-      crossAxisCount: this.widget.crossAxisCount,
-      children: children,
+    return GridView.custom(
+      key: widget.key,
+      gridDelegate: widget.gridDelegate,
+      childrenDelegate: widget.childrenDelegate,
       reverse: widget.reverse,
       primary: widget.primary,
       physics: widget.physics,
-      cacheExtent: widget.cacheExtent,
-      semanticChildCount: widget.semanticChildCount,
-      restorationId: widget.restorationId,
-      clipBehavior: widget.clipBehavior,
-      mainAxisSpacing: widget.mainAxisSpacing,
-      crossAxisSpacing: widget.crossAxisSpacing,
-      childAspectRatio: widget.childAspectRatio ?? 1.0,
-      addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
-      addRepaintBoundaries: widget.addRepaintBoundaries,
-      addSemanticIndexes: widget.addSemanticIndexes,
       shrinkWrap: widget.shrinkWrap,
       padding: widget.padding,
+      cacheExtent: widget.cacheExtent,
+      semanticChildCount: widget.semanticChildCount,
+      keyboardDismissBehavior: widget.keyboardDismissBehavior,
+      restorationId: widget.restorationId,
+      clipBehavior: widget.clipBehavior,
     );
   }
 
   final Map<int, _ReorderableGridItemState> __items =
-      <int, _ReorderableGridItemState>{};
+  <int, _ReorderableGridItemState>{};
 
   _Drag? _dragInfo;
 
@@ -370,14 +474,12 @@ class _ReorderableGridItem extends StatefulWidget {
   final Widget child;
   final Key key;
   final int index;
-  final CapturedThemes capturedThemes;
 
-  const _ReorderableGridItem(
-      {required this.child,
-      required this.key,
-      required this.index,
-      required this.capturedThemes})
-      : super(key: key);
+  const _ReorderableGridItem({
+    required this.child,
+    required this.key,
+    required this.index,
+  }) : super(key: key);
 
   @override
   _ReorderableGridItemState createState() => _ReorderableGridItemState();
@@ -389,11 +491,13 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem>
   late _ReorderableGridViewState _listState;
 
   Key get key => widget.key;
+
   Widget get child => widget.child;
 
   int get index => widget.index;
 
   bool get dragging => _dragging;
+
   set dragging(bool dragging) {
     if (mounted) {
       this.setState(() {
@@ -461,6 +565,7 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem>
   // ths is strange thing.
   Offset _startOffset = Offset.zero;
   Offset _targetOffset = Offset.zero;
+
   // Ok, how can we calculate the _offsetAnimation
   AnimationController? _offsetAnimation;
 
@@ -554,9 +659,11 @@ class _Drag extends Drag {
 
   // Drag position always is the finger position in global
   Offset dragPosition;
+
   // dragOffset is the position finger pointer in local(renderObject's left top is (0, 0))
   // how to get the center of dragInfo in global.
   late Offset dragOffset;
+
   // = renderBox.size.height
   late double dragExtent;
   late Size dragSize;
@@ -620,9 +727,9 @@ class _Drag extends Drag {
         child: dragWidgetBuilder != null
             ? dragWidgetBuilder!(index, child)
             : Material(
-                elevation: 3.0,
-                child: child,
-              ),
+          elevation: 3.0,
+          child: child,
+        ),
       ),
     );
   }
@@ -664,7 +771,7 @@ class _Drag extends Drag {
       bool needScroll = false;
       final ScrollPosition position = scrollable.position;
       final RenderBox scrollRenderBox =
-          scrollable.context.findRenderObject()! as RenderBox;
+      scrollable.context.findRenderObject()! as RenderBox;
 
       final scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
       final scrollStart = scrollOrigin.dy;
@@ -710,11 +817,15 @@ class _Drag extends Drag {
 
       if (needScroll && this.scrollSpeedController != null) {
         if (_scrollBeginTime <= 0) {
-          _scrollBeginTime = DateTime.now().millisecondsSinceEpoch;
+          _scrollBeginTime = DateTime
+              .now()
+              .millisecondsSinceEpoch;
         }
 
         scroll = this.scrollSpeedController!(
-          DateTime.now().millisecondsSinceEpoch - _scrollBeginTime,
+          DateTime
+              .now()
+              .millisecondsSinceEpoch - _scrollBeginTime,
           overSize,
           itemSize.height,
         );
