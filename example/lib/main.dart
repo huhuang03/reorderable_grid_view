@@ -1,3 +1,4 @@
+import 'package:example/demo_grid_builder.dart';
 import 'package:example/example_reorderable_list.dart';
 import 'package:example/test_overlay.dart';
 import 'package:flutter/material.dart';
@@ -36,13 +37,16 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
             tabs: [
               Tab(
                 text: "Grid",
+              ),
+              Tab(
+                text: "Grid Builder",
               ),
               Tab(
                 text: "List",
@@ -57,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
         body: TabBarView(
           children: [
             DemoReorderableGrid(),
+            DemoGridBuilder(),
             ExampleReorderableList(),
             TestOverlay()
           ],
@@ -82,7 +87,7 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
       child: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: ReorderableGridView(
+        child: ReorderableGridView.count(
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 3,
@@ -107,10 +112,9 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
             });
           },
           dragWidgetBuilder: (index, child) {
-            int newText = index + 1;
             return Card(
               color: Colors.blue,
-              child: Text(newText.toString()),
+              child: Text(index.toString()),
             );
           },
           footer: [

@@ -35,37 +35,39 @@ typedef ScrollSpeedController = double Function(
 /// )
 ///```
 /// I think it's borrowing to pass those params.
+/// Will it to hard to calculate the position by delegator? not by crossAxis
+/// and spacing?
+/// And the SliverGridDelete need an constraint to get a layout but, I don't have the
+/// constraint, and that method look called by the framework.
+/// So I need the crossAxisCount, spacing to determine the pos.
 class ReorderableGridView extends StatefulWidget {
-  final List<Widget> children;
   final List<Widget>? footer;
-  final int crossAxisCount;
   final ReorderCallback onReorder;
   final DragWidgetBuilder? dragWidgetBuilder;
   final ScrollSpeedController? scrollSpeedController;
 
-  final bool? primary;
-  final double mainAxisSpacing;
+  final int crossAxisCount;
   final double crossAxisSpacing;
+  final double mainAxisSpacing;
+  final double childAspectRatio;
+
+  final bool? primary;
   final bool shrinkWrap;
   final EdgeInsetsGeometry? padding;
   final ScrollPhysics? physics;
   final bool reverse;
   final double? cacheExtent;
   final int? semanticChildCount;
-  final bool addAutomaticKeepAlives;
-  final bool addRepaintBoundaries;
-  final addSemanticIndexes;
 
   final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
   final Clip clipBehavior;
   final String? restorationId;
 
-  /// The ratio of the cross-axis to the main-axis extent of each child.
-  final double childAspectRatio;
+  final SliverChildDelegate childrenDelegate;
 
-  late final SliverChildDelegate childrenDelegate;
-
-  late final SliverGridDelegate gridDelegate;
+  final SliverGridDelegate gridDelegate;
+  final ScrollController? controller;
+  final DragStartBehavior dragStartBehavior;
 
   static List<Widget> _wrapChildren(List<Widget> children,
       List<Widget>? footer) {
@@ -83,49 +85,87 @@ class ReorderableGridView extends StatefulWidget {
     return rst;
   }
 
-  // ReorderableGridView.count({
-  //   Key? key,
-  //   ReorderCallback? onReorder,
-  //   DragWidgetBuilder? dragWidgetBuilder,
-  //   ScrollSpeedController? scrollSpeedController,
-  //   Axis scrollDirection = Axis.vertical,
-  //   bool reverse = false,
-  //   ScrollController? controller,
-  //   bool? primary,
-  //   ScrollPhysics? physics,
-  //   bool shrinkWrap = false,
-  //   EdgeInsetsGeometry? padding,
-  //   required int crossAxisCount,
-  //   double mainAxisSpacing = 0.0,
-  //   double crossAxisSpacing = 0.0,
-  //   double childAspectRatio = 1.0,
-  //   bool addAutomaticKeepAlives = true,
-  //   bool addRepaintBoundaries = true,
-  //   bool addSemanticIndexes = true,
-  //   double? cacheExtent,
-  //   List<Widget> children = const <Widget>[],
-  //   int? semanticChildCount,
-  //   DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-  //   ScrollViewKeyboardDismissBehavior keyboardDismissBehavior =
-  //       ScrollViewKeyboardDismissBehavior.manual,
-  //   String? restorationId,
-  //   Clip clipBehavior = Clip.hardEdge,
-  // })  : gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
-  //         crossAxisCount: crossAxisCount,
-  //         mainAxisSpacing: mainAxisSpacing,
-  //         crossAxisSpacing: crossAxisSpacing,
-  //         childAspectRatio: childAspectRatio,
-  //       ),
-  //       childrenDelegate = SliverChildListDelegate(
-  //         children,
-  //         addAutomaticKeepAlives: addAutomaticKeepAlives,
-  //         addRepaintBoundaries: addRepaintBoundaries,
-  //         addSemanticIndexes: addSemanticIndexes,
-  //       ),
-  //       this();
+  ReorderableGridView.builder({
+    Key? key,
+    required ReorderCallback onReorder,
+    DragWidgetBuilder? dragWidgetBuilder,
+    ScrollSpeedController? scrollSpeedController,
+    List<Widget>? footer,
+
+    required int crossAxisCount,
+    double mainAxisSpacing = 0.0,
+    double crossAxisSpacing = 0.0,
+    double childAspectRatio = 1.0,
+
+    bool reverse = false,
+    ScrollController? controller,
+    bool? primary,
+    ScrollPhysics? physics,
+    bool shrinkWrap = false,
+    EdgeInsetsGeometry? padding,
+    required SliverGridDelegate gridDelegate,
+    required IndexedWidgetBuilder itemBuilder,
+    int? itemCount,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+    double? cacheExtent,
+    int? semanticChildCount,
+    DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+    ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
+    String? restorationId,
+    Clip clipBehavior = Clip.hardEdge,
+  }): this(
+    key: key,
+    onReorder: onReorder,
+    dragWidgetBuilder: dragWidgetBuilder,
+    scrollSpeedController: scrollSpeedController,
+    footer: footer,
+
+    crossAxisCount: crossAxisCount,
+    mainAxisSpacing: mainAxisSpacing,
+    crossAxisSpacing: crossAxisSpacing,
+    childAspectRatio: childAspectRatio,
+
+    // how to determine the
+    childrenDelegate: SliverChildBuilderDelegate(
+      (BuildContext context, int index) {
+        Widget child = itemBuilder(context, index);
+        return _ReorderableGridItem(child: child, key: child.key!, index: index);
+      },
+      childCount: itemCount,
+      addAutomaticKeepAlives: addAutomaticKeepAlives,
+      addRepaintBoundaries: addRepaintBoundaries,
+      addSemanticIndexes: addSemanticIndexes,
+    ),
+
+    gridDelegate: gridDelegate,
+    reverse: reverse,
+    controller: controller,
+    primary: primary,
+    physics: physics,
+    shrinkWrap: shrinkWrap,
+    padding: padding,
+    cacheExtent: cacheExtent,
+    semanticChildCount: semanticChildCount ?? itemCount,
+    dragStartBehavior: dragStartBehavior,
+    keyboardDismissBehavior: keyboardDismissBehavior,
+    restorationId: restorationId,
+    clipBehavior: clipBehavior,
+  );
+
+
   ReorderableGridView.count({
     Key? key,
-    Axis scrollDirection = Axis.vertical,
+    required ReorderCallback onReorder,
+    DragWidgetBuilder? dragWidgetBuilder,
+    ScrollSpeedController? scrollSpeedController,
+    List<Widget>? footer,
+
+    double mainAxisSpacing = 0.0,
+    double crossAxisSpacing = 0.0,
+    double childAspectRatio = 1.0,
+
     bool reverse = false,
     ScrollController? controller,
     bool? primary,
@@ -133,9 +173,6 @@ class ReorderableGridView extends StatefulWidget {
     bool shrinkWrap = false,
     EdgeInsetsGeometry? padding,
     required int crossAxisCount,
-    double mainAxisSpacing = 0.0,
-    double crossAxisSpacing = 0.0,
-    double childAspectRatio = 1.0,
     bool addAutomaticKeepAlives = true,
     bool addRepaintBoundaries = true,
     bool addSemanticIndexes = true,
@@ -143,79 +180,78 @@ class ReorderableGridView extends StatefulWidget {
     List<Widget> children = const <Widget>[],
     int? semanticChildCount,
     DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-    ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior
-        .manual,
+    ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     String? restorationId,
     Clip clipBehavior = Clip.hardEdge,
-  })
-      : gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+  }): this(
+    key: key,
+    onReorder: onReorder,
+    dragWidgetBuilder: dragWidgetBuilder,
+    scrollSpeedController: scrollSpeedController,
+    footer: footer,
+
     crossAxisCount: crossAxisCount,
     mainAxisSpacing: mainAxisSpacing,
     crossAxisSpacing: crossAxisSpacing,
     childAspectRatio: childAspectRatio,
-  ),
-        childrenDelegate = SliverChildListDelegate(
-          children,
-          addAutomaticKeepAlives: addAutomaticKeepAlives,
-          addRepaintBoundaries: addRepaintBoundaries,
-          addSemanticIndexes: addSemanticIndexes,
-        ),
-        this(
-        key: key,
-        reverse: reverse,
-        controller: controller,
-        primary: primary,
-        physics: physics,
-        shrinkWrap: shrinkWrap,
-        padding: padding,
-        cacheExtent: cacheExtent,
-        semanticChildCount: semanticChildCount ?? children.length,
-        dragStartBehavior: dragStartBehavior,
-        keyboardDismissBehavior: keyboardDismissBehavior,
-        restorationId: restorationId,
-        clipBehavior: clipBehavior,
-      );
+
+
+    childrenDelegate: SliverChildListDelegate(
+      _wrapChildren(children, footer),
+      addAutomaticKeepAlives: addAutomaticKeepAlives,
+      addRepaintBoundaries: addRepaintBoundaries,
+      addSemanticIndexes: addSemanticIndexes,
+    ),
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: crossAxisCount,
+      mainAxisSpacing: mainAxisSpacing,
+      crossAxisSpacing: crossAxisSpacing,
+      childAspectRatio: childAspectRatio,
+    ),
+
+    reverse: reverse,
+    controller: controller,
+    primary: primary,
+    physics: physics,
+    shrinkWrap: shrinkWrap,
+    padding: padding,
+    cacheExtent: cacheExtent,
+    semanticChildCount: semanticChildCount ?? children.length,
+    dragStartBehavior: dragStartBehavior,
+    keyboardDismissBehavior: keyboardDismissBehavior,
+    restorationId: restorationId,
+    clipBehavior: clipBehavior,
+  );
 
   ReorderableGridView({
     Key? key,
-    required this.children,
-    required this.crossAxisCount,
     required this.onReorder,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
-    this.clipBehavior = Clip.hardEdge,
+    this.footer,
+
+    required this.crossAxisCount,
+    this.crossAxisSpacing = 0,
+    this.mainAxisSpacing = 0,
+    this.childAspectRatio = 1.0,
+
+    required this.gridDelegate,
+    required this.childrenDelegate,
+
+    this.reverse = false,
+    this.primary,
+    this.physics,
+    this.shrinkWrap = false,
+    this.padding,
     this.cacheExtent,
     this.semanticChildCount,
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.restorationId,
-    this.reverse = false,
-    this.padding,
-    this.physics,
-    this.footer,
-    this.primary,
-    this.mainAxisSpacing = 0.0,
-    this.crossAxisSpacing = 0.0,
-    this.childAspectRatio = 1.0,
-    this.addAutomaticKeepAlives = true,
-    this.addRepaintBoundaries = true,
-    this.addSemanticIndexes = true,
-    this.shrinkWrap = true,
-    @Deprecated(
-        "Not used any more, because always anti multiDrag now.") bool antiMultiDrag = false,
-  })
-      : gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: crossAxisCount,
-    mainAxisSpacing: mainAxisSpacing,
-    crossAxisSpacing: crossAxisSpacing,
-    childAspectRatio: childAspectRatio,
-  ),
-        childrenDelegate = SliverChildListDelegate(
-          _wrapChildren(children, footer),
-          addAutomaticKeepAlives: addAutomaticKeepAlives,
-          addRepaintBoundaries: addRepaintBoundaries,
-          addSemanticIndexes: addSemanticIndexes,
-        ),
-        super(key: key);
+    this.clipBehavior = Clip.hardEdge,
+    this.controller,
+    this.dragStartBehavior = DragStartBehavior.start,
+  }): super(key: key);
+
 
   @override
   _ReorderableGridViewState createState() => _ReorderableGridViewState();
@@ -254,9 +290,10 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         index = 0;
       }
 
-      if (index > widget.children.length - 1) {
-        index = widget.children.length - 1;
-      }
+      // why I need this check?? so strange.
+      // if (index > widget.children.length - 1) {
+      //   index = widget.children.length - 1;
+      // }
     }
 
     RenderBox? renderBox = this.context.findRenderObject() as RenderBox?;
@@ -273,7 +310,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
     double x = (col - 1) * (itemWidth + widget.crossAxisSpacing);
     double y = (row - 1) *
-        (itemWidth / (widget.childAspectRatio ?? 1.0) + widget.mainAxisSpacing);
+        (itemWidth / (widget.childAspectRatio) + widget.mainAxisSpacing);
     return Offset(x, y);
   }
 
@@ -416,6 +453,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       key: widget.key,
       gridDelegate: widget.gridDelegate,
       childrenDelegate: widget.childrenDelegate,
+
+      controller: widget.controller,
       reverse: widget.reverse,
       primary: widget.primary,
       physics: widget.physics,
@@ -426,6 +465,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       keyboardDismissBehavior: widget.keyboardDismissBehavior,
       restorationId: widget.restorationId,
       clipBehavior: widget.clipBehavior,
+      dragStartBehavior: widget.dragStartBehavior,
     );
   }
 
