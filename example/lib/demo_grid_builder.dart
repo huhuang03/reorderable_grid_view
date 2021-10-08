@@ -21,7 +21,7 @@ class _DemoGridBuilderState extends State<DemoGridBuilder> {
           mainAxisSpacing: 10,
           crossAxisCount: 3,
           childAspectRatio: 0.6,
-          itemCount: 100,
+          itemCount: 5,
           itemBuilder: (context, index) => buildItem(index),
           onReorder: (oldIndex, newIndex) {
             print("reorder: $oldIndex -> $newIndex");
@@ -39,15 +39,11 @@ class _DemoGridBuilderState extends State<DemoGridBuilder> {
               child: Text(index.toString()),
             );
           },
-          footer: [
-            Card(
-              child: Center(
-                child: Icon(Icons.add),
-              ),
-            ),
-          ],
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 0.6,
           ),
         ),
       ),
@@ -57,7 +53,7 @@ class _DemoGridBuilderState extends State<DemoGridBuilder> {
   Widget buildItem(int index) {
     return Card(
       key: ValueKey(index),
-      child: Text(index.toString()),
+      child: Text(data[index].toString()),
     );
   }
 }
