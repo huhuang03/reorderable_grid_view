@@ -101,23 +101,12 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
       child: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: ReorderableGridView(
+        child: ReorderableGridView.count(
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 3,
           childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
           children: this.data.map((e) => buildItem(e)).toList(),
-          scrollSpeedController:
-              (int timeInMilliSecond, double overSize, double itemSize) {
-            print(
-                "timeInMilliSecond: $timeInMilliSecond, overSize: $overSize, itemSize $itemSize");
-            if (timeInMilliSecond > 1500) {
-              scrollSpeedVariable = 15;
-            } else {
-              scrollSpeedVariable = 5;
-            }
-            return scrollSpeedVariable;
-          },
           onReorder: (oldIndex, newIndex) {
             print("reorder: $oldIndex -> $newIndex");
             setState(() {
@@ -125,20 +114,6 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
               data.insert(newIndex, element);
             });
           },
-          dragWidgetBuilder: (index, child) {
-            int newText = index + 1;
-            return Card(
-              color: Colors.blue,
-              child: Text(newText.toString()),
-            );
-          },
-          footer: [
-            Card(
-              child: Center(
-                child: Icon(Icons.add),
-              ),
-            ),
-          ],
         ),
       ),
     );
