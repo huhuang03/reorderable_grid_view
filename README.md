@@ -30,7 +30,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
 
       body: Center(
-        child: ReorderableGridView(
+        // use ReorderableGridView.count() when version >= 2.0.0
+        // else use ReorderableGridView()
+        child: ReorderableGridView.count(
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 3,
