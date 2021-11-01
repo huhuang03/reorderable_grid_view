@@ -1,5 +1,5 @@
 import 'package:example/demo_grid_builder.dart';
-import 'package:example/example_reorderable_list.dart';
+import 'package:example/demo_grid_sliver.dart';
 import 'package:example/test_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
@@ -43,13 +43,13 @@ class _MyHomePageState extends State<MyHomePage> {
           bottom: TabBar(
             tabs: [
               Tab(
-                text: "Grid",
+                text: "Grid.count",
               ),
               Tab(
-                text: "Grid Builder",
+                text: "Grid.build",
               ),
               Tab(
-                text: "List",
+                text: "SliverGrid.count",
               ),
               Tab(
                 text: "Test Overlay",
@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             DemoReorderableGrid(),
             DemoGridBuilder(),
-            ExampleReorderableList(),
+            DemoGridSliver(),
             TestOverlay()
           ],
         ),
