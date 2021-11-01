@@ -104,7 +104,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   // it's not as drag start?
   void startDragRecognizer(int index, PointerDownEvent event,
-      MultiDragGestureRecognizer<MultiDragPointerState> recognizer) {
+      MultiDragGestureRecognizer recognizer) {
     // how to fix enter this twice?
     setState(() {
       if (_dragIndex != null) {
@@ -447,7 +447,7 @@ class _ReorderableGridItemState extends State<_ReorderableGridItem>
   }
 
   // Ok, for now we use multiDragRecognizer
-  MultiDragGestureRecognizer<MultiDragPointerState> _createDragRecognizer() {
+  MultiDragGestureRecognizer _createDragRecognizer() {
     return DelayedMultiDragGestureRecognizer(debugOwner: this);
   }
 
