@@ -38,6 +38,7 @@ class ReorderableSliverGridView extends StatelessWidget {
   // build the new child??
   @override
   Widget build(BuildContext context) {
+    // we can't wrapper this?
     return SliverGrid.count(
       key: key,
       children: children,
