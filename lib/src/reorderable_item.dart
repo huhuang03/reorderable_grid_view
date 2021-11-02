@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:reorderable_grid_view/src/reorderable_grid_mixin.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_wrapper_view.dart';
 
 class ReorderableItemView extends StatefulWidget {
@@ -18,7 +19,7 @@ class ReorderableItemView extends StatefulWidget {
 }
 
 class ReorderableItemViewState extends State<ReorderableItemView> with TickerProviderStateMixin {
-  late ReorderableGridWrapperViewState _listState;
+  late ReorderableGridStateMixin _listState;
 
   Key get key => widget.key;
 
@@ -87,7 +88,7 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
 
   @override
   void initState() {
-    _listState = ReorderableGridWrapperViewState.of(context);
+    _listState = ReorderableGridStateMixin.of(context);
     _listState.registerItem(this);
     super.initState();
   }
@@ -151,7 +152,7 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
       onPointerDown: (PointerDownEvent e) {
         // remember th pointer down??
         // _debug("onPointerDown at $index");
-        var listState = ReorderableGridWrapperViewState.of(context);
+        var listState = ReorderableGridStateMixin.of(context);
         listState.startDragRecognizer(index, e, _createDragRecognizer());
       },
       child: _buildChild(child),
