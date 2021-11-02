@@ -1,4 +1,3 @@
-import 'package:example/main.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
@@ -38,6 +37,9 @@ class _DemoGridSliverState extends State<DemoGridSliver> {
           crossAxisCount: 3,
           childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
           children: this.data.map((e) => buildItem(e)).toList(),
+        ),
+        SliverToBoxAdapter(
+          child: FlutterLogo(),
         ),
         // SliverGrid.count(crossAxisCount: 3),
       ],
