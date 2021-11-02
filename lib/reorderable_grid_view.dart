@@ -43,7 +43,7 @@ typedef ScrollSpeedController = double Function(
 /// And the SliverGridDelete need an constraint to get a layout but, I don't have the
 /// constraint, and that method look called by the framework.
 /// So I need the crossAxisCount, spacing to determine the pos.
-class ReorderableGridView extends StatefulWidget {
+class ReorderableGridView extends StatelessWidget {
   final List<Widget>? footer;
   final ReorderCallback onReorder;
   final DragWidgetBuilder? dragWidgetBuilder;
@@ -257,44 +257,37 @@ class ReorderableGridView extends StatefulWidget {
 
 
   @override
-  _ReorderableGridViewState createState() => _ReorderableGridViewState();
-}
-
-class _ReorderableGridViewState extends State<ReorderableGridView>
-    with TickerProviderStateMixin<ReorderableGridView> {
-  @override
   Widget build(BuildContext context) {
     return ReorderableGridWrapperView(
-        child: GridView.custom(
-          key: widget.key,
-          gridDelegate: widget.gridDelegate,
-          childrenDelegate: widget.childrenDelegate,
+      child: GridView.custom(
+        key: key,
+        gridDelegate: gridDelegate,
+        childrenDelegate: childrenDelegate,
 
-          controller: widget.controller,
-          reverse: widget.reverse,
-          primary: widget.primary,
-          physics: widget.physics,
-          shrinkWrap: widget.shrinkWrap,
-          padding: widget.padding,
-          cacheExtent: widget.cacheExtent,
-          semanticChildCount: widget.semanticChildCount,
-          keyboardDismissBehavior: widget.keyboardDismissBehavior,
-          restorationId: widget.restorationId,
-          clipBehavior: widget.clipBehavior,
-          dragStartBehavior: widget.dragStartBehavior,
-        ),
+        controller: controller,
+        reverse: reverse,
+        primary: primary,
+        physics: physics,
+        shrinkWrap: shrinkWrap,
+        padding: padding,
+        cacheExtent: cacheExtent,
+        semanticChildCount: semanticChildCount,
+        keyboardDismissBehavior: keyboardDismissBehavior,
+        restorationId: restorationId,
+        clipBehavior: clipBehavior,
+        dragStartBehavior: dragStartBehavior,
+      ),
 
-        crossAxisCount: widget.crossAxisCount,
-        crossAxisSpacing: widget.crossAxisSpacing,
-        mainAxisSpacing: widget.mainAxisSpacing,
-        childAspectRatio: widget.childAspectRatio,
+      crossAxisCount: crossAxisCount,
+      crossAxisSpacing: crossAxisSpacing,
+      mainAxisSpacing: mainAxisSpacing,
+      childAspectRatio: childAspectRatio,
 
-        onReorder: widget.onReorder,
-        dragWidgetBuilder: widget.dragWidgetBuilder,
-        scrollSpeedController: widget.scrollSpeedController,
+      onReorder: onReorder,
+      dragWidgetBuilder: dragWidgetBuilder,
+      scrollSpeedController: scrollSpeedController,
     );
   }
-
 }
 
 const _IS_DEBUG = true;

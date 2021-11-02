@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+// Can I be a stateful widget, because we need update the state. Ok, let's try this.
 class ReorderableSliverGridView extends StatelessWidget {
   // can I hold the children? let's try.
   final List<Widget> children;
