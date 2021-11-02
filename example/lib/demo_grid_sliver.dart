@@ -1,5 +1,6 @@
 import 'package:example/main.dart';
 import 'package:flutter/material.dart';
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class DemoGridSliver extends StatefulWidget {
   const DemoGridSliver({Key? key}) : super(key: key);
@@ -9,6 +10,16 @@ class DemoGridSliver extends StatefulWidget {
 }
 
 class _DemoGridSliverState extends State<DemoGridSliver> {
+  final data = List<int>.generate(50, (index) => index);
+  double scrollSpeedVariable = 5;
+
+  Widget buildItem(int index) {
+    return Card(
+      key: ValueKey(index),
+      child: Text(index.toString()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // return Text("data");
@@ -21,9 +32,14 @@ class _DemoGridSliverState extends State<DemoGridSliver> {
         SliverToBoxAdapter(
           child: FlutterLogo(),
         ),
-        // SliverToBoxAdapter(
-        //   child: DemoReorderableGrid(),
-        // )
+        ReorderableSliverGridView(
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          crossAxisCount: 3,
+          childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
+          children: this.data.map((e) => buildItem(e)).toList(),
+        ),
+        // SliverGrid.count(crossAxisCount: 3),
       ],
     );
   }

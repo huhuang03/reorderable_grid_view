@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_wrapper_view.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
 
+export 'src/reorderable_sliver_grid_view.dart' show ReorderableSliverGridView;
+
 /// Build the drag widget under finger when dragging.
 /// The index here represents the index of current dragging widget
 /// The child here represents the current index widget
@@ -302,3 +304,5 @@ _debug(String msg) {
     print("ReorderableGridView: " + msg);
   }
 }
+
+// how to export?
