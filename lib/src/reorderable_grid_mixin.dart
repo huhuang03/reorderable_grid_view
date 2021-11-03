@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
 
@@ -55,6 +56,13 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
       }
     }
 
+    // renderObject RenderSliverGrid#b86b1 relayoutBoundary=up1, type: RenderSliverGrid
+    RenderSliverGrid a;
+    var renderObject = this.context.findRenderObject();
+    if (renderObject.runtimeType == RenderSliverGrid) {
+      RenderSliver renderSliver = renderObject as RenderSliver;
+    }
+    print("renderObject $renderObject, type: ${renderObject.runtimeType}");
     RenderBox? renderBox = this.context.findRenderObject() as RenderBox?;
     if (renderBox == null) {
       return Offset.zero;

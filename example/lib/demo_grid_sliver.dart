@@ -32,6 +32,7 @@ class _DemoGridSliverState extends State<DemoGridSliver> {
           child: FlutterLogo(),
         ),
         ReorderableSliverGridView(
+          onReorder: (oldIndex, newIndex) {},
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 3,
