@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
 
@@ -55,12 +56,19 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
       }
     }
 
-    RenderBox? renderBox = this.context.findRenderObject() as RenderBox?;
-    if (renderBox == null) {
+    double width;
+    RenderObject? renderObject = this.context.findRenderObject();
+    if (renderObject == null) {
       return Offset.zero;
     }
 
-    double itemWidth = (renderBox.size.width -
+    if (renderObject is RenderSliver) {
+      width = renderObject.constraints.crossAxisExtent;
+    } else {
+      width = (renderObject as RenderBox).size.width;
+    }
+
+    double itemWidth = (width -
         (widget.crossAxisCount - 1) * widget.crossAxisSpacing) /
         widget.crossAxisCount;
 
