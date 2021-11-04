@@ -1,4 +1,4 @@
-## [1.2.1-alpha.1] - 2021-11-4
+## [2.1.0-alpha.1] - 2021-11-4
 - add ReorderableSliverGridView.count.
 
 ## [1.2.0-alpha.1] - 2021-9-25
