@@ -56,19 +56,19 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
       }
     }
 
-    // renderObject RenderSliverGrid#b86b1 relayoutBoundary=up1, type: RenderSliverGrid
-    RenderSliverGrid a;
-    var renderObject = this.context.findRenderObject();
-    if (renderObject.runtimeType == RenderSliverGrid) {
-      RenderSliver renderSliver = renderObject as RenderSliver;
-    }
-    print("renderObject $renderObject, type: ${renderObject.runtimeType}");
-    RenderBox? renderBox = this.context.findRenderObject() as RenderBox?;
-    if (renderBox == null) {
+    double width;
+    RenderObject? renderObject = this.context.findRenderObject();
+    if (renderObject == null) {
       return Offset.zero;
     }
 
-    double itemWidth = (renderBox.size.width -
+    if (renderObject is RenderSliver) {
+      width = renderObject.constraints.crossAxisExtent;
+    } else {
+      width = (renderObject as RenderBox).size.width;
+    }
+
+    double itemWidth = (width -
         (widget.crossAxisCount - 1) * widget.crossAxisSpacing) /
         widget.crossAxisCount;
 

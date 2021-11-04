@@ -258,6 +258,7 @@ class ReorderableGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    GridView.extent(maxCrossAxisExtent: jk)
     return ReorderableGridWrapperView(
       child: GridView.custom(
         key: key,
@@ -289,13 +290,3 @@ class ReorderableGridView extends StatelessWidget {
     );
   }
 }
-
-const _IS_DEBUG = true;
-
-_debug(String msg) {
-  if (_IS_DEBUG) {
-    print("ReorderableGridView: " + msg);
-  }
-}
-
-// how to export?
