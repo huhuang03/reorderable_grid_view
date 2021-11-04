@@ -258,7 +258,6 @@ class ReorderableGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GridView.extent(maxCrossAxisExtent: jk)
     return ReorderableGridWrapperView(
       child: GridView.custom(
         key: key,
