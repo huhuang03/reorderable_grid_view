@@ -1,10 +1,6 @@
-import 'dart:math';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:reorderable_grid_view/src/drag_info.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_mixin.dart';
-import 'package:reorderable_grid_view/src/reorderable_item.dart';
 
 import '../reorderable_grid_view.dart';
 

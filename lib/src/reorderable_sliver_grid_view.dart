@@ -55,7 +55,6 @@ class ReorderableSliverGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // we can't wrapper this?
-
     return ReorderableGridWrapperView(
       child: SliverGrid.count(
         key: key,
