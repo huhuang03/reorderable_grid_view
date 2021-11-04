@@ -57,6 +57,12 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 ```
 
+## Other
+
+`Reorderable.builder` and `ReorderableSliverGridView.count` can work.
+
+If you want use `Reorderable.builder`. You should look at [issue #18](https://github.com/huhuang03/reorderable_grid_view/issues/18#issuecomment-938628435).
+
 # Important
 as issue #17 says. There's some broken api in MultiDragGestureRecognizer. So if you have some issue relative to MultiDragGestureRecognizer.
 
