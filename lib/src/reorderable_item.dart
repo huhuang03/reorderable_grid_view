@@ -1,8 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_mixin.dart';
-import 'package:reorderable_grid_view/src/reorderable_grid_wrapper_view.dart';
 
+/// I only need get the pos of other children.
+/// How to pass (or access) the pos delegate?
+/// Can I pass the pos delegate to all the child(the same to all)?
+/// But for now, let's just do it.
 class ReorderableItemView extends StatefulWidget {
   final Widget child;
   final Key key;

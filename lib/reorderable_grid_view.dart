@@ -72,22 +72,6 @@ class ReorderableGridView extends StatelessWidget {
   final ScrollController? controller;
   final DragStartBehavior dragStartBehavior;
 
-  // static List<Widget> _wrapChildren(List<Widget> children,
-  //     List<Widget>? footer) {
-  //   var rst = <Widget>[];
-  //   for (var i = 0; i < children.length; i++) {
-  //     var child = children[i];
-  //     rst.add(ReorderableItemView(
-  //       child: child,
-  //       key: child.key!,
-  //       index: i,
-  //     ));
-  //   }
-  //
-  //   rst.addAll(footer ?? []);
-  //   return rst;
-  // }
-
   ReorderableGridView.builder({
     Key? key,
     required ReorderCallback onReorder,
