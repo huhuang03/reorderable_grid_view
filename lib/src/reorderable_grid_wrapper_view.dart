@@ -60,15 +60,15 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
     }
 
     double itemWidth = (width -
-        (widget.crossAxisCount - 1) * widget.crossAxisSpacing) /
-        widget.crossAxisCount;
+        (crossAxisCount - 1) * crossAxisSpacing) /
+        crossAxisCount;
 
-    int row = index ~/ widget.crossAxisCount;
-    int col = index % widget.crossAxisCount;
+    int row = index ~/ crossAxisCount;
+    int col = index % crossAxisCount;
 
-    double x = (col - 1) * (itemWidth + widget.crossAxisSpacing);
+    double x = (col - 1) * (itemWidth + crossAxisSpacing);
     double y = (row - 1) *
-        (itemWidth / (widget.childAspectRatio) + widget.mainAxisSpacing);
+        (itemWidth / (childAspectRatio) + mainAxisSpacing);
     return Offset(x, y);
   }
 
@@ -86,8 +86,6 @@ class ReorderableGridWrapperView extends StatefulWidget with ReorderableGridWidg
 
   final Widget child;
 
-  final ReorderableChildPosDelegate childPosDelegator;
-
   const ReorderableGridWrapperView({
     Key? key,
     required this.child,
@@ -100,11 +98,25 @@ class ReorderableGridWrapperView extends StatefulWidget with ReorderableGridWidg
     required this.onReorder,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
-  }): super(key: key);
+  }):  super(key: key);
 
   @override
   ReorderableGridWrapperViewState createState() => ReorderableGridWrapperViewState();
 }
 
 class ReorderableGridWrapperViewState extends State<ReorderableGridWrapperView> with TickerProviderStateMixin<ReorderableGridWrapperView>, ReorderableGridStateMixin {
+  ReorderableChildPosDelegate? _childPosDelegator;
+
+  @override
+  ReorderableChildPosDelegate get childPosDelegator {
+    if (_childPosDelegator == null)  {
+      _childPosDelegator = new GridChildPosDelegate(
+          crossAxisCount: widget.crossAxisCount,
+          mainAxisSpacing: widget.mainAxisSpacing,
+          crossAxisSpacing: widget.crossAxisSpacing,
+          childAspectRatio: widget.childAspectRatio,
+      );
+    }
+    return _childPosDelegator!;
+  }
 }

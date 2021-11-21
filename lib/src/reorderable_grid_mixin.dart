@@ -16,7 +16,7 @@ abstract class ReorderableChildPosDelegate {
 
 
 mixin ReorderableGridWidgetMixin on StatefulWidget {
-  ReorderableChildPosDelegate get childPosDelegator;
+
   // int get crossAxisCount;
   // double get mainAxisSpacing;
   // double get crossAxisSpacing;
@@ -33,6 +33,7 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
 // So I want my widget to on The ReorderableGridWidgetMixin
 mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T>, TickerProviderStateMixin<T> {
   MultiDragGestureRecognizer? _recognizer;
+  ReorderableChildPosDelegate get childPosDelegator;
 
   // it's not as drag start?
   void startDragRecognizer(int index, PointerDownEvent event,
@@ -67,7 +68,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
     if (index < 0) {
       return Offset.zero;
     }
-    return widget.childPosDelegator.getPos(index);
+    return childPosDelegator.getPos(index, __items, context);
 
     // // can I get pos by child?
     // var child = this.__items[index];
