@@ -8,18 +8,19 @@ import 'package:reorderable_grid_view/src/reorderable_item.dart';
 import '../reorderable_grid_view.dart';
 import 'drag_info.dart';
 
-abstract class ReorderableChildPosDelegator {
+abstract class ReorderableChildPosDelegate {
+  const ReorderableChildPosDelegate();
   /// 获取子view的位置
-  Offset getPos(int index);
+  Offset getPos(int index, Map<int, ReorderableItemViewState> items, BuildContext context);
 }
 
 
 mixin ReorderableGridWidgetMixin on StatefulWidget {
-  ReorderableChildPosDelegator get childPosDelegator;
-  int get crossAxisCount;
-  double get mainAxisSpacing;
-  double get crossAxisSpacing;
-  double get childAspectRatio;
+  ReorderableChildPosDelegate get childPosDelegator;
+  // int get crossAxisCount;
+  // double get mainAxisSpacing;
+  // double get crossAxisSpacing;
+  // double get childAspectRatio;
 
   ReorderCallback get onReorder;
   DragWidgetBuilder? get dragWidgetBuilder;
@@ -68,53 +69,53 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
     }
     return widget.childPosDelegator.getPos(index);
 
-    // can I get pos by child?
-    var child = this.__items[index];
-    // I think the better is use the sliverGrid?
-    var childObject = child?.context.findRenderObject();
-
-    // so from the childObject, I still can't get pos?
-    if (childObject == null) {
-      print("index: $index is null");
-    } else {
-      print("index: $index, pos: ${childObject.constraints}");
-      if (childObject is RenderSliver) {
-        print("index: $index, pos: ${childObject.constraints}");
-      } else if (childObject is RenderBox){
-        // childObject.localToGlobal(point)
-        print("index: $index, pos: ${childObject.semanticBounds}");
-      } else {
-        print("index: $index, $childObject");
-      }
-    }
-
-    // will it be not ready?
-    // index and the next is not ready?
-    // ok, but let's do it
-
-    double width;
-    RenderObject? renderObject = this.context.findRenderObject();
-    if (renderObject == null) {
-      return Offset.zero;
-    }
-
-    if (renderObject is RenderSliver) {
-      width = renderObject.constraints.crossAxisExtent;
-    } else {
-      width = (renderObject as RenderBox).size.width;
-    }
-
-    double itemWidth = (width -
-        (widget.crossAxisCount - 1) * widget.crossAxisSpacing) /
-        widget.crossAxisCount;
-
-    int row = index ~/ widget.crossAxisCount;
-    int col = index % widget.crossAxisCount;
-
-    double x = (col - 1) * (itemWidth + widget.crossAxisSpacing);
-    double y = (row - 1) *
-        (itemWidth / (widget.childAspectRatio) + widget.mainAxisSpacing);
-    return Offset(x, y);
+    // // can I get pos by child?
+    // var child = this.__items[index];
+    // // I think the better is use the sliverGrid?
+    // var childObject = child?.context.findRenderObject();
+    //
+    // // so from the childObject, I still can't get pos?
+    // if (childObject == null) {
+    //   print("index: $index is null");
+    // } else {
+    //   print("index: $index, pos: ${childObject.constraints}");
+    //   if (childObject is RenderSliver) {
+    //     print("index: $index, pos: ${childObject.constraints}");
+    //   } else if (childObject is RenderBox){
+    //     // childObject.localToGlobal(point)
+    //     print("index: $index, pos: ${childObject.semanticBounds}");
+    //   } else {
+    //     print("index: $index, $childObject");
+    //   }
+    // }
+    //
+    // // will it be not ready?
+    // // index and the next is not ready?
+    // // ok, but let's do it
+    //
+    // double width;
+    // RenderObject? renderObject = this.context.findRenderObject();
+    // if (renderObject == null) {
+    //   return Offset.zero;
+    // }
+    //
+    // if (renderObject is RenderSliver) {
+    //   width = renderObject.constraints.crossAxisExtent;
+    // } else {
+    //   width = (renderObject as RenderBox).size.width;
+    // }
+    //
+    // double itemWidth = (width -
+    //     (widget.crossAxisCount - 1) * widget.crossAxisSpacing) /
+    //     widget.crossAxisCount;
+    //
+    // int row = index ~/ widget.crossAxisCount;
+    // int col = index % widget.crossAxisCount;
+    //
+    // double x = (col - 1) * (itemWidth + widget.crossAxisSpacing);
+    // double y = (row - 1) *
+    //     (itemWidth / (widget.childAspectRatio) + widget.mainAxisSpacing);
+    // return Offset(x, y);
   }
 
   // Ok, let's no calc the dropIndex
