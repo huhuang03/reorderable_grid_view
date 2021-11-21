@@ -83,6 +83,7 @@ class ReorderableGridWrapperView extends StatefulWidget with ReorderableGridWidg
   final ReorderCallback onReorder;
   final DragWidgetBuilder? dragWidgetBuilder;
   final ScrollSpeedController? scrollSpeedController;
+  final ReorderableChildPosDelegate? posDelegate;
 
   final Widget child;
 
@@ -98,25 +99,44 @@ class ReorderableGridWrapperView extends StatefulWidget with ReorderableGridWidg
     required this.onReorder,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
+    this.posDelegate,
   }):  super(key: key);
 
   @override
-  ReorderableGridWrapperViewState createState() => ReorderableGridWrapperViewState();
-}
-
-class ReorderableGridWrapperViewState extends State<ReorderableGridWrapperView> with TickerProviderStateMixin<ReorderableGridWrapperView>, ReorderableGridStateMixin {
-  ReorderableChildPosDelegate? _childPosDelegator;
-
-  @override
-  ReorderableChildPosDelegate get childPosDelegator {
-    if (_childPosDelegator == null)  {
-      _childPosDelegator = new GridChildPosDelegate(
-          crossAxisCount: widget.crossAxisCount,
-          mainAxisSpacing: widget.mainAxisSpacing,
-          crossAxisSpacing: widget.crossAxisSpacing,
-          childAspectRatio: widget.childAspectRatio,
+  ReorderableGridWrapperViewState createState() {
+    var delegate = this.posDelegate;
+    if (delegate == null) {
+      delegate = new GridChildPosDelegate(
+        crossAxisCount: crossAxisCount,
+        mainAxisSpacing: mainAxisSpacing,
+        crossAxisSpacing: crossAxisSpacing,
+        childAspectRatio: childAspectRatio,
       );
     }
-    return _childPosDelegator!;
+    return ReorderableGridWrapperViewState(delegate);
   }
+}
+
+/// Yes we can't get grid delegate here, because we don't know child.
+class ReorderableGridWrapperViewState extends State<ReorderableGridWrapperView> with TickerProviderStateMixin<ReorderableGridWrapperView>, ReorderableGridStateMixin {
+  ReorderableChildPosDelegate childPosDelegator;
+
+  ReorderableGridWrapperViewState(this.childPosDelegator);
+
+// so you think that you can pass from the out side?
+  // ReorderableChildPosDelegate? _childPosDelegator;
+  //
+  // // can I get the child?
+  // @override
+  // ReorderableChildPosDelegate get childPosDelegator {
+  //   if (_childPosDelegator == null)  {
+  //     _childPosDelegator = new GridChildPosDelegate(
+  //         crossAxisCount: widget.crossAxisCount,
+  //         mainAxisSpacing: widget.mainAxisSpacing,
+  //         crossAxisSpacing: widget.crossAxisSpacing,
+  //         childAspectRatio: widget.childAspectRatio,
+  //     );
+  //   }
+  //   return _childPosDelegator!;
+  // }
 }

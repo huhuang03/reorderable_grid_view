@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_wrapper_view.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
+import 'package:reorderable_grid_view/src/sliver_grid_with_reorderable_pos_delegate.dart';
 
 import '../reorderable_grid_view.dart';
 
@@ -55,15 +56,18 @@ class ReorderableSliverGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // we can't wrapper this?
-    return ReorderableGridWrapperView(
-      child: SliverGrid.count(
-        key: key,
+    // why I need you?
+    // fuck that inner has the ReorderableChildPosDelegate, but outter still have?
+    // can child has two something?
+    var child = SliverGridWithReorderablePosDelegate.count(key: key,
         children: ReorderableItemView.wrapMeList(children, []),
         crossAxisCount: crossAxisCount,
         mainAxisSpacing: mainAxisSpacing,
         crossAxisSpacing: crossAxisSpacing,
-        childAspectRatio: childAspectRatio,
-      ),
+        childAspectRatio: childAspectRatio);
+    return ReorderableGridWrapperView(
+      // fuck?
+      child: child,
 
       crossAxisCount: crossAxisCount,
       crossAxisSpacing: crossAxisSpacing,
@@ -73,6 +77,7 @@ class ReorderableSliverGridView extends StatelessWidget {
       onReorder: onReorder,
       dragWidgetBuilder: dragWidgetBuilder,
       scrollSpeedController: scrollSpeedController,
+      posDelegate: child,
     );
 
   }
