@@ -41,10 +41,12 @@ class SliverGridWithReorderablePosDelegate extends SliverGrid implements Reorder
     final SliverGridLayout layout = gridDelegate.getLayout(constraints);
 
 
+    // SliverGridGeometry(scrollOffset: 0.0, crossAxisOffset: 0.0, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 0
+    // SliverGridGeometry(scrollOffset: 0.0, crossAxisOffset: 140.47619047619048, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 1
+    // SliverGridGeometry(scrollOffset: 227.46031746031747, crossAxisOffset: 0.0, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 3
     final SliverGridGeometry gridGeometry = layout.getGeometryForChildIndex(index);
-    // let's print the gridGeometry.
-    print('gridGeometry $gridGeometry');
-    return Offset.zero;
+    final rst = Offset(gridGeometry.crossAxisOffset, gridGeometry.scrollOffset);
+    return rst;
   }
 
 
