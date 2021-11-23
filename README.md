@@ -58,21 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
 ```
 
 # Other
-`Reorderable.builder` and `ReorderableSliverGridView.count` can work.
-
-If you want use `Reorderable.builder`. You should look at [issue #18](https://github.com/huhuang03/reorderable_grid_view/issues/18#issuecomment-938628435).
-
-## `ReorderableWrapperWidget`
-You can use `ReorderableWrapperWidget` wrapper.
-
-like 
-```dart
-Widget build(BuildContext context) {
-  return ReorderableWrapperWidget(
-    child: AnyWidget('and wrapper the reorderable child with ReorderableItem'),
-  );
-}
-```
+`ReorderableGridView.builder` and `ReorderableSliverGridView.count` can work.
 
 # Important
 as issue #17 says. There's some broken api in MultiDragGestureRecognizer. So if you have some issue relative to MultiDragGestureRecognizer.
@@ -80,6 +66,4 @@ as issue #17 says. There's some broken api in MultiDragGestureRecognizer. So if 
 Please try both 1.1.x and 1.2.x version.
 
 # TODO
-- fix padding.
-- maybe better calculate the pos of child
 - impl the ReorderableGrid.extent

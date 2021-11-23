@@ -17,10 +17,10 @@ class _DemoGridBuilderState extends State<DemoGridBuilder> {
       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
       child: Center(
         child: ReorderableGridView.builder(
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          crossAxisCount: 3,
-          childAspectRatio: 0.6,
+          // crossAxisSpacing: 10,
+          // mainAxisSpacing: 10,
+          // crossAxisCount: 3,
+          // childAspectRatio: 0.6,
           itemCount: 5,
           itemBuilder: (context, index) => buildItem(index),
           onReorder: (oldIndex, newIndex) {

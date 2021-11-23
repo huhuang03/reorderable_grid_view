@@ -65,19 +65,13 @@ class ReorderableSliverGridView extends StatelessWidget {
         mainAxisSpacing: mainAxisSpacing,
         crossAxisSpacing: crossAxisSpacing,
         childAspectRatio: childAspectRatio);
-    return ReorderableWrapperWidget(
-      // fuck?
-      child: child,
 
-      crossAxisCount: crossAxisCount,
-      crossAxisSpacing: crossAxisSpacing,
-      mainAxisSpacing: mainAxisSpacing,
-      childAspectRatio: childAspectRatio,
+    return ReorderableWrapperWidget(
+      child: child,
 
       onReorder: onReorder,
       dragWidgetBuilder: dragWidgetBuilder,
       scrollSpeedController: scrollSpeedController,
-      // posDelegate: child,
     );
 
   }

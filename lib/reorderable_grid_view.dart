@@ -51,10 +51,11 @@ class ReorderableGridView extends StatelessWidget {
   final DragWidgetBuilder? dragWidgetBuilder;
   final ScrollSpeedController? scrollSpeedController;
 
-  final int crossAxisCount;
-  final double crossAxisSpacing;
-  final double mainAxisSpacing;
-  final double childAspectRatio;
+  // should I need this?
+  // final int crossAxisCount;
+  // final double crossAxisSpacing;
+  // final double mainAxisSpacing;
+  // final double childAspectRatio;
 
   final bool? primary;
   final bool shrinkWrap;
@@ -81,11 +82,6 @@ class ReorderableGridView extends StatelessWidget {
     ScrollSpeedController? scrollSpeedController,
     List<Widget>? footer,
 
-    required int crossAxisCount,
-    double mainAxisSpacing = 0.0,
-    double crossAxisSpacing = 0.0,
-    double childAspectRatio = 1.0,
-
     bool reverse = false,
     ScrollController? controller,
     bool? primary,
@@ -110,11 +106,6 @@ class ReorderableGridView extends StatelessWidget {
     dragWidgetBuilder: dragWidgetBuilder,
     scrollSpeedController: scrollSpeedController,
     footer: footer,
-
-    crossAxisCount: crossAxisCount,
-    mainAxisSpacing: mainAxisSpacing,
-    crossAxisSpacing: crossAxisSpacing,
-    childAspectRatio: childAspectRatio,
 
     // how to determine the
     childrenDelegate: SliverChildBuilderDelegate(
@@ -179,12 +170,6 @@ class ReorderableGridView extends StatelessWidget {
     scrollSpeedController: scrollSpeedController,
     footer: footer,
 
-    crossAxisCount: crossAxisCount,
-    mainAxisSpacing: mainAxisSpacing,
-    crossAxisSpacing: crossAxisSpacing,
-    childAspectRatio: childAspectRatio,
-
-
     childrenDelegate: SliverChildListDelegate(
       ReorderableItemView.wrapMeList(children, footer),
       addAutomaticKeepAlives: addAutomaticKeepAlives,
@@ -218,11 +203,6 @@ class ReorderableGridView extends StatelessWidget {
     this.dragWidgetBuilder,
     this.scrollSpeedController,
     this.footer,
-
-    required this.crossAxisCount,
-    this.crossAxisSpacing = 0,
-    this.mainAxisSpacing = 0,
-    this.childAspectRatio = 1.0,
 
     required this.gridDelegate,
     required this.childrenDelegate,
@@ -264,11 +244,6 @@ class ReorderableGridView extends StatelessWidget {
         clipBehavior: clipBehavior,
         dragStartBehavior: dragStartBehavior,
       ),
-
-      crossAxisCount: crossAxisCount,
-      crossAxisSpacing: crossAxisSpacing,
-      mainAxisSpacing: mainAxisSpacing,
-      childAspectRatio: childAspectRatio,
 
       onReorder: onReorder,
       dragWidgetBuilder: dragWidgetBuilder,

@@ -1,0 +1,12 @@
+## `ReorderableWrapperWidget`
+You can use `ReorderableWrapperWidget` wrapper.
+
+like
+```dart
+Widget build(BuildContext context) {
+  return ReorderableWrapperWidget(
+    child: AnyWidget('and wrapper the reorderable child with ReorderableItem'),
+  );
+}
+```
+
