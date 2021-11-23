@@ -1,3 +1,6 @@
+## [2.2.0] - 2021-11-24
+- remove the unnecessary `crossAxisSpacing` staff.
+
 ## [2.1.0-alpha.1] - 2021-11-4
 - add ReorderableSliverGridView.count.
 
