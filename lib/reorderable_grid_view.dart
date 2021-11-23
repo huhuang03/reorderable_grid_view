@@ -51,12 +51,6 @@ class ReorderableGridView extends StatelessWidget {
   final DragWidgetBuilder? dragWidgetBuilder;
   final ScrollSpeedController? scrollSpeedController;
 
-  // should I need this?
-  // final int crossAxisCount;
-  // final double crossAxisSpacing;
-  // final double mainAxisSpacing;
-  // final double childAspectRatio;
-
   final bool? primary;
   final bool shrinkWrap;
   final EdgeInsetsGeometry? padding;
