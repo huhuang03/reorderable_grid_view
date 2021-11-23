@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -68,7 +69,24 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
     if (index < 0) {
       return Offset.zero;
     }
-    return childPosDelegator.getPos(index, __items, context);
+    // return childPosDelegator.getPos(index, __items, context);
+
+    var child = this.__items[index];
+    RenderBox box = child?.context.findRenderObject() as RenderBox;
+    print('size: ${box.size}, constraints: ${box.constraints}');
+
+    var parentRenderObject = this.context.findRenderObject() as RenderBox;
+    print('parentRenderObject: ${parentRenderObject.runtimeType}');
+    // ok, get pos in parent
+    // final AbstractNode? childParentData = box.parent;
+    // final RenderBox boundary = childParentData as RenderBox;
+    // print('parent: ${childParentData.toString()} ${childParentData.runtimeType}');
+    // final parentOffset = childParentData.offset;
+    final pos = parentRenderObject.globalToLocal(box.localToGlobal(Offset.zero));
+    print('pos: $pos, index: $index');
+    return pos;
+    return Offset.zero;
+
 
     // // can I get pos by child?
     // var child = this.__items[index];

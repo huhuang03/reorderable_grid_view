@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_mixin.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
 
+// you are strange?
 class SliverGridWithReorderablePosDelegate extends SliverGrid implements ReorderableChildPosDelegate {
   const SliverGridWithReorderablePosDelegate({
     Key? key,

@@ -242,6 +242,7 @@ class ReorderableGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // can we just return something(like a gridview with return the reorderableSliverGrid?)
     return ReorderableGridWrapperView(
       child: GridView.custom(
         key: key,
