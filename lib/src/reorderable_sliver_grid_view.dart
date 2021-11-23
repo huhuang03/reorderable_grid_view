@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:reorderable_grid_view/src/reorderable_grid_wrapper_view.dart';
+import 'package:reorderable_grid_view/src/reorderable_wrapper_widget.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
 import 'package:reorderable_grid_view/src/sliver_grid_with_reorderable_pos_delegate.dart';
 
@@ -65,7 +65,7 @@ class ReorderableSliverGridView extends StatelessWidget {
         mainAxisSpacing: mainAxisSpacing,
         crossAxisSpacing: crossAxisSpacing,
         childAspectRatio: childAspectRatio);
-    return ReorderableGridWrapperView(
+    return ReorderableWrapperWidget(
       // fuck?
       child: child,
 
@@ -77,7 +77,7 @@ class ReorderableSliverGridView extends StatelessWidget {
       onReorder: onReorder,
       dragWidgetBuilder: dragWidgetBuilder,
       scrollSpeedController: scrollSpeedController,
-      posDelegate: child,
+      // posDelegate: child,
     );
 
   }

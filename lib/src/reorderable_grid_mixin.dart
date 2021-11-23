@@ -34,7 +34,7 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
 // So I want my widget to on The ReorderableGridWidgetMixin
 mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T>, TickerProviderStateMixin<T> {
   MultiDragGestureRecognizer? _recognizer;
-  ReorderableChildPosDelegate get childPosDelegator;
+  ReorderableChildPosDelegate? get childPosDelegator;
 
   // it's not as drag start?
   void startDragRecognizer(int index, PointerDownEvent event,

@@ -3,10 +3,12 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:reorderable_grid_view/src/reorderable_grid_wrapper_view.dart';
+import 'package:reorderable_grid_view/src/reorderable_wrapper_widget.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
 
 export 'src/reorderable_sliver_grid_view.dart' show ReorderableSliverGridView;
+export 'src/reorderable_wrapper_widget.dart' show ReorderableWrapperWidget;
+export 'src/reorderable_item.dart' show ReorderableItemView;
 
 /// Build the drag widget under finger when dragging.
 /// The index here represents the index of current dragging widget
@@ -243,7 +245,7 @@ class ReorderableGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // can we just return something(like a gridview with return the reorderableSliverGrid?)
-    return ReorderableGridWrapperView(
+    return ReorderableWrapperWidget(
       child: GridView.custom(
         key: key,
         gridDelegate: gridDelegate,

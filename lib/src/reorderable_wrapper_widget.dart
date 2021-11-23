@@ -74,7 +74,7 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
 
 }
 
-class ReorderableGridWrapperView extends StatefulWidget with ReorderableGridWidgetMixin {
+class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidgetMixin {
   final int crossAxisCount;
   final double crossAxisSpacing;
   final double mainAxisSpacing;
@@ -87,7 +87,7 @@ class ReorderableGridWrapperView extends StatefulWidget with ReorderableGridWidg
 
   final Widget child;
 
-  const ReorderableGridWrapperView({
+  const ReorderableWrapperWidget({
     Key? key,
     required this.child,
 
@@ -103,7 +103,7 @@ class ReorderableGridWrapperView extends StatefulWidget with ReorderableGridWidg
   }):  super(key: key);
 
   @override
-  ReorderableGridWrapperViewState createState() {
+  ReorderableWrapperWidgetState createState() {
     var delegate = this.posDelegate;
     if (delegate == null) {
       delegate = new GridChildPosDelegate(
@@ -113,15 +113,15 @@ class ReorderableGridWrapperView extends StatefulWidget with ReorderableGridWidg
         childAspectRatio: childAspectRatio,
       );
     }
-    return ReorderableGridWrapperViewState(delegate);
+    return ReorderableWrapperWidgetState(delegate);
   }
 }
 
 /// Yes we can't get grid delegate here, because we don't know child.
-class ReorderableGridWrapperViewState extends State<ReorderableGridWrapperView> with TickerProviderStateMixin<ReorderableGridWrapperView>, ReorderableGridStateMixin {
+class ReorderableWrapperWidgetState extends State<ReorderableWrapperWidget> with TickerProviderStateMixin<ReorderableWrapperWidget>, ReorderableGridStateMixin {
   ReorderableChildPosDelegate childPosDelegator;
 
-  ReorderableGridWrapperViewState(this.childPosDelegator);
+  ReorderableWrapperWidgetState(this.childPosDelegator);
 
 // so you think that you can pass from the out side?
   // ReorderableChildPosDelegate? _childPosDelegator;
