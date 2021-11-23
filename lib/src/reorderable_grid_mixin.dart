@@ -75,6 +75,32 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
     RenderBox box = child?.context.findRenderObject() as RenderBox;
     print('size: ${box.size}, constraints: ${box.constraints}');
 
+    // how to do?
+    var thisRenderObject = this.context.findRenderObject();
+    // RenderSliverGrid
+
+    // ok, we can't get pos in parent.
+    if (thisRenderObject is RenderSliverGrid) {
+      var renderObject = thisRenderObject;
+
+      final SliverConstraints constraints = renderObject.constraints;
+      final SliverGridLayout layout = renderObject.gridDelegate.getLayout(constraints);
+
+
+      // SliverGridGeometry(scrollOffset: 0.0, crossAxisOffset: 0.0, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 0
+      // SliverGridGeometry(scrollOffset: 0.0, crossAxisOffset: 140.47619047619048, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 1
+      // SliverGridGeometry(scrollOffset: 227.46031746031747, crossAxisOffset: 0.0, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 3
+      final SliverGridGeometry gridGeometry = layout.getGeometryForChildIndex(index);
+      final rst = Offset(gridGeometry.crossAxisOffset, gridGeometry.scrollOffset);
+      return rst;
+
+
+      RenderSliver thisRenderSliver = thisRenderObject;
+      var x = thisRenderSliver.childCrossAxisPosition(box);
+      var y = thisRenderSliver.childMainAxisPosition(box);
+      print('x: $x, y: $y, index: $index');
+      return Offset(x, y);
+    }
     var parentRenderObject = this.context.findRenderObject() as RenderBox;
     print('parentRenderObject: ${parentRenderObject.runtimeType}');
     // ok, get pos in parent
