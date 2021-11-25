@@ -1,5 +1,6 @@
 import 'package:example/demo_grid_builder.dart';
 import 'package:example/demo_grid_sliver.dart';
+import 'package:example/test_issue_24.dart';
 import 'package:example/test_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
@@ -36,6 +37,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
+    return TestIssue24();
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -63,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
             DemoReorderableGrid(),
             DemoGridBuilder(),
             DemoGridSliver(),
-            TestOverlay()
+            TestIssue24()
           ],
         ),
       ),
