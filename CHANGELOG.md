@@ -1,3 +1,6 @@
+## [2.2.1] - 2021-11-24
+- seems like 2.2.0 forgot some thing?
+
 ## [2.2.0] - 2021-11-24
 - remove the unnecessary `crossAxisSpacing` staff.
 
