@@ -1,3 +1,5 @@
+## [2.2.2] - 2021-12-29
+- fix bug 24.
 ## [2.2.1] - 2021-11-24
 - seems like 2.2.0 forgot some thing?
 
