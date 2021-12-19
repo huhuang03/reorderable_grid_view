@@ -79,7 +79,7 @@ class DemoReorderableGrid extends StatefulWidget {
 }
 
 class _DemoReorderableGridState extends State<DemoReorderableGrid> {
-  final data = List<int>.generate(50, (index) => index);
+  final data = List<int>.generate(10, (index) => index);
   double scrollSpeedVariable = 5;
 
   @override
@@ -97,8 +97,8 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
           children: this.data.map((e) => buildItem(e)).toList(),
           scrollSpeedController:
               (int timeInMilliSecond, double overSize, double itemSize) {
-            print(
-                "timeInMilliSecond: $timeInMilliSecond, overSize: $overSize, itemSize $itemSize");
+            // print(
+            //     "timeInMilliSecond: $timeInMilliSecond, overSize: $overSize, itemSize $itemSize");
             if (timeInMilliSecond > 1500) {
               scrollSpeedVariable = 15;
             } else {
@@ -107,7 +107,7 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
             return scrollSpeedVariable;
           },
           onReorder: (oldIndex, newIndex) {
-            print("reorder: $oldIndex -> $newIndex");
+            // print("reorder: $oldIndex -> $newIndex");
             setState(() {
               final element = data.removeAt(oldIndex);
               data.insert(newIndex, element);

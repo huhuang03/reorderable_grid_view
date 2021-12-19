@@ -63,11 +63,14 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
     if (index < 0) {
       return Offset.zero;
     }
+
+    // if (index > __items.length - 1) {
+    //   print('> __item.length - 1 index: $index, __items.length: ${__items.length}');
+    //   return Offset.zero;
+    // }
     // return childPosDelegator.getPos(index, __items, context);
 
     var child = this.__items[index];
-    RenderBox box = child?.context.findRenderObject() as RenderBox;
-    // print('size: ${box.size}, constraints: ${box.constraints}');
 
     // how to do?
     var thisRenderObject = this.context.findRenderObject();
@@ -89,6 +92,13 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
       final rst = Offset(gridGeometry.crossAxisOffset, gridGeometry.scrollOffset);
       return rst;
     }
+
+    var renderObject = child?.context.findRenderObject();
+    if (renderObject == null) {
+      return Offset.zero;
+    }
+    RenderBox box = renderObject as RenderBox;
+
     var parentRenderObject = this.context.findRenderObject() as RenderBox;
     final pos = parentRenderObject.globalToLocal(box.localToGlobal(Offset.zero));
     return pos;
