@@ -13,7 +13,7 @@ class HomePageTile {
   int id = 10;
   Color backgroundColor = Colors.lightGreen;
   String name = "name";
-  IconData tileIcon = Icons.eleven_mp_outlined;
+  IconData tileIcon = Icons.add;
 }
 
 class _TestIssue24State extends State<TestIssue24> {

@@ -1,7 +1,6 @@
 import 'package:example/demo_grid_builder.dart';
 import 'package:example/demo_grid_sliver.dart';
 import 'package:example/test_issue_24.dart';
-import 'package:example/test_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
@@ -114,10 +113,11 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
             });
           },
           dragWidgetBuilder: (index, child) {
-            return Card(
-              color: Colors.blue,
-              child: Text(index.toString()),
-            );
+            return child;
+            // return Card(
+            //   color: Colors.blue,
+            //   child: Text(index.toString()),
+            // );
           },
           footer: [
             Card(
