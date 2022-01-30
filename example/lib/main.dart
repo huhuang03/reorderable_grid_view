@@ -88,7 +88,8 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
       child: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: ReorderableGridView.count(
+        child:
+        ReorderableGridView.count(
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 3,
