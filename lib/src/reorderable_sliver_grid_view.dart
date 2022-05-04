@@ -1,13 +1,9 @@
 import 'package:flutter/widgets.dart';
-import 'package:reorderable_grid_view/src/reorderable_wrapper_widget.dart';
-import 'package:reorderable_grid_view/src/reorderable_item.dart';
 import 'package:reorderable_grid_view/src/sliver_grid_with_reorderable_pos_delegate.dart';
 
 import '../reorderable_grid_view.dart';
 
-// Can I be a stateful widget, because we need update the state. Ok, let's try this.
 class ReorderableSliverGridView extends StatelessWidget {
-  // can I hold the children? let's try.
   final List<Widget> children;
   final int crossAxisCount;
   final double mainAxisSpacing;
@@ -31,8 +27,6 @@ class ReorderableSliverGridView extends StatelessWidget {
     this.scrollSpeedController,
   }): super(key: key);
 
-  // can we do the logic?
-
   const ReorderableSliverGridView.count({
     Key? key,
     required int crossAxisCount,
@@ -52,13 +46,8 @@ class ReorderableSliverGridView extends StatelessWidget {
       childAspectRatio: childAspectRatio,
   );
 
-  // build the new child??
   @override
   Widget build(BuildContext context) {
-    // we can't wrapper this?
-    // why I need you?
-    // fuck that inner has the ReorderableChildPosDelegate, but outter still have?
-    // can child has two something?
     var child = SliverGridWithReorderablePosDelegate.count(key: key,
         children: ReorderableItemView.wrapMeList(children, []),
         crossAxisCount: crossAxisCount,

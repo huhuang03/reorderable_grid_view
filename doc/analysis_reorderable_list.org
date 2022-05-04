@@ -16,4 +16,3 @@ _itemBuilder() {
 * SliverReorderableListState
 
 MultiDragGestureRecognizer<MultiDragPointerState>? _recognizer;
-

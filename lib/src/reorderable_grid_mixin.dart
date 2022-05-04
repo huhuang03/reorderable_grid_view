@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -63,12 +62,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
     if (index < 0) {
       return Offset.zero;
     }
-
-    // if (index > __items.length - 1) {
-    //   print('> __item.length - 1 index: $index, __items.length: ${__items.length}');
-    //   return Offset.zero;
-    // }
-    // return childPosDelegator.getPos(index, __items, context);
 
     var child = this.__items[index];
 
