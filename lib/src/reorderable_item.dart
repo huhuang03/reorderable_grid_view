@@ -145,7 +145,7 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
   @override
   Widget build(BuildContext context) {
     if (_dragging) {
-      // _debug("pos $index is dragging.");
+      print("pos $index is dragging.");
       return SizedBox();
     }
 
