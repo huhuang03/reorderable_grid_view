@@ -1,5 +1,6 @@
 import 'package:example/demo_grid_builder.dart';
 import 'package:example/demo_grid_sliver.dart';
+import 'package:example/demo_placeholder.dart';
 import 'package:example/test_issue_24.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
@@ -38,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     // return TestIssue24();
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
@@ -48,6 +49,9 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Tab(
                 text: "Grid.build",
+              ),
+              Tab (
+                text: "Placeholder",
               ),
               Tab(
                 text: "SliverGrid.count",
@@ -63,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             DemoReorderableGrid(),
             DemoGridBuilder(),
+            DemoPlaceholder(),
             DemoGridSliver(),
             TestIssue24()
           ],
@@ -115,10 +120,6 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
           },
           dragWidgetBuilder: (index, child) {
             return child;
-            // return Card(
-            //   color: Colors.blue,
-            //   child: Text(index.toString()),
-            // );
           },
           footer: [
             Card(

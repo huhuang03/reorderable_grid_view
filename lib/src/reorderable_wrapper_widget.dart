@@ -78,6 +78,7 @@ class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidget
   final ReorderCallback onReorder;
   final DragWidgetBuilder? dragWidgetBuilder;
   final ScrollSpeedController? scrollSpeedController;
+  final PlaceholderBuilder? placeholderBuilder;
   final ReorderableChildPosDelegate? posDelegate;
 
   final Widget child;
@@ -89,6 +90,7 @@ class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidget
     required this.onReorder,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
+    this.placeholderBuilder,
     this.posDelegate,
   }):  super(key: key);
 

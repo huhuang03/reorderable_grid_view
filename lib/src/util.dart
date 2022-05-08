@@ -1,6 +1,6 @@
 const _IS_DEBUG = true;
 
-_debug(String msg) {
+debug(String msg) {
   if (_IS_DEBUG) {
     print("ReorderableGridView: " + msg);
   }
