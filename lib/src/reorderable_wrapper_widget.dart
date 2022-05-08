@@ -75,14 +75,10 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
 }
 
 class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidgetMixin {
-  // final int crossAxisCount;
-  // final double crossAxisSpacing;
-  // final double mainAxisSpacing;
-  // final double childAspectRatio;
-
   final ReorderCallback onReorder;
   final DragWidgetBuilder? dragWidgetBuilder;
   final ScrollSpeedController? scrollSpeedController;
+  final PlaceholderBuilder? placeholderBuilder;
   final ReorderableChildPosDelegate? posDelegate;
 
   final Widget child;
@@ -91,52 +87,20 @@ class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidget
     Key? key,
     required this.child,
 
-    // required this.crossAxisCount,
-    // this.mainAxisSpacing = 0.0,
-    // this.crossAxisSpacing = 0.0,
-    // this.childAspectRatio = 1.0,
-
     required this.onReorder,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
+    this.placeholderBuilder,
     this.posDelegate,
   }):  super(key: key);
 
   @override
   ReorderableWrapperWidgetState createState() {
-    // var delegate = this.posDelegate;
-    // if (delegate == null) {
-    //   delegate = new GridChildPosDelegate(
-    //     crossAxisCount: crossAxisCount,
-    //     mainAxisSpacing: mainAxisSpacing,
-    //     crossAxisSpacing: crossAxisSpacing,
-    //     childAspectRatio: childAspectRatio,
-    //   );
-    // }
     return ReorderableWrapperWidgetState();
   }
 }
 
 /// Yes we can't get grid delegate here, because we don't know child.
 class ReorderableWrapperWidgetState extends State<ReorderableWrapperWidget> with TickerProviderStateMixin<ReorderableWrapperWidget>, ReorderableGridStateMixin {
-  // ReorderableChildPosDelegate childPosDelegator;
-
   ReorderableWrapperWidgetState();
-
-// so you think that you can pass from the out side?
-  // ReorderableChildPosDelegate? _childPosDelegator;
-  //
-  // // can I get the child?
-  // @override
-  // ReorderableChildPosDelegate get childPosDelegator {
-  //   if (_childPosDelegator == null)  {
-  //     _childPosDelegator = new GridChildPosDelegate(
-  //         crossAxisCount: widget.crossAxisCount,
-  //         mainAxisSpacing: widget.mainAxisSpacing,
-  //         crossAxisSpacing: widget.crossAxisSpacing,
-  //         childAspectRatio: widget.childAspectRatio,
-  //     );
-  //   }
-  //   return _childPosDelegator!;
-  // }
 }

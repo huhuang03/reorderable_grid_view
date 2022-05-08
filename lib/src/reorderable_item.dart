@@ -1,11 +1,9 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_mixin.dart';
+import 'package:reorderable_grid_view/src/util.dart';
 
-/// I only need get the pos of other children.
-/// How to pass (or access) the pos delegate?
-/// Can I pass the pos delegate to all the child(the same to all)?
-/// But for now, let's just do it.
+/// A child wrapper.
 class ReorderableItemView extends StatefulWidget {
   final Widget child;
   final Key key;
@@ -39,14 +37,19 @@ class ReorderableItemView extends StatefulWidget {
 
 class ReorderableItemViewState extends State<ReorderableItemView> with TickerProviderStateMixin {
   late ReorderableGridStateMixin _listState;
+  bool _dragging = false;
+  // ths is strange thing.
+  Offset _startOffset = Offset.zero;
+  Offset _targetOffset = Offset.zero;
+  // Ok, how can we calculate the _offsetAnimation
+  AnimationController? _offsetAnimation;
+  Offset _placeholderOffset = Offset.zero;
 
   Key get key => widget.key;
 
   Widget get child => widget.child;
 
   int get index => widget.index;
-
-  bool get dragging => _dragging;
 
   set dragging(bool dragging) {
     if (mounted) {
@@ -56,13 +59,18 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     }
   }
 
-  bool _dragging = false;
 
   /// We can only check the items between startIndex and the targetIndex, but for simply, we check all <= targetDropIndex
-  void updateForGap(int targetDropIndex) {
+  void updateForGap(int dropIndex) {
     // Actually I can use only use the targetDropIndex to decide the target pos, but what to do I change middle
     if (!mounted) return;
     // How can I calculate the target?
+    _checkPlaceHolder();
+
+    if (_dragging) {
+      debug("updateForGap $dropIndex");
+      return;
+    }
 
     // let's try use dragSize.
     Offset newOffset = _listState.getOffsetInDrag(this.index);
@@ -89,15 +97,46 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     }
   }
 
-  void resetGap() {
-    if (_offsetAnimation != null) {
-      _offsetAnimation!.dispose();
-      _offsetAnimation = null;
+  void _checkPlaceHolder() {
+    if (!_dragging) {
+      return;
     }
 
-    _startOffset = Offset.zero;
-    _targetOffset = Offset.zero;
-    rebuild();
+    final _selfPos = index;
+    final _targetPos = _listState.dropIndex;
+    debug("_selfPos: $index, _targetPos: ${_listState.dropIndex}");
+    if (_targetPos < 0) {
+      // not dragging?
+      return;
+    }
+
+    if (_selfPos == _targetPos) {
+      setState(() {
+        _placeholderOffset = Offset.zero;
+      });
+    }
+
+    if (_selfPos != _targetPos) {
+      // any better idea?
+      setState(() {
+        debug("_buildPlaceHolder for index $index, _offset: $_placeholderOffset, _targetPos: $_targetPos");
+        _placeholderOffset = _listState.getPos(_targetPos) - _listState.getPos(_selfPos);
+      });
+    }
+
+  }
+
+  void resetGap() {
+    setState(() {
+      if (_offsetAnimation != null) {
+        _offsetAnimation!.dispose();
+        _offsetAnimation = null;
+      }
+
+      _startOffset = Offset.zero;
+      _targetOffset = Offset.zero;
+      _placeholderOffset = Offset.zero;
+    });
   }
 
   // Ok, for now we use multiDragRecognizer
@@ -111,13 +150,6 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     _listState.registerItem(this);
     super.initState();
   }
-
-  // ths is strange thing.
-  Offset _startOffset = Offset.zero;
-  Offset _targetOffset = Offset.zero;
-
-  // Ok, how can we calculate the _offsetAnimation
-  AnimationController? _offsetAnimation;
 
   Offset get offset {
     if (_offsetAnimation != null) {
@@ -142,19 +174,31 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     }
   }
 
+  Widget _buildPlaceHolder() {
+    // why you are not right?
+    debug("placeholderBuilder: ${_listState.placeholderBuilder}");
+    if (_listState.placeholderBuilder == null) {
+      return SizedBox();
+    }
+
+    return Transform(
+      transform: Matrix4.translationValues(_placeholderOffset.dx, _placeholderOffset.dy, 0),
+      child: _listState.placeholderBuilder!(index, _listState.dropIndex, child),
+    );
+  }
+
+  // how do you think of this?
   @override
   Widget build(BuildContext context) {
     if (_dragging) {
-      // _debug("pos $index is dragging.");
-      return SizedBox();
+      return _buildPlaceHolder();
     }
 
     Widget _buildChild(Widget child) {
       return LayoutBuilder(
         builder: (context, constraints) {
           if (_dragging) {
-            // why put you in the Listener??
-            return SizedBox();
+            return _buildPlaceHolder();
           }
 
           final _offset = offset;
@@ -169,7 +213,6 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
 
     return Listener(
       onPointerDown: (PointerDownEvent e) {
-        // remember th pointer down??
         // _debug("onPointerDown at $index");
         var listState = ReorderableGridStateMixin.of(context);
         listState.startDragRecognizer(index, e, _createDragRecognizer());
@@ -179,7 +222,6 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
   }
 
   void rebuild() {
-    // _debug("rebuild called for index: ${this.index}, mounted: ${mounted}");
     if (mounted) {
       setState(() {});
     }

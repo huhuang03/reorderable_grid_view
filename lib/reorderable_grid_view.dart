@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +24,9 @@ typedef DragWidgetBuilder = Widget Function(int index, Widget child);
 typedef ScrollSpeedController = double Function(
     int timeInMilliSecond, double overSize, double itemSize);
 
+/// build the target placeholder
+typedef PlaceholderBuilder = Widget Function(int dropIndex, int dropInddex, Widget dragWidget);
+
 /// Usage:
 /// ```
 /// ReorderableGridView(
@@ -50,6 +51,7 @@ class ReorderableGridView extends StatelessWidget {
   final ReorderCallback onReorder;
   final DragWidgetBuilder? dragWidgetBuilder;
   final ScrollSpeedController? scrollSpeedController;
+  final PlaceholderBuilder? placeholderBuilder;
 
   final bool? primary;
   final bool shrinkWrap;
@@ -72,8 +74,9 @@ class ReorderableGridView extends StatelessWidget {
   ReorderableGridView.builder({
     Key? key,
     required ReorderCallback onReorder,
-    DragWidgetBuilder? dragWidgetBuilder,
     ScrollSpeedController? scrollSpeedController,
+    DragWidgetBuilder? dragWidgetBuilder,
+    PlaceholderBuilder? placeholderBuilder,
     List<Widget>? footer,
 
     bool reverse = false,
@@ -99,6 +102,7 @@ class ReorderableGridView extends StatelessWidget {
     onReorder: onReorder,
     dragWidgetBuilder: dragWidgetBuilder,
     scrollSpeedController: scrollSpeedController,
+    placeholderBuilder: placeholderBuilder,
     footer: footer,
 
     // how to determine the
@@ -134,6 +138,7 @@ class ReorderableGridView extends StatelessWidget {
     required ReorderCallback onReorder,
     DragWidgetBuilder? dragWidgetBuilder,
     ScrollSpeedController? scrollSpeedController,
+    PlaceholderBuilder? placeholderBuilder,
     List<Widget>? footer,
 
     double mainAxisSpacing = 0.0,
@@ -162,6 +167,7 @@ class ReorderableGridView extends StatelessWidget {
     onReorder: onReorder,
     dragWidgetBuilder: dragWidgetBuilder,
     scrollSpeedController: scrollSpeedController,
+    placeholderBuilder: placeholderBuilder,
     footer: footer,
 
     childrenDelegate: SliverChildListDelegate(
@@ -196,6 +202,7 @@ class ReorderableGridView extends StatelessWidget {
     required this.onReorder,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
+    this.placeholderBuilder,
     this.footer,
 
     required this.gridDelegate,
@@ -218,7 +225,6 @@ class ReorderableGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // can we just return something(like a gridview with return the reorderableSliverGrid?)
     return ReorderableWrapperWidget(
       child: GridView.custom(
         key: key,
@@ -242,6 +248,7 @@ class ReorderableGridView extends StatelessWidget {
       onReorder: onReorder,
       dragWidgetBuilder: dragWidgetBuilder,
       scrollSpeedController: scrollSpeedController,
+      placeholderBuilder: placeholderBuilder,
     );
   }
 }

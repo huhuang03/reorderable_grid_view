@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
@@ -21,6 +21,7 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
   ReorderCallback get onReorder;
   DragWidgetBuilder? get dragWidgetBuilder;
   ScrollSpeedController? get scrollSpeedController;
+  PlaceholderBuilder? get placeholderBuilder;
 
   Widget get child;
 }
@@ -50,6 +51,10 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
 
   int? _dropIndex;
 
+  int get dropIndex => _dropIndex?? -1;
+
+  PlaceholderBuilder? get placeholderBuilder => widget.placeholderBuilder;
+
   // how to return row, col?
 
   // The pos is relate to the container's 0, 0
@@ -63,12 +68,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
     if (index < 0) {
       return Offset.zero;
     }
-
-    // if (index > __items.length - 1) {
-    //   print('> __item.length - 1 index: $index, __items.length: ${__items.length}');
-    //   return Offset.zero;
-    // }
-    // return childPosDelegator.getPos(index, __items, context);
 
     var child = this.__items[index];
 
