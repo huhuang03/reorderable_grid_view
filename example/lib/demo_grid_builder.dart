@@ -20,9 +20,7 @@ class _DemoGridBuilderState extends State<DemoGridBuilder> {
           itemCount: 5,
           itemBuilder: (context, index) => buildItem(index),
           onReorder: (oldIndex, newIndex) {
-            print("reorder: $oldIndex -> $newIndex");
             setState(() {
-              print("reorder: $oldIndex -> $newIndex");
               setState(() {
                 final element = data.removeAt(oldIndex);
                 data.insert(newIndex, element);
