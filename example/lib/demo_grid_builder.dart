@@ -33,6 +33,9 @@ class _DemoGridBuilderState extends State<DemoGridBuilder> {
               child: Text(index.toString()),
             );
           },
+          onDragStart: (index) {
+            print("onDragStart: $index");
+          },
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             crossAxisSpacing: 10,

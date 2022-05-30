@@ -27,6 +27,9 @@ typedef ScrollSpeedController = double Function(
 /// build the target placeholder
 typedef PlaceholderBuilder = Widget Function(int dropIndex, int dropInddex, Widget dragWidget);
 
+/// The drag and drop life cycle.
+typedef OnDragStart = void Function(int dragIndex);
+
 /// Usage:
 /// ```
 /// ReorderableGridView(
@@ -52,6 +55,7 @@ class ReorderableGridView extends StatelessWidget {
   final DragWidgetBuilder? dragWidgetBuilder;
   final ScrollSpeedController? scrollSpeedController;
   final PlaceholderBuilder? placeholderBuilder;
+  final OnDragStart? onDragStart;
 
   final bool? primary;
   final bool shrinkWrap;
@@ -77,6 +81,7 @@ class ReorderableGridView extends StatelessWidget {
     ScrollSpeedController? scrollSpeedController,
     DragWidgetBuilder? dragWidgetBuilder,
     PlaceholderBuilder? placeholderBuilder,
+    OnDragStart? onDragStart,
     List<Widget>? footer,
 
     bool reverse = false,
@@ -103,6 +108,7 @@ class ReorderableGridView extends StatelessWidget {
     dragWidgetBuilder: dragWidgetBuilder,
     scrollSpeedController: scrollSpeedController,
     placeholderBuilder: placeholderBuilder,
+    onDragStart: onDragStart,
     footer: footer,
 
     // how to determine the
@@ -139,6 +145,7 @@ class ReorderableGridView extends StatelessWidget {
     DragWidgetBuilder? dragWidgetBuilder,
     ScrollSpeedController? scrollSpeedController,
     PlaceholderBuilder? placeholderBuilder,
+    OnDragStart? onDragStart,
     List<Widget>? footer,
 
     double mainAxisSpacing = 0.0,
@@ -168,6 +175,7 @@ class ReorderableGridView extends StatelessWidget {
     dragWidgetBuilder: dragWidgetBuilder,
     scrollSpeedController: scrollSpeedController,
     placeholderBuilder: placeholderBuilder,
+    onDragStart: onDragStart,
     footer: footer,
 
     childrenDelegate: SliverChildListDelegate(
@@ -204,6 +212,7 @@ class ReorderableGridView extends StatelessWidget {
     this.scrollSpeedController,
     this.placeholderBuilder,
     this.footer,
+    this.onDragStart,
 
     required this.gridDelegate,
     required this.childrenDelegate,
@@ -221,7 +230,6 @@ class ReorderableGridView extends StatelessWidget {
     this.controller,
     this.dragStartBehavior = DragStartBehavior.start,
   }): super(key: key);
-
 
   @override
   Widget build(BuildContext context) {
@@ -249,6 +257,7 @@ class ReorderableGridView extends StatelessWidget {
       dragWidgetBuilder: dragWidgetBuilder,
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
+      onDragStart: onDragStart,
     );
   }
 }

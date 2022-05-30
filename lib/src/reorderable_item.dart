@@ -104,7 +104,6 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
 
     final _selfPos = index;
     final _targetPos = _listState.dropIndex;
-    debug("_selfPos: $index, _targetPos: ${_listState.dropIndex}");
     if (_targetPos < 0) {
       // not dragging?
       return;
@@ -213,7 +212,6 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
 
     return Listener(
       onPointerDown: (PointerDownEvent e) {
-        // _debug("onPointerDown at $index");
         var listState = ReorderableGridStateMixin.of(context);
         listState.startDragRecognizer(index, e, _createDragRecognizer());
       },

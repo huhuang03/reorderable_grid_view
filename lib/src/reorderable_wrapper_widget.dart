@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_mixin.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
+import 'package:reorderable_grid_view/src/util.dart';
 
 import '../reorderable_grid_view.dart';
 
@@ -22,7 +23,6 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
 
   @override
   Offset getPos(int index, Map<int, ReorderableItemViewState> items, BuildContext context) {
-
     // can I get pos by child?
     var child = items[index];
     // I think the better is use the sliverGrid?
@@ -80,6 +80,7 @@ class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidget
   final ScrollSpeedController? scrollSpeedController;
   final PlaceholderBuilder? placeholderBuilder;
   final ReorderableChildPosDelegate? posDelegate;
+  final OnDragStart? onDragStart;
 
   final Widget child;
 
@@ -92,7 +93,8 @@ class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidget
     this.scrollSpeedController,
     this.placeholderBuilder,
     this.posDelegate,
-  }):  super(key: key);
+    this.onDragStart,
+  }): super(key: key);
 
   @override
   ReorderableWrapperWidgetState createState() {

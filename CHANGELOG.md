@@ -1,3 +1,6 @@
+## [2.2.3-alpha.2] - 2022-5-30
+- add OnDragStart
+
 ## [2.2.3-alpha.1] - 2022-5-9
 - add placeholderBuilder
 

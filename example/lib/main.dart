@@ -111,6 +111,10 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
             }
             return scrollSpeedVariable;
           },
+          // option
+          onDragStart: (dragIndex) {
+            print("onDragStart $dragIndex");
+          },
           onReorder: (oldIndex, newIndex) {
             // print("reorder: $oldIndex -> $newIndex");
             setState(() {
@@ -118,6 +122,7 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
               data.insert(newIndex, element);
             });
           },
+          // option
           dragWidgetBuilder: (index, child) {
             return child;
           },

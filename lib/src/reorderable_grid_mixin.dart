@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
+import 'package:reorderable_grid_view/src/util.dart';
 
 import '../reorderable_grid_view.dart';
 import 'drag_info.dart';
@@ -22,6 +23,7 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
   DragWidgetBuilder? get dragWidgetBuilder;
   ScrollSpeedController? get scrollSpeedController;
   PlaceholderBuilder? get placeholderBuilder;
+  OnDragStart? get onDragStart;
 
   Widget get child;
 }
@@ -156,8 +158,8 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
 
   // position is the global position
   Drag _onDragStart(Offset position) {
-    // print("drag start!!, _dragIndex: $_dragIndex, position: ${position}");
     assert(_dragInfo == null);
+    widget.onDragStart?.call(_dragIndex!);
 
     final ReorderableItemViewState item = __items[_dragIndex!]!;
     item.dragging = true;
