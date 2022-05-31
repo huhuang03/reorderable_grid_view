@@ -5,7 +5,7 @@ Copy from official ReorderableListView
 # Usage:
 ```
 dependencies:
-  reorderable_grid_view: ^2.2.2
+  reorderable_grid_view: ^2.2.3-alpha.2
 ```
 
 # Example
@@ -64,6 +64,3 @@ class _MyHomePageState extends State<MyHomePage> {
 as issue #17 says. There's some broken api in MultiDragGestureRecognizer. So if you have some issue relative to MultiDragGestureRecognizer.
 
 Please try both 1.1.x and 1.2.x version.
-
-# TODO
-- impl the ReorderableGrid.extent
