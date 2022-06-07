@@ -1,3 +1,7 @@
+## [2.2.3-alpha.2] - 2022-6-7
+- add option `header` `in Reorderable.count`, and please notice header and footer is only support
+`Reorderable.count`
+
 ## [2.2.3-alpha.2] - 2022-5-30
 - add OnDragStart
 

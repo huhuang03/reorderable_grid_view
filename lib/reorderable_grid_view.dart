@@ -50,7 +50,6 @@ typedef OnDragStart = void Function(int dragIndex);
 /// constraint, and that method look called by the framework.
 /// So I need the crossAxisCount, spacing to determine the pos.
 class ReorderableGridView extends StatelessWidget {
-  final List<Widget>? footer;
   final ReorderCallback onReorder;
   final DragWidgetBuilder? dragWidgetBuilder;
   final ScrollSpeedController? scrollSpeedController;
@@ -82,7 +81,6 @@ class ReorderableGridView extends StatelessWidget {
     DragWidgetBuilder? dragWidgetBuilder,
     PlaceholderBuilder? placeholderBuilder,
     OnDragStart? onDragStart,
-    List<Widget>? footer,
 
     bool reverse = false,
     ScrollController? controller,
@@ -109,7 +107,6 @@ class ReorderableGridView extends StatelessWidget {
     scrollSpeedController: scrollSpeedController,
     placeholderBuilder: placeholderBuilder,
     onDragStart: onDragStart,
-    footer: footer,
 
     // how to determine the
     childrenDelegate: SliverChildBuilderDelegate(
@@ -147,6 +144,7 @@ class ReorderableGridView extends StatelessWidget {
     PlaceholderBuilder? placeholderBuilder,
     OnDragStart? onDragStart,
     List<Widget>? footer,
+    List<Widget>? header,
 
     double mainAxisSpacing = 0.0,
     double crossAxisSpacing = 0.0,
@@ -176,10 +174,9 @@ class ReorderableGridView extends StatelessWidget {
     scrollSpeedController: scrollSpeedController,
     placeholderBuilder: placeholderBuilder,
     onDragStart: onDragStart,
-    footer: footer,
 
     childrenDelegate: SliverChildListDelegate(
-      ReorderableItemView.wrapMeList(children, footer),
+      ReorderableItemView.wrapMeList(header, children, footer),
       addAutomaticKeepAlives: addAutomaticKeepAlives,
       addRepaintBoundaries: addRepaintBoundaries,
       addSemanticIndexes: addSemanticIndexes,
@@ -211,7 +208,6 @@ class ReorderableGridView extends StatelessWidget {
     this.dragWidgetBuilder,
     this.scrollSpeedController,
     this.placeholderBuilder,
-    this.footer,
     this.onDragStart,
 
     required this.gridDelegate,

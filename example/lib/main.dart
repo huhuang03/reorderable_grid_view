@@ -126,6 +126,13 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
           dragWidgetBuilder: (index, child) {
             return child;
           },
+          header: [
+            Card(
+              child: Center(
+                child: Icon(Icons.delete),
+              ),
+            ),
+          ],
           footer: [
             Card(
               child: Center(

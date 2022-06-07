@@ -15,9 +15,10 @@ class ReorderableItemView extends StatefulWidget {
     required this.index,
   }) : super(key: key);
 
-  static List<Widget> wrapMeList(List<Widget> children,
+  static List<Widget> wrapMeList(List<Widget>? header, List<Widget> children,
       List<Widget>? footer) {
     var rst = <Widget>[];
+    rst.addAll(header ?? []);
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
       rst.add(ReorderableItemView(
