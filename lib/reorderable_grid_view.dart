@@ -149,6 +149,7 @@ class ReorderableGridView extends StatelessWidget {
     double mainAxisSpacing = 0.0,
     double crossAxisSpacing = 0.0,
     double childAspectRatio = 1.0,
+    double? mainAxisExtent,
 
     bool reverse = false,
     ScrollController? controller,
@@ -186,6 +187,7 @@ class ReorderableGridView extends StatelessWidget {
       mainAxisSpacing: mainAxisSpacing,
       crossAxisSpacing: crossAxisSpacing,
       childAspectRatio: childAspectRatio,
+      mainAxisExtent: mainAxisExtent,
     ),
 
     reverse: reverse,
