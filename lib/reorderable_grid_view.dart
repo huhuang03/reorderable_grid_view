@@ -21,8 +21,7 @@ typedef DragWidgetBuilder = Widget Function(int index, Widget child);
 /// [itemSize] is the drag item size
 /// Maybe you need decide the scroll speed by the given param.
 /// return how many pixels when scroll in 14ms(maybe a frame). 5 is the default
-typedef ScrollSpeedController = double Function(
-    int timeInMilliSecond, double overSize, double itemSize);
+typedef ScrollSpeedController = double Function(int timeInMilliSecond, double overSize, double itemSize);
 
 /// build the target placeholder
 typedef PlaceholderBuilder = Widget Function(int dropIndex, int dropInddex, Widget dragWidget);
@@ -74,6 +73,9 @@ class ReorderableGridView extends StatelessWidget {
   final ScrollController? controller;
   final DragStartBehavior dragStartBehavior;
 
+  final Duration? dragStartDelay;
+  final bool? dragEnabled;
+
   ReorderableGridView.builder({
     Key? key,
     required ReorderCallback onReorder,
@@ -81,7 +83,6 @@ class ReorderableGridView extends StatelessWidget {
     DragWidgetBuilder? dragWidgetBuilder,
     PlaceholderBuilder? placeholderBuilder,
     OnDragStart? onDragStart,
-    Duration dragStartDelay = kLongPressTimeout,
     bool reverse = false,
     ScrollController? controller,
     bool? primary,
@@ -100,7 +101,8 @@ class ReorderableGridView extends StatelessWidget {
     ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     String? restorationId,
     Clip clipBehavior = Clip.hardEdge,
-    bool dragEnabled = true,
+    Duration? dragStartDelay,
+    bool? dragEnabled,
   }) : this(
           key: key,
           onReorder: onReorder,
@@ -117,8 +119,6 @@ class ReorderableGridView extends StatelessWidget {
                 child: child,
                 key: child.key!,
                 index: index,
-                dragStartDelay: dragStartDelay,
-                dragEnabled: dragEnabled,
               );
             },
             childCount: itemCount,
@@ -140,6 +140,8 @@ class ReorderableGridView extends StatelessWidget {
           keyboardDismissBehavior: keyboardDismissBehavior,
           restorationId: restorationId,
           clipBehavior: clipBehavior,
+          dragStartDelay: dragStartDelay,
+          dragEnabled: dragEnabled,
         );
 
   ReorderableGridView.count({
@@ -149,7 +151,6 @@ class ReorderableGridView extends StatelessWidget {
     ScrollSpeedController? scrollSpeedController,
     PlaceholderBuilder? placeholderBuilder,
     OnDragStart? onDragStart,
-    Duration dragStartDelay = kLongPressTimeout,
     List<Widget>? footer,
     List<Widget>? header,
     double mainAxisSpacing = 0.0,
@@ -172,7 +173,8 @@ class ReorderableGridView extends StatelessWidget {
     ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     String? restorationId,
     Clip clipBehavior = Clip.hardEdge,
-    bool dragEnabled = true,
+    Duration? dragStartDelay,
+    bool? dragEnabled,
   }) : this(
           key: key,
           onReorder: onReorder,
@@ -181,7 +183,7 @@ class ReorderableGridView extends StatelessWidget {
           placeholderBuilder: placeholderBuilder,
           onDragStart: onDragStart,
           childrenDelegate: SliverChildListDelegate(
-            ReorderableItemView.wrapMeList(header, children, footer,dragStartDelay,dragEnabled),
+            ReorderableItemView.wrapMeList(header, children, footer),
             addAutomaticKeepAlives: addAutomaticKeepAlives,
             addRepaintBoundaries: addRepaintBoundaries,
             addSemanticIndexes: addSemanticIndexes,
@@ -204,6 +206,8 @@ class ReorderableGridView extends StatelessWidget {
           keyboardDismissBehavior: keyboardDismissBehavior,
           restorationId: restorationId,
           clipBehavior: clipBehavior,
+          dragEnabled: dragEnabled,
+          dragStartDelay: dragStartDelay,
         );
 
   ReorderableGridView({
@@ -227,6 +231,8 @@ class ReorderableGridView extends StatelessWidget {
     this.clipBehavior = Clip.hardEdge,
     this.controller,
     this.dragStartBehavior = DragStartBehavior.start,
+    this.dragStartDelay,
+    this.dragEnabled,
   }) : super(key: key);
 
   @override
@@ -254,6 +260,8 @@ class ReorderableGridView extends StatelessWidget {
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,
+      dragEnabled: dragEnabled,
+      dragStartDelay: dragStartDelay,
     );
   }
 }

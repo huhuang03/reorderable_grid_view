@@ -1,9 +1,8 @@
-
+import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_mixin.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
-import 'package:reorderable_grid_view/src/util.dart';
 
 import '../reorderable_grid_view.dart';
 
@@ -35,7 +34,7 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
       print("index: $index, pos: ${childObject.constraints}");
       if (childObject is RenderSliver) {
         print("index: $index, pos: ${childObject.constraints}");
-      } else if (childObject is RenderBox){
+      } else if (childObject is RenderBox) {
         // childObject.localToGlobal(point)
         print("index: $index, pos: ${childObject.semanticBounds}");
       } else {
@@ -59,19 +58,15 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
       width = (renderObject as RenderBox).size.width;
     }
 
-    double itemWidth = (width -
-        (crossAxisCount - 1) * crossAxisSpacing) /
-        crossAxisCount;
+    double itemWidth = (width - (crossAxisCount - 1) * crossAxisSpacing) / crossAxisCount;
 
     int row = index ~/ crossAxisCount;
     int col = index % crossAxisCount;
 
     double x = (col - 1) * (itemWidth + crossAxisSpacing);
-    double y = (row - 1) *
-        (itemWidth / (childAspectRatio) + mainAxisSpacing);
+    double y = (row - 1) * (itemWidth / (childAspectRatio) + mainAxisSpacing);
     return Offset(x, y);
   }
-
 }
 
 class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidgetMixin {
@@ -81,20 +76,26 @@ class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidget
   final PlaceholderBuilder? placeholderBuilder;
   final ReorderableChildPosDelegate? posDelegate;
   final OnDragStart? onDragStart;
-
   final Widget child;
+
+  @override
+  final bool? dragEnabled;
+
+  @override
+  final Duration? dragStartDelay;
 
   const ReorderableWrapperWidget({
     Key? key,
     required this.child,
-
     required this.onReorder,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
     this.placeholderBuilder,
     this.posDelegate,
     this.onDragStart,
-  }): super(key: key);
+    this.dragEnabled,
+    this.dragStartDelay,
+  }) : super(key: key);
 
   @override
   ReorderableWrapperWidgetState createState() {
@@ -103,6 +104,7 @@ class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidget
 }
 
 /// Yes we can't get grid delegate here, because we don't know child.
-class ReorderableWrapperWidgetState extends State<ReorderableWrapperWidget> with TickerProviderStateMixin<ReorderableWrapperWidget>, ReorderableGridStateMixin {
+class ReorderableWrapperWidgetState extends State<ReorderableWrapperWidget>
+    with TickerProviderStateMixin<ReorderableWrapperWidget>, ReorderableGridStateMixin {
   ReorderableWrapperWidgetState();
 }

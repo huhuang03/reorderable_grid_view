@@ -8,23 +8,17 @@ class ReorderableItemView extends StatefulWidget {
   final Widget child;
   final Key key;
   final int index;
-  final Duration dragStartDelay;
-  final bool dragEnabled;
 
   const ReorderableItemView({
     required this.child,
-    required this.dragEnabled,
     required this.key,
     required this.index,
-    required this.dragStartDelay,
   }) : super(key: key);
 
   static List<Widget> wrapMeList(
     List<Widget>? header,
     List<Widget> children,
     List<Widget>? footer,
-    Duration dragStartDelay,
-    bool dragEnabled,
   ) {
     var rst = <Widget>[];
     rst.addAll(header ?? []);
@@ -34,8 +28,6 @@ class ReorderableItemView extends StatefulWidget {
         child: child,
         key: child.key!,
         index: i,
-        dragStartDelay: dragStartDelay,
-        dragEnabled: dragEnabled,
       ));
     }
 
@@ -71,6 +63,17 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
         _dragging = dragging;
       });
     }
+  }
+
+  Offset getRelativePos(Offset dragPosition) {
+    final parentRenderBox = _listState.context.findRenderObject() as RenderBox;
+    final parentOffset = parentRenderBox.localToGlobal(dragPosition);
+
+    final renderBox = context.findRenderObject() as RenderBox;
+    return renderBox.localToGlobal(parentOffset);
+  }
+  RenderBox  get parentRenderBox {
+    return _listState.context.findRenderObject() as RenderBox;
   }
 
   /// We can only check the items between startIndex and the targetIndex, but for simply, we check all <= targetDropIndex
@@ -152,12 +155,13 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
 
   // Ok, for now we use multiDragRecognizer
   MultiDragGestureRecognizer _createDragRecognizer() {
-    if (widget.dragStartDelay.inMilliseconds == 0) {
+    final dragStartDelay = _listState.dragStartDelay;
+    if (dragStartDelay.inMilliseconds == 0) {
       return ImmediateMultiDragGestureRecognizer(debugOwner: this);
     }
     return DelayedMultiDragGestureRecognizer(
       debugOwner: this,
-      delay: widget.dragStartDelay,
+      delay: dragStartDelay,
     );
   }
 
@@ -210,7 +214,7 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
   // how do you think of this?
   @override
   Widget build(BuildContext context) {
-    if (!widget.dragEnabled) {
+    if (!_listState.dragEnabled) {
       return widget.child;
     }
 

@@ -65,7 +65,7 @@ class ReorderableSliverGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     var child = SliverGridWithReorderablePosDelegate.count(
         key: key,
-        children: ReorderableItemView.wrapMeList([], children, [], dragStartDelay, dragEnabled),
+        children: ReorderableItemView.wrapMeList([], children, []),
         crossAxisCount: crossAxisCount,
         mainAxisSpacing: mainAxisSpacing,
         crossAxisSpacing: crossAxisSpacing,
