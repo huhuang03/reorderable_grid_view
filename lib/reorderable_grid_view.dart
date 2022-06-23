@@ -156,6 +156,7 @@ class ReorderableGridView extends StatelessWidget {
     double mainAxisSpacing = 0.0,
     double crossAxisSpacing = 0.0,
     double childAspectRatio = 1.0,
+    double? mainAxisExtent,
     bool reverse = false,
     ScrollController? controller,
     bool? primary,
@@ -209,6 +210,40 @@ class ReorderableGridView extends StatelessWidget {
           dragEnabled: dragEnabled,
           dragStartDelay: dragStartDelay,
         );
+
+  }): this(
+    key: key,
+    onReorder: onReorder,
+    dragWidgetBuilder: dragWidgetBuilder,
+    scrollSpeedController: scrollSpeedController,
+    placeholderBuilder: placeholderBuilder,
+    onDragStart: onDragStart,
+    childrenDelegate: SliverChildListDelegate(
+      ReorderableItemView.wrapMeList(header, children, footer),
+      addAutomaticKeepAlives: addAutomaticKeepAlives,
+      addRepaintBoundaries: addRepaintBoundaries,
+      addSemanticIndexes: addSemanticIndexes,
+    ),
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: crossAxisCount,
+      mainAxisSpacing: mainAxisSpacing,
+      crossAxisSpacing: crossAxisSpacing,
+      childAspectRatio: childAspectRatio,
+      mainAxisExtent: mainAxisExtent,
+    ),
+    reverse: reverse,
+    controller: controller,
+    primary: primary,
+    physics: physics,
+    shrinkWrap: shrinkWrap,
+    padding: padding,
+    cacheExtent: cacheExtent,
+    semanticChildCount: semanticChildCount ?? children.length,
+    dragStartBehavior: dragStartBehavior,
+    keyboardDismissBehavior: keyboardDismissBehavior,
+    restorationId: restorationId,
+    clipBehavior: clipBehavior,
+  );
 
   ReorderableGridView({
     Key? key,
