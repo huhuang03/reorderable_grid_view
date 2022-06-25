@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/sliver_grid_with_reorderable_pos_delegate.dart';
@@ -17,6 +18,8 @@ class ReorderableSliverGridView extends StatelessWidget {
   final ScrollSpeedController? scrollSpeedController;
   final PlaceholderBuilder? placeholderBuilder;
   final OnDragStart? onDragStart;
+  final Duration dragStartDelay;
+  final bool dragEnabled;
 
   const ReorderableSliverGridView({
     Key? key,
@@ -25,38 +28,43 @@ class ReorderableSliverGridView extends StatelessWidget {
     required this.mainAxisSpacing,
     required this.crossAxisSpacing,
     required this.childAspectRatio,
-
     required this.onReorder,
+    this.dragStartDelay = kLongPressTimeout,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
     this.placeholderBuilder,
     this.onDragStart,
-  }): super(key: key);
+    this.dragEnabled = true,
+  }) : super(key: key);
 
   const ReorderableSliverGridView.count({
     Key? key,
     required int crossAxisCount,
     required ReorderCallback onReorder,
     OnDragStart? onDragStart,
-
     double mainAxisSpacing = 0.0,
     double crossAxisSpacing = 0.0,
     double childAspectRatio = 1.0,
+    Duration dragStartDelay = kLongPressTimeout,
     children = const <Widget>[],
-  }): this(
-    key: key,
-    onReorder: onReorder,
-    children: children,
-    crossAxisCount: crossAxisCount,
-    mainAxisSpacing: mainAxisSpacing,
-    crossAxisSpacing: crossAxisSpacing,
-    childAspectRatio: childAspectRatio,
-    onDragStart: onDragStart
-  );
+    bool dragEnabled = true,
+  }) : this(
+          key: key,
+          onReorder: onReorder,
+          children: children,
+          crossAxisCount: crossAxisCount,
+          mainAxisSpacing: mainAxisSpacing,
+          crossAxisSpacing: crossAxisSpacing,
+          childAspectRatio: childAspectRatio,
+          onDragStart: onDragStart,
+          dragStartDelay: dragStartDelay,
+          dragEnabled: dragEnabled,
+        );
 
   @override
   Widget build(BuildContext context) {
-    var child = SliverGridWithReorderablePosDelegate.count(key: key,
+    var child = SliverGridWithReorderablePosDelegate.count(
+        key: key,
         children: ReorderableItemView.wrapMeList([], children, []),
         crossAxisCount: crossAxisCount,
         mainAxisSpacing: mainAxisSpacing,
@@ -71,7 +79,5 @@ class ReorderableSliverGridView extends StatelessWidget {
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,
     );
-
   }
-
 }

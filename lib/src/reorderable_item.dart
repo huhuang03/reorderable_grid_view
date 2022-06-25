@@ -15,8 +15,11 @@ class ReorderableItemView extends StatefulWidget {
     required this.index,
   }) : super(key: key);
 
-  static List<Widget> wrapMeList(List<Widget>? header, List<Widget> children,
-      List<Widget>? footer) {
+  static List<Widget> wrapMeList(
+    List<Widget>? header,
+    List<Widget> children,
+    List<Widget>? footer,
+  ) {
     var rst = <Widget>[];
     rst.addAll(header ?? []);
     for (var i = 0; i < children.length; i++) {
@@ -39,9 +42,11 @@ class ReorderableItemView extends StatefulWidget {
 class ReorderableItemViewState extends State<ReorderableItemView> with TickerProviderStateMixin {
   late ReorderableGridStateMixin _listState;
   bool _dragging = false;
+
   // ths is strange thing.
   Offset _startOffset = Offset.zero;
   Offset _targetOffset = Offset.zero;
+
   // Ok, how can we calculate the _offsetAnimation
   AnimationController? _offsetAnimation;
   Offset _placeholderOffset = Offset.zero;
@@ -60,6 +65,16 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     }
   }
 
+  Offset getRelativePos(Offset dragPosition) {
+    final parentRenderBox = _listState.context.findRenderObject() as RenderBox;
+    final parentOffset = parentRenderBox.localToGlobal(dragPosition);
+
+    final renderBox = context.findRenderObject() as RenderBox;
+    return renderBox.localToGlobal(parentOffset);
+  }
+  RenderBox  get parentRenderBox {
+    return _listState.context.findRenderObject() as RenderBox;
+  }
 
   /// We can only check the items between startIndex and the targetIndex, but for simply, we check all <= targetDropIndex
   void updateForGap(int dropIndex) {
@@ -123,7 +138,6 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
         _placeholderOffset = _listState.getPos(_targetPos) - _listState.getPos(_selfPos);
       });
     }
-
   }
 
   void resetGap() {
@@ -141,7 +155,14 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
 
   // Ok, for now we use multiDragRecognizer
   MultiDragGestureRecognizer _createDragRecognizer() {
-    return DelayedMultiDragGestureRecognizer(debugOwner: this);
+    final dragStartDelay = _listState.dragStartDelay;
+    if (dragStartDelay.inMilliseconds == 0) {
+      return ImmediateMultiDragGestureRecognizer(debugOwner: this);
+    }
+    return DelayedMultiDragGestureRecognizer(
+      debugOwner: this,
+      delay: dragStartDelay,
+    );
   }
 
   @override
@@ -153,8 +174,11 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
 
   Offset get offset {
     if (_offsetAnimation != null) {
-      return Offset.lerp(_startOffset, _targetOffset,
-          Curves.easeInOut.transform(_offsetAnimation!.value))!;
+      return Offset.lerp(
+        _startOffset,
+        _targetOffset,
+        Curves.easeInOut.transform(_offsetAnimation!.value),
+      )!;
     }
     return _targetOffset;
   }
@@ -190,6 +214,10 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
   // how do you think of this?
   @override
   Widget build(BuildContext context) {
+    if (!_listState.dragEnabled) {
+      return widget.child;
+    }
+
     if (_dragging) {
       return _buildPlaceHolder();
     }

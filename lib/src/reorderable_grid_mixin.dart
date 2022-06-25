@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
-import 'package:reorderable_grid_view/src/util.dart';
 
 import '../reorderable_grid_view.dart';
 import 'drag_info.dart';
@@ -26,6 +25,8 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
   OnDragStart? get onDragStart;
 
   Widget get child;
+  Duration? get dragStartDelay;
+  bool? get dragEnabled;
 }
 
 // What I want is I can call setState and get those properties.
@@ -33,6 +34,8 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
 mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T>, TickerProviderStateMixin<T> {
   MultiDragGestureRecognizer? _recognizer;
 
+  Duration get dragStartDelay => widget.dragStartDelay ?? kLongPressTimeout;
+  bool get dragEnabled => widget.dragEnabled ?? true;
   // it's not as drag start?
   void startDragRecognizer(int index, PointerDownEvent event,
       MultiDragGestureRecognizer recognizer) {
