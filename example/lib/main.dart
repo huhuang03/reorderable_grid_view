@@ -1,6 +1,8 @@
 import 'package:example/demo_grid_builder.dart';
 import 'package:example/demo_grid_sliver.dart';
+import 'package:example/demo_incorrect_offset.dart';
 import 'package:example/demo_placeholder.dart';
+import 'package:example/demo_reorderable_count.dart';
 import 'package:example/test_issue_24.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
@@ -9,20 +11,52 @@ void main() {
   runApp(MyApp());
 }
 
+typedef Next = Widget Function();
+
+class Item {
+  String name = "";
+  Next next;
+
+  Item(this.name, this.next);
+}
+
 class MyApp extends StatelessWidget {
+  final items = [
+    Item("ReorderableGrid.count", () => new DemoReorderableGrid()),
+    Item("InCorrect Offset", () => new DemoInCorrectOffset())
+  ];
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      // home: Scaffold(
-      //   body: DemoReorderableGrid(),
-      // ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: Scaffold(
+            appBar: AppBar(
+              title: Text("Reorderable Demo"),
+            ),
+            body: ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  var item = items[index];
+                  return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Scaffold(
+                                      appBar: AppBar(
+                                        title: Text(item.name),
+                                      ),
+                                      body: item.next(),
+                                    )));
+                      },
+                      child: ListTile(title: Text(item.name)));
+                })));
+    // home: MyHomePage(title: 'Flutter Demo Home Page'),
   }
 }
 
@@ -50,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Tab(
                 text: "Grid.build",
               ),
-              Tab (
+              Tab(
                 text: "Placeholder",
               ),
               Tab(
@@ -73,82 +107,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class DemoReorderableGrid extends StatefulWidget {
-  @override
-  _DemoReorderableGridState createState() => _DemoReorderableGridState();
-}
-
-class _DemoReorderableGridState extends State<DemoReorderableGrid> {
-  final data = List<int>.generate(10, (index) => index);
-  double scrollSpeedVariable = 5;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-      child: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child:
-        ReorderableGridView.count(
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          crossAxisCount: 3,
-          childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
-          children: this.data.map((e) => buildItem(e)).toList(),
-          scrollSpeedController:
-              (int timeInMilliSecond, double overSize, double itemSize) {
-            // print(
-            //     "timeInMilliSecond: $timeInMilliSecond, overSize: $overSize, itemSize $itemSize");
-            if (timeInMilliSecond > 1500) {
-              scrollSpeedVariable = 15;
-            } else {
-              scrollSpeedVariable = 5;
-            }
-            return scrollSpeedVariable;
-          },
-          // option
-          onDragStart: (dragIndex) {
-            print("onDragStart $dragIndex");
-          },
-          onReorder: (oldIndex, newIndex) {
-            // print("reorder: $oldIndex -> $newIndex");
-            setState(() {
-              final element = data.removeAt(oldIndex);
-              data.insert(newIndex, element);
-            });
-          },
-          // option
-          dragWidgetBuilder: (index, child) {
-            return child;
-          },
-          header: [
-            Card(
-              child: Center(
-                child: Icon(Icons.delete),
-              ),
-            ),
-          ],
-          footer: [
-            Card(
-              child: Center(
-                child: Icon(Icons.add),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildItem(int index) {
-    return Card(
-      key: ValueKey(index),
-      child: Text(index.toString()),
     );
   }
 }
