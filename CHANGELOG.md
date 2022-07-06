@@ -1,3 +1,8 @@
+## [2.2.3-alpha.4] - 2022-7-4
+- add option `mainAxisExtent` by https://github.com/huhuang03/reorderable_grid_view/pull/36
+- add option `dragStartDelay ` by https://github.com/huhuang03/reorderable_grid_view/pull/35
+- add option `placeholder` by https://github.com/huhuang03/reorderable_grid_view/pull/28
+ 
 ## [2.2.3-alpha.3] - 2022-6-7
 - add option `header` `in Reorderable.count`, and please notice header and footer is only support
 `Reorderable.count`
