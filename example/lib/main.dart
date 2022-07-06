@@ -1,11 +1,11 @@
+import 'package:example/demo/demo_custom.dart';
 import 'package:example/demo_grid_builder.dart';
 import 'package:example/demo_grid_sliver.dart';
 import 'package:example/demo_incorrect_offset.dart';
 import 'package:example/demo_placeholder.dart';
-import 'package:example/demo_reorderable_count.dart';
+import 'package:example/demo/demo_reorderable_count.dart';
 import 'package:example/test_issue_24.dart';
 import 'package:flutter/material.dart';
-import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,6 +23,7 @@ class Item {
 class MyApp extends StatelessWidget {
   final items = [
     Item("ReorderableGrid.count", () => new DemoReorderableGrid()),
+    Item("Custom", () => new DemoCustom()),
     Item("InCorrect Offset", () => new DemoInCorrectOffset())
   ];
 
