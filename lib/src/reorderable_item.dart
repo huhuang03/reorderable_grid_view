@@ -84,7 +84,6 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     _checkPlaceHolder();
 
     if (_dragging) {
-      debug("updateForGap $dropIndex");
       return;
     }
 
@@ -135,7 +134,7 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
       // any better idea?
       setState(() {
         debug("_buildPlaceHolder for index $index, _offset: $_placeholderOffset, _targetPos: $_targetPos");
-        _placeholderOffset = _listState.getPos(_targetPos) - _listState.getPos(_selfPos);
+        _placeholderOffset = _listState.getPosByIndex(_targetPos) - _listState.getPosByIndex(_selfPos);
       });
     }
   }

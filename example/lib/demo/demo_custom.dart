@@ -8,29 +8,41 @@ class DemoCustom extends StatefulWidget {
   State<DemoCustom> createState() => _DemoCustomState();
 }
 
+/// Wrap child in ReorderableWrapperWidget and
+/// reorderable item in ReorderableItemView
 class _DemoCustomState extends State<DemoCustom> {
   final data = List<int>.generate(50, (index) => index);
 
   @override
   Widget build(BuildContext context) {
-    return ReorderableWrapperWidget(child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-        itemCount: data.length,
-        itemBuilder: (context, index) {
-          if (index % 2 == 0) {
-            return Card(
-              child: Text("O $index"),
-            );
-          } else {
-            return ReorderableItemView(child: Card(
-              child: Text("R $index"),
-            ), key: UniqueKey(), index: index);
-          }
-        }),
-      onReorder: (oldIndex, newIndex) {
-        var item = data.remove(oldIndex);
-        // data.add(values)
-      },);
-
+    return ReorderableWrapperWidget(
+      child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3),
+          itemCount: data.length * 2,
+          itemBuilder: (context, index) {
+            if (index % 2 == 0) {
+              return Card(
+                color: Colors.black12,
+                child: Text("Sticky"),
+              );
+            } else {
+              var realIndex = (index / 2).floor();
+              var itemData = data[realIndex];
+              return ReorderableItemView(
+                  child: Card(
+                    child: Text("R $itemData"),
+                  ),
+                  key: ValueKey(realIndex),
+                  index: realIndex);
+            }
+          }),
+      onReorder: (dragIndex, dropIndex) {
+        setState(() {
+          var item = data.removeAt(dragIndex);
+          data.insert(dropIndex, item);
+        });
+      },
+    );
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
+import 'package:reorderable_grid_view/src/util.dart';
 
 import '../reorderable_grid_view.dart';
 import 'drag_info.dart';
@@ -62,8 +63,24 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
 
   // how to return row, col?
 
+  Offset getPosByOffset(int index, int dIndex) {
+    // how to do to this?
+    var keys = this.__items.keys.toList();
+    var keyIndex = keys.indexOf(index);
+    keyIndex = keyIndex + dIndex;
+    if (keyIndex < 0) {
+      keyIndex = 0;
+    }
+    if (keyIndex > keys.length - 1) {
+      keyIndex = keys.length - 1;
+    }
+
+    return getPosByIndex(keys[keyIndex], safe: true);
+  }
+
+
   // The pos is relate to the container's 0, 0
-  Offset getPos(int index, {bool safe = true}) {
+  Offset getPosByIndex(int index, {bool safe = true}) {
     if (safe) {
       if (index < 0) {
         index = 0;
@@ -152,15 +169,16 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
       return Offset.zero;
     } else {
       if (isMoveLeft) {
-        return getPos(index - 1) - getPos(index);
+        return getPosByOffset(index, - 1) - getPosByIndex(index);
       } else {
-        return getPos(index + 1) - getPos(index);
+        return getPosByOffset(index, 1) - getPosByIndex(index);
       }
     }
   }
 
   // position is the global position
   Drag _onDragStart(Offset position) {
+    debug("_onDragStart: $position, __dragIndex: $_dragIndex");
     assert(_dragInfo == null);
     widget.onDragStart?.call(_dragIndex!);
 
@@ -271,6 +289,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
 
   Future<void> updateDragTarget() async {
     int newTargetIndex = _calcDropIndex(_dropIndex!);
+    debug("newTarIndex: $newTargetIndex");
     if (newTargetIndex != _dropIndex) {
       _dropIndex = newTargetIndex;
       for (var item in __items.values) {
