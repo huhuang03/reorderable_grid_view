@@ -1,4 +1,4 @@
-## [2.2.4-alpha.1] - 2022-7-4
+## [2.2.3-alpha.5] - 2022-7-4
 - fix reorderable item find next/previous pos.
 
 ## [2.2.3-alpha.4] - 2022-7-4
