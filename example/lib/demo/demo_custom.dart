@@ -37,6 +37,7 @@ class _DemoCustomState extends State<DemoCustom> {
                   index: realIndex);
             }
           }),
+      // the drag and drop index is from (index passed to ReorderableItemView)
       onReorder: (dragIndex, dropIndex) {
         setState(() {
           var item = data.removeAt(dragIndex);
