@@ -169,9 +169,9 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
       return Offset.zero;
     } else {
       if (isMoveLeft) {
-        return getPosByOffset(index, - 1) - getPosByIndex(index);
+        return getPosByIndex(index - 1) - getPosByIndex(index);
       } else {
-        return getPosByOffset(index, 1) - getPosByIndex(index);
+        return getPosByIndex(index + 1) - getPosByIndex(index);
       }
     }
   }
