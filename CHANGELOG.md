@@ -1,3 +1,6 @@
+## [2.2.5] - 2022-9-8
+- https://github.com/huhuang03/reorderable_grid_view/pull/43
+
 ## [2.2.4] - 2022-8-17
 - release 2.2.4
 
