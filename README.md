@@ -62,10 +62,9 @@ class _MyHomePageState extends State<MyHomePage> {
 |---------------------|-------------------------|
 | `dragWidgetBuilder` | the drag widget builder |
 
-# Other
-`ReorderableGridView.builder` and `ReorderableSliverGridView.count` can work.
+# Constructs
+- `ReorderableGridView.builder`
+- `ReorderableGridView.count`
+- `ReorderableSliverGridView.count
+-  ReorderableWrapperWidget(child: SomeCollection(children: ReorderableItemView))`
 
-# Important
-as issue #17 says. There's some broken api in MultiDragGestureRecognizer. So if you have some issue relative to MultiDragGestureRecognizer.
-
-Please try both 1.1.x and 1.2.x version.
