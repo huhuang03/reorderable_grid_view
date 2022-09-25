@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
 # Options
 | option              | desc                    |
 |---------------------|-------------------------|
-| `DragWidgetBuilder` | the drag widget builder |
+| `dragWidgetBuilder` | the drag widget builder |
 
 # Other
 `ReorderableGridView.builder` and `ReorderableSliverGridView.count` can work.
