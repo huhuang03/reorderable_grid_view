@@ -127,9 +127,9 @@ class ReorderableGridView extends StatelessWidget {
                 return true;
               }());
               return ReorderableItemView(
-                child: child,
                 key: child.key!,
                 index: index,
+                child: child,
               );
             },
             childCount: itemCount,
@@ -229,7 +229,7 @@ class ReorderableGridView extends StatelessWidget {
     );
   }
 
-  ReorderableGridView({
+  const ReorderableGridView({
     Key? key,
     required this.onReorder,
     this.dragWidgetBuilder,
@@ -257,6 +257,13 @@ class ReorderableGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ReorderableWrapperWidget(
+      onReorder: onReorder,
+      dragWidgetBuilder: dragWidgetBuilder,
+      scrollSpeedController: scrollSpeedController,
+      placeholderBuilder: placeholderBuilder,
+      onDragStart: onDragStart,
+      dragEnabled: dragEnabled,
+      dragStartDelay: dragStartDelay,
       child: GridView.custom(
         key: key,
         gridDelegate: gridDelegate,
@@ -274,13 +281,6 @@ class ReorderableGridView extends StatelessWidget {
         clipBehavior: clipBehavior,
         dragStartBehavior: dragStartBehavior,
       ),
-      onReorder: onReorder,
-      dragWidgetBuilder: dragWidgetBuilder,
-      scrollSpeedController: scrollSpeedController,
-      placeholderBuilder: placeholderBuilder,
-      onDragStart: onDragStart,
-      dragEnabled: dragEnabled,
-      dragStartDelay: dragStartDelay,
     );
   }
 }

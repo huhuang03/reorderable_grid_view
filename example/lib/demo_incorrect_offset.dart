@@ -1,9 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class DemoInCorrectOffset extends StatefulWidget {
+  const DemoInCorrectOffset({Key? key}) : super(key: key);
+
   @override
-  _DemoInCorrectOffsetState createState() => _DemoInCorrectOffsetState();
+  State<DemoInCorrectOffset> createState() => _DemoInCorrectOffsetState();
 }
 
 class _DemoInCorrectOffsetState extends State<DemoInCorrectOffset> {
@@ -15,8 +19,7 @@ class _DemoInCorrectOffsetState extends State<DemoInCorrectOffset> {
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
       crossAxisCount: 3,
-      childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
-      children: this.data.map((e) => buildItem(e)).toList(),
+      childAspectRatio: 0.6,
       scrollSpeedController:
           (int timeInMilliSecond, double overSize, double itemSize) {
         if (timeInMilliSecond > 1500) {
@@ -28,7 +31,7 @@ class _DemoInCorrectOffsetState extends State<DemoInCorrectOffset> {
       },
       // option
       onDragStart: (dragIndex) {
-        print("onDragStart $dragIndex");
+        log("onDragStart $dragIndex");
       },
       onReorder: (oldIndex, newIndex) {
         // print("reorder: $oldIndex -> $newIndex");
@@ -41,30 +44,33 @@ class _DemoInCorrectOffsetState extends State<DemoInCorrectOffset> {
       dragWidgetBuilder: (index, child) {
         return child;
       },
-      header: [
+      header: const [
         Card(
           child: Center(
             child: Icon(Icons.delete),
           ),
         ),
       ],
-      footer: [
+      footer: const [
         Card(
           child: Center(
             child: Icon(Icons.add),
           ),
         ),
-      ],
+      ], // 0 < childAspectRatio <= 1.0
+      children: data.map((e) => buildItem(e)).toList(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
       child: Row(
         children: [
-          SizedBox(width: 100,),
+          const SizedBox(
+            width: 100,
+          ),
           Expanded(child: _buildGrid(context)),
         ],
       ),

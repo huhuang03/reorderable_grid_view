@@ -5,7 +5,6 @@ import 'package:reorderable_grid_view/src/sliver_grid_with_reorderable_pos_deleg
 
 import '../reorderable_grid_view.dart';
 
-
 class ReorderableSliverGridView extends StatelessWidget {
   final List<Widget> children;
   final int crossAxisCount;
@@ -65,19 +64,19 @@ class ReorderableSliverGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     var child = SliverGridWithReorderablePosDelegate.count(
         key: key,
-        children: ReorderableItemView.wrapMeList([], children, []),
         crossAxisCount: crossAxisCount,
         mainAxisSpacing: mainAxisSpacing,
         crossAxisSpacing: crossAxisSpacing,
-        childAspectRatio: childAspectRatio);
+        childAspectRatio: childAspectRatio,
+        children: ReorderableItemView.wrapMeList([], children, []));
 
     return ReorderableWrapperWidget(
-      child: child,
       onReorder: onReorder,
       dragWidgetBuilder: dragWidgetBuilder,
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,
+      child: child,
     );
   }
 }

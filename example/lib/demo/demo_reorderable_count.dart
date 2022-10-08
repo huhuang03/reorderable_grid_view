@@ -1,9 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class DemoReorderableGrid extends StatefulWidget {
+  const DemoReorderableGrid({Key? key}) : super(key: key);
+
   @override
-  _DemoReorderableGridState createState() => _DemoReorderableGridState();
+  State<DemoReorderableGrid> createState() => _DemoReorderableGridState();
 }
 
 class _DemoReorderableGridState extends State<DemoReorderableGrid> {
@@ -15,8 +19,7 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
       crossAxisCount: 3,
-      childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
-      children: this.data.map((e) => buildItem(e)).toList(),
+      childAspectRatio: 0.6,
       scrollSpeedController:
           (int timeInMilliSecond, double overSize, double itemSize) {
         if (timeInMilliSecond > 1500) {
@@ -28,7 +31,7 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
       },
       // option
       onDragStart: (dragIndex) {
-        print("onDragStart $dragIndex");
+        log("onDragStart $dragIndex");
       },
       onReorder: (oldIndex, newIndex) {
         // print("reorder: $oldIndex -> $newIndex");
@@ -41,29 +44,29 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
       dragWidgetBuilder: (index, child) {
         return child;
       },
-      header: [
+      header: const [
         Card(
           child: Center(
             child: Icon(Icons.delete),
           ),
         ),
       ],
-      footer: [
+      footer: const [
         Card(
           child: Center(
             child: Icon(Icons.add),
           ),
         ),
-      ],
+      ], // 0 < childAspectRatio <= 1.0
+      children: data.map((e) => buildItem(e)).toList(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-      child: _buildGrid(context)
-    );
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: _buildGrid(context));
   }
 
   Widget buildItem(int index) {

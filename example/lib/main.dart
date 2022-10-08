@@ -21,10 +21,12 @@ class Item {
 }
 
 class MyApp extends StatelessWidget {
+  MyApp({Key? key}) : super(key: key);
+
   final items = [
-    Item("ReorderableGrid.count", () => new DemoReorderableGrid()),
-    Item("Custom", () => new DemoCustom()),
-    Item("InCorrect Offset", () => new DemoInCorrectOffset())
+    Item("ReorderableGrid.count", () => const DemoReorderableGrid()),
+    Item("Custom", () => const DemoCustom()),
+    Item("InCorrect Offset", () => const DemoInCorrectOffset())
   ];
 
   // This widget is the root of your application.
@@ -37,7 +39,7 @@ class MyApp extends StatelessWidget {
         ),
         home: Scaffold(
             appBar: AppBar(
-              title: Text("Reorderable Demo"),
+              title: const Text("Reorderable Demo"),
             ),
             body: ListView.builder(
                 itemCount: items.length,
@@ -57,16 +59,17 @@ class MyApp extends StatelessWidget {
                       },
                       child: ListTile(title: Text(item.name)));
                 })));
-    // home: MyHomePage(title: 'Flutter Demo Home Page'),
+    // home: const MyHomePage(title: 'Flutter Demo Home Page'),
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title}) : super(key: key);
+  const MyHomePage({Key? key, this.title}) : super(key: key);
+
   final String? title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -77,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          bottom: TabBar(
+          bottom: const TabBar(
             tabs: [
               Tab(
                 text: "Grid.count",
@@ -98,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           title: Text(widget.title!),
         ),
-        body: TabBarView(
+        body: const TabBarView(
           children: [
             DemoReorderableGrid(),
             DemoGridBuilder(),
