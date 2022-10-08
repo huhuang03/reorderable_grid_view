@@ -24,6 +24,14 @@ class ReorderableItemView extends StatefulWidget {
     rst.addAll(header ?? []);
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
+      assert(() {
+        if (child.key == null) {
+          throw FlutterError(
+            'Every item of ReorderableGridView must have a key.',
+          );
+        }
+        return true;
+      }());
       rst.add(ReorderableItemView(
         child: child,
         key: child.key!,
@@ -39,7 +47,8 @@ class ReorderableItemView extends StatefulWidget {
   ReorderableItemViewState createState() => ReorderableItemViewState();
 }
 
-class ReorderableItemViewState extends State<ReorderableItemView> with TickerProviderStateMixin {
+class ReorderableItemViewState extends State<ReorderableItemView>
+    with TickerProviderStateMixin {
   late ReorderableGridStateMixin _listState;
   bool _dragging = false;
 
@@ -72,7 +81,8 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     final renderBox = context.findRenderObject() as RenderBox;
     return renderBox.localToGlobal(parentOffset);
   }
-  RenderBox  get parentRenderBox {
+
+  RenderBox get parentRenderBox {
     return _listState.context.findRenderObject() as RenderBox;
   }
 
@@ -133,8 +143,10 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     if (_selfPos != _targetPos) {
       // any better idea?
       setState(() {
-        debug("_buildPlaceHolder for index $index, _offset: $_placeholderOffset, _targetPos: $_targetPos");
-        _placeholderOffset = _listState.getPosByIndex(_targetPos) - _listState.getPosByIndex(_selfPos);
+        debug(
+            "_buildPlaceHolder for index $index, _offset: $_placeholderOffset, _targetPos: $_targetPos");
+        _placeholderOffset = _listState.getPosByIndex(_targetPos) -
+            _listState.getPosByIndex(_selfPos);
       });
     }
   }
@@ -205,7 +217,8 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     }
 
     return Transform(
-      transform: Matrix4.translationValues(_placeholderOffset.dx, _placeholderOffset.dy, 0),
+      transform: Matrix4.translationValues(
+          _placeholderOffset.dx, _placeholderOffset.dy, 0),
       child: _listState.placeholderBuilder!(index, _listState.dropIndex, child),
     );
   }
