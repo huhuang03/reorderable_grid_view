@@ -62,9 +62,9 @@ class _MyHomePageState extends State<MyHomePage> {
 |---------------------|-------------------------|
 | `dragWidgetBuilder` | the drag widget builder |
 
-# Constructs
+# Constructors
 - `ReorderableGridView.builder`
 - `ReorderableGridView.count`
-- `ReorderableSliverGridView.count
--  ReorderableWrapperWidget(child: SomeCollection(children: ReorderableItemView))`
+- `ReorderableSliverGridView.count`
+- `ReorderableWrapperWidget(child: SomeCollection(children: ReorderableItemView))`
 
