@@ -22,7 +22,7 @@ class _DemoCustomState extends State<DemoCustom> {
           itemCount: data.length * 2,
           itemBuilder: (context, index) {
             if (index % 2 == 0) {
-              return Card(
+              return const Card(
                 color: Colors.black12,
                 child: Text("Sticky"),
               );
@@ -30,11 +30,11 @@ class _DemoCustomState extends State<DemoCustom> {
               var realIndex = (index / 2).floor();
               var itemData = data[realIndex];
               return ReorderableItemView(
+                  key: ValueKey(realIndex),
+                  index: realIndex,
                   child: Card(
                     child: Text("R $itemData"),
-                  ),
-                  key: ValueKey(realIndex),
-                  index: realIndex);
+                  ));
             }
           }),
       // the drag and drop index is from (index passed to ReorderableItemView)

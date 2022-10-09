@@ -5,15 +5,14 @@ import 'package:reorderable_grid_view/src/util.dart';
 
 /// A child wrapper.
 class ReorderableItemView extends StatefulWidget {
-  final Widget child;
-  final Key key;
-  final int index;
-
   const ReorderableItemView({
+    required Key key,
     required this.child,
-    required this.key,
     required this.index,
   }) : super(key: key);
+
+  final Widget child;
+  final int index;
 
   static List<Widget> wrapMeList(
     List<Widget>? header,
@@ -24,10 +23,18 @@ class ReorderableItemView extends StatefulWidget {
     rst.addAll(header ?? []);
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
+      assert(() {
+        if (child.key == null) {
+          throw FlutterError(
+            'Every item of ReorderableGridView must have a key.',
+          );
+        }
+        return true;
+      }());
       rst.add(ReorderableItemView(
-        child: child,
         key: child.key!,
         index: i,
+        child: child,
       ));
     }
 
@@ -36,10 +43,11 @@ class ReorderableItemView extends StatefulWidget {
   }
 
   @override
-  ReorderableItemViewState createState() => ReorderableItemViewState();
+  State<ReorderableItemView> createState() => ReorderableItemViewState();
 }
 
-class ReorderableItemViewState extends State<ReorderableItemView> with TickerProviderStateMixin {
+class ReorderableItemViewState extends State<ReorderableItemView>
+    with TickerProviderStateMixin {
   late ReorderableGridStateMixin _listState;
   bool _dragging = false;
 
@@ -51,7 +59,7 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
   AnimationController? _offsetAnimation;
   Offset _placeholderOffset = Offset.zero;
 
-  Key get key => widget.key;
+  Key get key => widget.key!;
 
   Widget get child => widget.child;
 
@@ -59,7 +67,7 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
 
   set dragging(bool dragging) {
     if (mounted) {
-      this.setState(() {
+      setState(() {
         _dragging = dragging;
       });
     }
@@ -72,7 +80,8 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     final renderBox = context.findRenderObject() as RenderBox;
     return renderBox.localToGlobal(parentOffset);
   }
-  RenderBox  get parentRenderBox {
+
+  RenderBox get parentRenderBox {
     return _listState.context.findRenderObject() as RenderBox;
   }
 
@@ -88,26 +97,26 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     }
 
     // let's try use dragSize.
-    Offset newOffset = _listState.getOffsetInDrag(this.index);
+    Offset newOffset = _listState.getOffsetInDrag(index);
     if (newOffset != _targetOffset) {
       _targetOffset = newOffset;
 
-      if (this._offsetAnimation == null) {
-        this._offsetAnimation = AnimationController(vsync: _listState)
-          ..duration = Duration(milliseconds: 250)
+      if (_offsetAnimation == null) {
+        _offsetAnimation = AnimationController(vsync: _listState)
+          ..duration = const Duration(milliseconds: 250)
           ..addListener(rebuild)
           ..addStatusListener((status) {
             if (status == AnimationStatus.completed) {
               _startOffset = _targetOffset;
-              this._offsetAnimation?.dispose();
-              this._offsetAnimation = null;
+              _offsetAnimation?.dispose();
+              _offsetAnimation = null;
             }
           })
           ..forward(from: 0.0);
       } else {
         // 调转方向
         _startOffset = offset;
-        this._offsetAnimation?.forward(from: 0.0);
+        _offsetAnimation?.forward(from: 0.0);
       }
     }
   }
@@ -117,24 +126,26 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
       return;
     }
 
-    final _selfPos = index;
-    final _targetPos = _listState.dropIndex;
-    if (_targetPos < 0) {
+    final selfPos = index;
+    final targetPos = _listState.dropIndex;
+    if (targetPos < 0) {
       // not dragging?
       return;
     }
 
-    if (_selfPos == _targetPos) {
+    if (selfPos == targetPos) {
       setState(() {
         _placeholderOffset = Offset.zero;
       });
     }
 
-    if (_selfPos != _targetPos) {
+    if (selfPos != targetPos) {
       // any better idea?
       setState(() {
-        debug("_buildPlaceHolder for index $index, _offset: $_placeholderOffset, _targetPos: $_targetPos");
-        _placeholderOffset = _listState.getPosByIndex(_targetPos) - _listState.getPosByIndex(_selfPos);
+        debug(
+            "_buildPlaceHolder for index $index, _offset: $_placeholderOffset, _targetPos: $targetPos");
+        _placeholderOffset = _listState.getPosByIndex(targetPos) -
+            _listState.getPosByIndex(selfPos);
       });
     }
   }
@@ -184,7 +195,7 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
 
   @override
   void dispose() {
-    _listState.unRegisterItem(this.index, this);
+    _listState.unRegisterItem(index, this);
     super.dispose();
   }
 
@@ -201,11 +212,12 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
     // why you are not right?
     debug("placeholderBuilder: ${_listState.placeholderBuilder}");
     if (_listState.placeholderBuilder == null) {
-      return SizedBox();
+      return const SizedBox();
     }
 
     return Transform(
-      transform: Matrix4.translationValues(_placeholderOffset.dx, _placeholderOffset.dy, 0),
+      transform: Matrix4.translationValues(
+          _placeholderOffset.dx, _placeholderOffset.dy, 0),
       child: _listState.placeholderBuilder!(index, _listState.dropIndex, child),
     );
   }
@@ -221,17 +233,16 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
       return _buildPlaceHolder();
     }
 
-    Widget _buildChild(Widget child) {
+    Widget buildChild(Widget child) {
       return LayoutBuilder(
         builder: (context, constraints) {
           if (_dragging) {
             return _buildPlaceHolder();
           }
 
-          final _offset = offset;
           return Transform(
             // you are strange.
-            transform: Matrix4.translationValues(_offset.dx, _offset.dy, 0),
+            transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
             child: child,
           );
         },
@@ -243,7 +254,7 @@ class ReorderableItemViewState extends State<ReorderableItemView> with TickerPro
         var listState = ReorderableGridStateMixin.of(context);
         listState.startDragRecognizer(index, e, _createDragRecognizer());
       },
-      child: _buildChild(child),
+      child: buildChild(child),
     );
   }
 

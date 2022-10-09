@@ -21,10 +21,12 @@ typedef DragWidgetBuilder = Widget Function(int index, Widget child);
 /// [itemSize] is the drag item size
 /// Maybe you need decide the scroll speed by the given param.
 /// return how many pixels when scroll in 14ms(maybe a frame). 5 is the default
-typedef ScrollSpeedController = double Function(int timeInMilliSecond, double overSize, double itemSize);
+typedef ScrollSpeedController = double Function(
+    int timeInMilliSecond, double overSize, double itemSize);
 
 /// build the target placeholder
-typedef PlaceholderBuilder = Widget Function(int dropIndex, int dropInddex, Widget dragWidget);
+typedef PlaceholderBuilder = Widget Function(
+    int dropIndex, int dropInddex, Widget dragWidget);
 
 /// The drag and drop life cycle.
 typedef OnDragStart = void Function(int dragIndex);
@@ -98,7 +100,8 @@ class ReorderableGridView extends StatelessWidget {
     double? cacheExtent,
     int? semanticChildCount,
     DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-    ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
+    ScrollViewKeyboardDismissBehavior keyboardDismissBehavior =
+        ScrollViewKeyboardDismissBehavior.manual,
     String? restorationId,
     Clip clipBehavior = Clip.hardEdge,
     Duration? dragStartDelay,
@@ -115,10 +118,18 @@ class ReorderableGridView extends StatelessWidget {
           childrenDelegate: SliverChildBuilderDelegate(
             (BuildContext context, int index) {
               Widget child = itemBuilder(context, index);
+              assert(() {
+                if (child.key == null) {
+                  throw FlutterError(
+                    'Every item of ReorderableGridView must have a key.',
+                  );
+                }
+                return true;
+              }());
               return ReorderableItemView(
-                child: child,
                 key: child.key!,
                 index: index,
+                child: child,
               );
             },
             childCount: itemCount,
@@ -144,7 +155,7 @@ class ReorderableGridView extends StatelessWidget {
           dragEnabled: dragEnabled,
         );
 
-  ReorderableGridView.count({
+  factory ReorderableGridView.count({
     Key? key,
     required ReorderCallback onReorder,
     DragWidgetBuilder? dragWidgetBuilder,
@@ -171,47 +182,54 @@ class ReorderableGridView extends StatelessWidget {
     List<Widget> children = const <Widget>[],
     int? semanticChildCount,
     DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-    ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
+    ScrollViewKeyboardDismissBehavior keyboardDismissBehavior =
+        ScrollViewKeyboardDismissBehavior.manual,
     String? restorationId,
     Clip clipBehavior = Clip.hardEdge,
     Duration? dragStartDelay,
     bool? dragEnabled,
-  }) : this(
-          key: key,
-          onReorder: onReorder,
-          dragWidgetBuilder: dragWidgetBuilder,
-          scrollSpeedController: scrollSpeedController,
-          placeholderBuilder: placeholderBuilder,
-          onDragStart: onDragStart,
-          childrenDelegate: SliverChildListDelegate(
-            ReorderableItemView.wrapMeList(header, children, footer),
-            addAutomaticKeepAlives: addAutomaticKeepAlives,
-            addRepaintBoundaries: addRepaintBoundaries,
-            addSemanticIndexes: addSemanticIndexes,
-          ),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: mainAxisSpacing,
-            crossAxisSpacing: crossAxisSpacing,
-            childAspectRatio: childAspectRatio,
-          ),
-          reverse: reverse,
-          controller: controller,
-          primary: primary,
-          physics: physics,
-          shrinkWrap: shrinkWrap,
-          padding: padding,
-          cacheExtent: cacheExtent,
-          semanticChildCount: semanticChildCount ?? children.length,
-          dragStartBehavior: dragStartBehavior,
-          keyboardDismissBehavior: keyboardDismissBehavior,
-          restorationId: restorationId,
-          clipBehavior: clipBehavior,
-          dragEnabled: dragEnabled,
-          dragStartDelay: dragStartDelay,
-        );
+  }) {
+    assert(
+      children.every((Widget w) => w.key != null),
+      'All children of this widget must have a key.',
+    );
+    return ReorderableGridView(
+      key: key,
+      onReorder: onReorder,
+      dragWidgetBuilder: dragWidgetBuilder,
+      scrollSpeedController: scrollSpeedController,
+      placeholderBuilder: placeholderBuilder,
+      onDragStart: onDragStart,
+      childrenDelegate: SliverChildListDelegate(
+        ReorderableItemView.wrapMeList(header, children, footer),
+        addAutomaticKeepAlives: addAutomaticKeepAlives,
+        addRepaintBoundaries: addRepaintBoundaries,
+        addSemanticIndexes: addSemanticIndexes,
+      ),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        mainAxisSpacing: mainAxisSpacing,
+        crossAxisSpacing: crossAxisSpacing,
+        childAspectRatio: childAspectRatio,
+      ),
+      reverse: reverse,
+      controller: controller,
+      primary: primary,
+      physics: physics,
+      shrinkWrap: shrinkWrap,
+      padding: padding,
+      cacheExtent: cacheExtent,
+      semanticChildCount: semanticChildCount ?? children.length,
+      dragStartBehavior: dragStartBehavior,
+      keyboardDismissBehavior: keyboardDismissBehavior,
+      restorationId: restorationId,
+      clipBehavior: clipBehavior,
+      dragEnabled: dragEnabled,
+      dragStartDelay: dragStartDelay,
+    );
+  }
 
-  ReorderableGridView({
+  const ReorderableGridView({
     Key? key,
     required this.onReorder,
     this.dragWidgetBuilder,
@@ -239,6 +257,13 @@ class ReorderableGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ReorderableWrapperWidget(
+      onReorder: onReorder,
+      dragWidgetBuilder: dragWidgetBuilder,
+      scrollSpeedController: scrollSpeedController,
+      placeholderBuilder: placeholderBuilder,
+      onDragStart: onDragStart,
+      dragEnabled: dragEnabled,
+      dragStartDelay: dragStartDelay,
       child: GridView.custom(
         key: key,
         gridDelegate: gridDelegate,
@@ -256,13 +281,6 @@ class ReorderableGridView extends StatelessWidget {
         clipBehavior: clipBehavior,
         dragStartBehavior: dragStartBehavior,
       ),
-      onReorder: onReorder,
-      dragWidgetBuilder: dragWidgetBuilder,
-      scrollSpeedController: scrollSpeedController,
-      placeholderBuilder: placeholderBuilder,
-      onDragStart: onDragStart,
-      dragEnabled: dragEnabled,
-      dragStartDelay: dragStartDelay,
     );
   }
 }

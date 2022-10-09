@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
@@ -5,7 +7,7 @@ class DemoPlaceholder extends StatefulWidget {
   const DemoPlaceholder({Key? key}) : super(key: key);
 
   @override
-  _DemoPlaceholderState createState() => _DemoPlaceholderState();
+  State<DemoPlaceholder> createState() => _DemoPlaceholderState();
 }
 
 class _DemoPlaceholderState extends State<DemoPlaceholder> {
@@ -14,15 +16,15 @@ class _DemoPlaceholderState extends State<DemoPlaceholder> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
       child: Center(
         child: ReorderableGridView.builder(
           itemCount: 50,
           itemBuilder: (context, index) => buildItem(index),
           onReorder: (oldIndex, newIndex) {
-            print("reorder: $oldIndex -> $newIndex");
+            log("reorder: $oldIndex -> $newIndex");
             setState(() {
-              print("reorder: $oldIndex -> $newIndex");
+              log("reorder: $oldIndex -> $newIndex");
               setState(() {
                 final element = data.removeAt(oldIndex);
                 data.insert(newIndex, element);
@@ -32,10 +34,10 @@ class _DemoPlaceholderState extends State<DemoPlaceholder> {
           placeholderBuilder: (dragIndex, dropIndex, dragWidget) {
             return Container(
               decoration: BoxDecoration(border: Border.all(color: Colors.red)),
-              child: SizedBox(),
+              child: const SizedBox(),
             );
           },
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,

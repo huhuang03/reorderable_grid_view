@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_mixin.dart';
@@ -20,7 +22,8 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
   });
 
   @override
-  Offset getPos(int index, Map<int, ReorderableItemViewState> items, BuildContext context) {
+  Offset getPos(int index, Map<int, ReorderableItemViewState> items,
+      BuildContext context) {
     // can I get pos by child?
     var child = items[index];
     // I think the better is use the sliverGrid?
@@ -28,16 +31,16 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
 
     // so from the childObject, I still can't get pos?
     if (childObject == null) {
-      print("index: $index is null");
+      log("index: $index is null");
     } else {
-      print("index: $index, pos: ${childObject.constraints}");
+      log("index: $index, pos: ${childObject.constraints}");
       if (childObject is RenderSliver) {
-        print("index: $index, pos: ${childObject.constraints}");
+        log("index: $index, pos: ${childObject.constraints}");
       } else if (childObject is RenderBox) {
         // childObject.localToGlobal(point)
-        print("index: $index, pos: ${childObject.semanticBounds}");
+        log("index: $index, pos: ${childObject.semanticBounds}");
       } else {
-        print("index: $index, $childObject");
+        log("index: $index, $childObject");
       }
     }
 
@@ -57,7 +60,8 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
       width = (renderObject as RenderBox).size.width;
     }
 
-    double itemWidth = (width - (crossAxisCount - 1) * crossAxisSpacing) / crossAxisCount;
+    double itemWidth =
+        (width - (crossAxisCount - 1) * crossAxisSpacing) / crossAxisCount;
 
     int row = index ~/ crossAxisCount;
     int col = index % crossAxisCount;
@@ -68,13 +72,26 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
   }
 }
 
-class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidgetMixin {
+class ReorderableWrapperWidget extends StatefulWidget
+    with ReorderableGridWidgetMixin {
+  @override
   final ReorderCallback onReorder;
+
+  @override
   final DragWidgetBuilder? dragWidgetBuilder;
+
+  @override
   final ScrollSpeedController? scrollSpeedController;
+
+  @override
   final PlaceholderBuilder? placeholderBuilder;
+
   final ReorderableChildPosDelegate? posDelegate;
+
+  @override
   final OnDragStart? onDragStart;
+
+  @override
   final Widget child;
 
   @override
@@ -104,6 +121,8 @@ class ReorderableWrapperWidget extends StatefulWidget with ReorderableGridWidget
 
 /// Yes we can't get grid delegate here, because we don't know child.
 class ReorderableWrapperWidgetState extends State<ReorderableWrapperWidget>
-    with TickerProviderStateMixin<ReorderableWrapperWidget>, ReorderableGridStateMixin {
+    with
+        TickerProviderStateMixin<ReorderableWrapperWidget>,
+        ReorderableGridStateMixin {
   ReorderableWrapperWidgetState();
 }

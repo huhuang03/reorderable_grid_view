@@ -1,12 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class TestIssue24 extends StatefulWidget {
-
-  TestIssue24({Key? key});
+  const TestIssue24({Key? key}) : super(key: key);
 
   @override
-  _TestIssue24State createState() => _TestIssue24State();
+  State<TestIssue24> createState() => _TestIssue24State();
 }
 
 class HomePageTile {
@@ -21,7 +22,7 @@ class _TestIssue24State extends State<TestIssue24> {
 
   _TestIssue24State() {
     for (var i = 0; i < 50; i++) {
-      var tile = new HomePageTile();
+      var tile = HomePageTile();
       tile.id = i;
       tile.name = 'Item$i';
       features.add(tile);
@@ -35,9 +36,7 @@ class _TestIssue24State extends State<TestIssue24> {
     Widget buildTile(HomePageTile tile) {
       return GestureDetector(
         key: ValueKey(tile.id),
-        onTap: () => {
-          print('onTap: ${tile.id}')
-        },
+        onTap: () => {log('onTap: ${tile.id}')},
         // onTap: () => navigateFromTiles(tile.id, context),
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -65,11 +64,7 @@ class _TestIssue24State extends State<TestIssue24> {
                 ),
                 Text(
                   tile.name,
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .subtitle1!
-                      .copyWith(
+                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
                       color: Colors.grey[800], fontWeight: FontWeight.bold),
                 ),
               ]),
@@ -79,22 +74,23 @@ class _TestIssue24State extends State<TestIssue24> {
 
     /// when the reorder completes remove the list entry from its old position
     /// and insert it at its new index
-    void _onReorder(int oldIndex, int newIndex) {
+    void onReorder(int oldIndex, int newIndex) {
       setState(() {
         final element = features.removeAt(oldIndex);
         features.insert(newIndex, element);
       });
     }
+
     return ReorderableGridView.count(
       padding: const EdgeInsets.all(10),
       childAspectRatio: 1.7,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
       crossAxisCount: 2,
-      children: List.generate(features.length,
-              (index) => buildTile(features[index])),
-      onReorder: _onReorder,
-      footer: [],
+      onReorder: onReorder,
+      footer: const [],
+      children:
+          List.generate(features.length, (index) => buildTile(features[index])),
     );
   }
 }

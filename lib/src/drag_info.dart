@@ -1,23 +1,21 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
 
-typedef _DragItemUpdate = void Function(
+typedef DragItemUpdate = void Function(
     DragInfo item, Offset position, Offset delta);
-typedef _DragItemCallback = void Function(DragInfo item);
+typedef DragItemCallback = void Function(DragInfo item);
 
 // Strange that you are create at onStart?
 // It's boring that pass you so many params
 class DragInfo extends Drag {
   late int index;
-  final _DragItemUpdate? onUpdate;
-  final _DragItemCallback? onCancel;
-  final _DragItemCallback? onEnd;
+  final DragItemUpdate? onUpdate;
+  final DragItemCallback? onCancel;
+  final DragItemCallback? onEnd;
   final ScrollSpeedController? scrollSpeedController;
 
   final TickerProvider tickerProvider;
@@ -75,7 +73,7 @@ class DragInfo extends Drag {
   }
 
   Offset getPosInGlobal() {
-    return this.dragPosition - this.dragOffset;
+    return dragPosition - dragOffset;
   }
 
   void dispose() {
@@ -88,19 +86,19 @@ class DragInfo extends Drag {
 
   // why you need other calls?
   Widget createProxy(BuildContext context) {
-    var position = this.dragPosition - this.dragOffset;
+    var position = dragPosition - dragOffset;
     return Positioned(
       top: position.dy,
       left: position.dx,
-      child: Container(
+      child: SizedBox(
         width: itemSize.width,
         height: itemSize.height,
         child: dragWidgetBuilder != null
             ? dragWidgetBuilder!(index, child)
             : Material(
-          elevation: 3.0,
-          child: child,
-        ),
+                elevation: 3.0,
+                child: child,
+              ),
       ),
     );
   }
@@ -128,6 +126,7 @@ class DragInfo extends Drag {
 
   var _scrollBeginTime = 0;
 
+  // ignore: constant_identifier_names
   static const _DEFAULT_SCROLL_DURATION = 14;
 
   void _scrollIfNeed() async {
@@ -142,7 +141,7 @@ class DragInfo extends Drag {
       bool needScroll = false;
       final ScrollPosition position = scrollable.position;
       final RenderBox scrollRenderBox =
-      scrollable.context.findRenderObject()! as RenderBox;
+          scrollable.context.findRenderObject()! as RenderBox;
 
       final scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
       final scrollStart = scrollOrigin.dy;
@@ -161,7 +160,7 @@ class DragInfo extends Drag {
       final needScrollTop =
           overTop && position.pixels > position.minScrollExtent;
 
-      final double oneStepMax = 5;
+      const double oneStepMax = 5;
       double scroll = oneStepMax;
 
       double overSize = 0;
@@ -174,7 +173,7 @@ class DragInfo extends Drag {
         scroll = min(overSize, oneStepMax);
       }
 
-      final calcOffset = () {
+      calcOffset() {
         if (needScrollBottom) {
           newOffset = min(position.maxScrollExtent, position.pixels + scroll);
         } else if (needScrollTop) {
@@ -182,21 +181,17 @@ class DragInfo extends Drag {
         }
         needScroll =
             newOffset != null && (newOffset! - position.pixels).abs() >= 1.0;
-      };
+      }
 
       calcOffset();
 
-      if (needScroll && this.scrollSpeedController != null) {
+      if (needScroll && scrollSpeedController != null) {
         if (_scrollBeginTime <= 0) {
-          _scrollBeginTime = DateTime
-              .now()
-              .millisecondsSinceEpoch;
+          _scrollBeginTime = DateTime.now().millisecondsSinceEpoch;
         }
 
-        scroll = this.scrollSpeedController!(
-          DateTime
-              .now()
-              .millisecondsSinceEpoch - _scrollBeginTime,
+        scroll = scrollSpeedController!(
+          DateTime.now().millisecondsSinceEpoch - _scrollBeginTime,
           overSize,
           itemSize.height,
         );
@@ -207,7 +202,7 @@ class DragInfo extends Drag {
       if (needScroll) {
         _autoScrolling = true;
         await position.animateTo(newOffset!,
-            duration: Duration(milliseconds: _DEFAULT_SCROLL_DURATION),
+            duration: const Duration(milliseconds: _DEFAULT_SCROLL_DURATION),
             curve: Curves.linear);
         _autoScrolling = false;
         _scrollIfNeed();
@@ -223,14 +218,14 @@ class DragInfo extends Drag {
     // _debug("onDrag end");
     onEnd?.call(this);
 
-    this._endOrCancel();
+    _endOrCancel();
   }
 
   @override
   void cancel() {
     onCancel?.call(this);
 
-    this._endOrCancel();
+    _endOrCancel();
   }
 
   void _endOrCancel() {

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
@@ -5,7 +7,7 @@ class DemoGridBuilder extends StatefulWidget {
   const DemoGridBuilder({Key? key}) : super(key: key);
 
   @override
-  _DemoGridBuilderState createState() => _DemoGridBuilderState();
+  State<DemoGridBuilder> createState() => _DemoGridBuilderState();
 }
 
 class _DemoGridBuilderState extends State<DemoGridBuilder> {
@@ -14,7 +16,7 @@ class _DemoGridBuilderState extends State<DemoGridBuilder> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
       child: Center(
         child: ReorderableGridView.builder(
           itemCount: 5,
@@ -34,9 +36,9 @@ class _DemoGridBuilderState extends State<DemoGridBuilder> {
             );
           },
           onDragStart: (index) {
-            print("onDragStart: $index");
+            log("onDragStart: $index");
           },
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,

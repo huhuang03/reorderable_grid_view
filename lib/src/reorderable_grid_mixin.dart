@@ -12,13 +12,13 @@ import 'drag_info.dart';
 
 abstract class ReorderableChildPosDelegate {
   const ReorderableChildPosDelegate();
+
   /// 获取子view的位置
-  Offset getPos(int index, Map<int, ReorderableItemViewState> items, BuildContext context);
+  Offset getPos(int index, Map<int, ReorderableItemViewState> items,
+      BuildContext context);
 }
 
-
 mixin ReorderableGridWidgetMixin on StatefulWidget {
-
   ReorderCallback get onReorder;
   DragWidgetBuilder? get dragWidgetBuilder;
   ScrollSpeedController? get scrollSpeedController;
@@ -32,7 +32,8 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
 
 // What I want is I can call setState and get those properties.
 // So I want my widget to on The ReorderableGridWidgetMixin
-mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T>, TickerProviderStateMixin<T> {
+mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
+    on State<T>, TickerProviderStateMixin<T> {
   MultiDragGestureRecognizer? _recognizer;
 
   Duration get dragStartDelay => widget.dragStartDelay ?? kLongPressTimeout;
@@ -57,7 +58,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
 
   int? _dropIndex;
 
-  int get dropIndex => _dropIndex?? -1;
+  int get dropIndex => _dropIndex ?? -1;
 
   PlaceholderBuilder? get placeholderBuilder => widget.placeholderBuilder;
 
@@ -65,7 +66,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
 
   Offset getPosByOffset(int index, int dIndex) {
     // how to do to this?
-    var keys = this.__items.keys.toList();
+    var keys = __items.keys.toList();
     var keyIndex = keys.indexOf(index);
     keyIndex = keyIndex + dIndex;
     if (keyIndex < 0) {
@@ -77,7 +78,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
 
     return getPosByIndex(keys[keyIndex], safe: true);
   }
-
 
   // The pos is relate to the container's 0, 0
   Offset getPosByIndex(int index, {bool safe = true}) {
@@ -91,10 +91,10 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
       return Offset.zero;
     }
 
-    var child = this.__items[index];
+    var child = __items[index];
 
     // how to do?
-    var thisRenderObject = this.context.findRenderObject();
+    var thisRenderObject = context.findRenderObject();
     // RenderSliverGrid
 
     // ok, we can't get pos in parent.
@@ -103,14 +103,16 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
       var renderObject = thisRenderObject;
 
       final SliverConstraints constraints = renderObject.constraints;
-      final SliverGridLayout layout = renderObject.gridDelegate.getLayout(constraints);
-
+      final SliverGridLayout layout =
+          renderObject.gridDelegate.getLayout(constraints);
 
       // SliverGridGeometry(scrollOffset: 0.0, crossAxisOffset: 0.0, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 0
       // SliverGridGeometry(scrollOffset: 0.0, crossAxisOffset: 140.47619047619048, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 1
       // SliverGridGeometry(scrollOffset: 227.46031746031747, crossAxisOffset: 0.0, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 3
-      final SliverGridGeometry gridGeometry = layout.getGeometryForChildIndex(index);
-      final rst = Offset(gridGeometry.crossAxisOffset, gridGeometry.scrollOffset);
+      final SliverGridGeometry gridGeometry =
+          layout.getGeometryForChildIndex(index);
+      final rst =
+          Offset(gridGeometry.crossAxisOffset, gridGeometry.scrollOffset);
       return rst;
     }
 
@@ -120,8 +122,9 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
     }
     RenderBox box = renderObject as RenderBox;
 
-    var parentRenderObject = this.context.findRenderObject() as RenderBox;
-    final pos = parentRenderObject.globalToLocal(box.localToGlobal(Offset.zero));
+    var parentRenderObject = context.findRenderObject() as RenderBox;
+    final pos =
+        parentRenderObject.globalToLocal(box.localToGlobal(Offset.zero));
     return pos;
   }
 
@@ -192,8 +195,8 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
       item: item,
       tickerProvider: this,
       context: context,
-      dragWidgetBuilder: this.widget.dragWidgetBuilder,
-      scrollSpeedController: this.widget.scrollSpeedController,
+      dragWidgetBuilder: widget.dragWidgetBuilder,
+      scrollSpeedController: widget.scrollSpeedController,
       onStart: _onDragStart,
       dragPosition: position,
       onUpdate: _onDragUpdate,
@@ -267,7 +270,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin> on State<T
   }
 
   final Map<int, ReorderableItemViewState> __items =
-  <int, ReorderableItemViewState>{};
+      <int, ReorderableItemViewState>{};
 
   DragInfo? _dragInfo;
 
