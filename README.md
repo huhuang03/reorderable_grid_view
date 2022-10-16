@@ -68,3 +68,5 @@ class _MyHomePageState extends State<MyHomePage> {
 - `ReorderableSliverGridView.count`
 - `ReorderableWrapperWidget(child: SomeCollection(children: ReorderableItemView))`
 
+# Important
+- the `placeholderBuilder` is not right when the list is very long, plese see [issue 47](https://github.com/huhuang03/reorderable_grid_view/issues/47)
