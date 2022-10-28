@@ -1,4 +1,4 @@
-const _IS_DEBUG = false;
+const _IS_DEBUG = true;
 
 debug(String msg) {
   if (_IS_DEBUG) {

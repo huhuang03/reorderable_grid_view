@@ -26,7 +26,8 @@ class MyApp extends StatelessWidget {
   final items = [
     Item("ReorderableGrid.count", () => const DemoReorderableGrid()),
     Item("Custom", () => const DemoCustom()),
-    Item("InCorrect Offset", () => const DemoInCorrectOffset())
+    Item("InCorrect Offset", () => const DemoInCorrectOffset()),
+    Item("Sliver Grid", () => const DemoGridSliver())
   ];
 
   // This widget is the root of your application.

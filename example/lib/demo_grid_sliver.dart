@@ -34,6 +34,13 @@ class _DemoGridSliverState extends State<DemoGridSliver> {
           child: FlutterLogo(),
         ),
         ReorderableSliverGridView.count(
+          header: const [
+            Card(
+              child: Center(
+                child: Icon(Icons.add),
+              ),
+            )
+          ],
           onReorder: (oldIndex, newIndex) {
             log("reorder: $oldIndex -> $newIndex");
             setState(() {
@@ -44,7 +51,8 @@ class _DemoGridSliverState extends State<DemoGridSliver> {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 3,
-          childAspectRatio: 0.6, // 0 < childAspectRatio <= 1.0
+          childAspectRatio: 0.6,
+          // 0 < childAspectRatio <= 1.0
           children: data.map((e) => buildItem(e)).toList(),
         ),
         const SliverToBoxAdapter(

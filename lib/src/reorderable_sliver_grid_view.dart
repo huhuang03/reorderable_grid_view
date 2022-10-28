@@ -2,11 +2,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/sliver_grid_with_reorderable_pos_delegate.dart';
+import 'package:reorderable_grid_view/src/util.dart';
 
 import '../reorderable_grid_view.dart';
 
 class ReorderableSliverGridView extends StatelessWidget {
   final List<Widget> children;
+  final List<Widget>? header;
+  final List<Widget>? footer;
   final int crossAxisCount;
   final double mainAxisSpacing;
   final double crossAxisSpacing;
@@ -28,6 +31,8 @@ class ReorderableSliverGridView extends StatelessWidget {
     required this.crossAxisSpacing,
     required this.childAspectRatio,
     required this.onReorder,
+    this.header,
+    this.footer,
     this.dragStartDelay = kLongPressTimeout,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
@@ -40,6 +45,8 @@ class ReorderableSliverGridView extends StatelessWidget {
     Key? key,
     required int crossAxisCount,
     required ReorderCallback onReorder,
+    List<Widget>? footer,
+    List<Widget>? header,
     OnDragStart? onDragStart,
     double mainAxisSpacing = 0.0,
     double crossAxisSpacing = 0.0,
@@ -51,6 +58,8 @@ class ReorderableSliverGridView extends StatelessWidget {
           key: key,
           onReorder: onReorder,
           children: children,
+          footer: footer,
+          header: header,
           crossAxisCount: crossAxisCount,
           mainAxisSpacing: mainAxisSpacing,
           crossAxisSpacing: crossAxisSpacing,
@@ -62,13 +71,14 @@ class ReorderableSliverGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debug("header: ${header}");
     var child = SliverGridWithReorderablePosDelegate.count(
         key: key,
         crossAxisCount: crossAxisCount,
         mainAxisSpacing: mainAxisSpacing,
         crossAxisSpacing: crossAxisSpacing,
         childAspectRatio: childAspectRatio,
-        children: ReorderableItemView.wrapMeList([], children, []));
+        children: ReorderableItemView.wrapMeList(header, children, footer));
 
     return ReorderableWrapperWidget(
       onReorder: onReorder,
