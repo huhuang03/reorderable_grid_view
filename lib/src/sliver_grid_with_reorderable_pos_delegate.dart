@@ -3,7 +3,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 
-// you are strange?
 class SliverGridWithReorderablePosDelegate extends SliverGrid {
   const SliverGridWithReorderablePosDelegate({
     Key? key,

@@ -62,8 +62,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
 
   PlaceholderBuilder? get placeholderBuilder => widget.placeholderBuilder;
 
-  // how to return row, col?
-
   Offset getPosByOffset(int index, int dIndex) {
     // how to do to this?
     var keys = __items.keys.toList();
@@ -97,8 +95,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     var thisRenderObject = context.findRenderObject();
     // RenderSliverGrid
 
-    // ok, we can't get pos in parent.
-    // what to do is is a normal renderSliver?
     if (thisRenderObject is RenderSliverGrid) {
       var renderObject = thisRenderObject;
 
@@ -109,8 +105,10 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
       // SliverGridGeometry(scrollOffset: 0.0, crossAxisOffset: 0.0, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 0
       // SliverGridGeometry(scrollOffset: 0.0, crossAxisOffset: 140.47619047619048, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 1
       // SliverGridGeometry(scrollOffset: 227.46031746031747, crossAxisOffset: 0.0, mainAxisExtent: 217.46031746031747, crossAxisExtent: 130.47619047619048), index: 3
+      // index is not the right index!!!
+      final fixedIndex = child!.indexInAll?? child.index;
       final SliverGridGeometry gridGeometry =
-          layout.getGeometryForChildIndex(index);
+          layout.getGeometryForChildIndex(fixedIndex);
       final rst =
           Offset(gridGeometry.crossAxisOffset, gridGeometry.scrollOffset);
       return rst;
@@ -292,7 +290,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
 
   Future<void> updateDragTarget() async {
     int newTargetIndex = _calcDropIndex(_dropIndex!);
-    debug("newTarIndex: $newTargetIndex");
+    // debug("newTarIndex: $newTargetIndex");
     if (newTargetIndex != _dropIndex) {
       _dropIndex = newTargetIndex;
       for (var item in __items.values) {

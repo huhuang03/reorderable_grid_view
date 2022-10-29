@@ -1,3 +1,4 @@
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_mixin.dart';
@@ -9,10 +10,13 @@ class ReorderableItemView extends StatefulWidget {
     required Key key,
     required this.child,
     required this.index,
+    this.indexInAll,
   }) : super(key: key);
 
   final Widget child;
   final int index;
+  // not good!!
+  final int? indexInAll;
 
   static List<Widget> wrapMeList(
     List<Widget>? header,
@@ -34,6 +38,7 @@ class ReorderableItemView extends StatefulWidget {
       rst.add(ReorderableItemView(
         key: child.key!,
         index: i,
+        indexInAll: i + (header?.length?? 0),
         child: child,
       ));
     }
@@ -63,7 +68,11 @@ class ReorderableItemViewState extends State<ReorderableItemView>
 
   Widget get child => widget.child;
 
+  /// This is the index in [ReorderableItem]
   int get index => widget.index;
+
+  /// This is the index in [AllChild]
+  int? get indexInAll => widget.indexInAll;
 
   set dragging(bool dragging) {
     if (mounted) {
@@ -85,7 +94,8 @@ class ReorderableItemViewState extends State<ReorderableItemView>
     return _listState.context.findRenderObject() as RenderBox;
   }
 
-  /// We can only check the items between startIndex and the targetIndex, but for simply, we check all <= targetDropIndex
+  /// We can only check the items between startIndex and the targetIndex,
+  /// but for simply, we check all <= targetDropIndex
   void updateForGap(int dropIndex) {
     // Actually I can use only use the targetDropIndex to decide the target pos, but what to do I change middle
     if (!mounted) return;
@@ -190,6 +200,7 @@ class ReorderableItemViewState extends State<ReorderableItemView>
         Curves.easeInOut.transform(_offsetAnimation!.value),
       )!;
     }
+
     return _targetOffset;
   }
 
@@ -241,7 +252,6 @@ class ReorderableItemViewState extends State<ReorderableItemView>
           }
 
           return Transform(
-            // you are strange.
             transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
             child: child,
           );

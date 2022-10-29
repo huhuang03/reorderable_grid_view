@@ -66,6 +66,10 @@ class _MyHomePageState extends State<MyHomePage> {
 - `ReorderableGridView.builder`
 - `ReorderableGridView.count`
 - `ReorderableSliverGridView.count`
+
+## custom reorderable
+You can use `ReorderableWrapperWidget` to custom your reorderable.
+Use `ReorderableWrapperWidget` as root. and it's descendants is ReorderableItemView[] list
 - `ReorderableWrapperWidget(child: SomeCollection(children: ReorderableItemView))`
 
 # Important
