@@ -1,3 +1,6 @@
+## [2.2.6-alpha.1] - 2022-10-30
+- add ReorderableSliverGridView option header and footer. https://github.com/huhuang03/reorderable_grid_view/issues/49
+ 
 ## [2.2.5] - 2022-9-8
 - https://github.com/huhuang03/reorderable_grid_view/pull/43
 
