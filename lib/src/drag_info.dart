@@ -215,7 +215,6 @@ class DragInfo extends Drag {
 
   @override
   void end(DragEndDetails details) {
-    // _debug("onDrag end");
     onEnd?.call(this);
 
     _endOrCancel();
