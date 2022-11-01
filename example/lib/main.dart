@@ -1,10 +1,7 @@
 import 'package:example/demo/demo_custom.dart';
-import 'package:example/demo_grid_builder.dart';
 import 'package:example/demo/demo_grid_sliver.dart';
 import 'package:example/demo_incorrect_offset.dart';
-import 'package:example/demo_placeholder.dart';
 import 'package:example/demo/demo_reorderable_count.dart';
-import 'package:example/test_issue_24.dart';
 import 'package:flutter/material.dart';
 
 void main() {
