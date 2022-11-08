@@ -70,3 +70,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
 # Important
 - the `placeholderBuilder` is not right when the list is very long, plese see [issue 47](https://github.com/huhuang03/reorderable_grid_view/issues/47)
+
+# Other link project
+If this project is not fit your meet, you can try those other projects
+- [reorderables](https://github.com/hanshengchiu/reorderables)
+- [reorderable_grid](https://github.com/casvanluijtelaar/reorderable_grid)
+- [flutter-reorderable-grid-view](https://github.com/karvulf/flutter-reorderable-grid-view)
