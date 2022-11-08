@@ -44,6 +44,10 @@ class DragInfo extends Drag {
   BuildContext context;
   var hasEnd = false;
 
+  // zero pos in global, offset to navigation.
+  // Fix issue #49
+  Offset? zeroOffset;
+
   DragInfo({
     required ReorderableItemViewState item,
     required this.tickerProvider,
@@ -59,6 +63,10 @@ class DragInfo extends Drag {
     index = item.index;
     child = item.widget.child;
     itemSize = item.context.size!;
+    var nav = findNavigator(context);
+    if (nav != null && nav.context.findRenderObject() != null && nav.context.findRenderObject() is RenderBox) {
+      zeroOffset = (nav.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    }
 
     final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
     dragOffset = renderBox.globalToLocal(dragPosition);
@@ -66,6 +74,15 @@ class DragInfo extends Drag {
     dragSize = renderBox.size;
 
     scrollable = Scrollable.of(item.context)!;
+  }
+
+  NavigatorState? findNavigator(BuildContext context) {
+    NavigatorState? navigator;
+    if (context is StatefulElement && context.state is NavigatorState) {
+      navigator = context.state as NavigatorState;
+    }
+    navigator = navigator ?? context.findAncestorStateOfType<NavigatorState>();
+    return navigator;
   }
 
   Offset getCenterInGlobal() {
@@ -87,6 +104,9 @@ class DragInfo extends Drag {
   // why you need other calls?
   Widget createProxy(BuildContext context) {
     var position = dragPosition - dragOffset;
+    if (zeroOffset != null) {
+      position = position + zeroOffset!;
+    }
     return Positioned(
       top: position.dy,
       left: position.dx,
@@ -215,7 +235,6 @@ class DragInfo extends Drag {
 
   @override
   void end(DragEndDetails details) {
-    // _debug("onDrag end");
     onEnd?.call(this);
 
     _endOrCancel();
