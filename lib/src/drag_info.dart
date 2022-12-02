@@ -63,10 +63,12 @@ class DragInfo extends Drag {
     index = item.index;
     child = item.widget.child;
     itemSize = item.context.size!;
+    // ???
     var nav = findNavigator(context);
-    if (nav != null && nav.context.findRenderObject() != null && nav.context.findRenderObject() is RenderBox) {
-      zeroOffset = (nav.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
-    }
+    // if (nav != null && nav.context.findRenderObject() != null && nav.context.findRenderObject() is RenderBox) {
+    // zeroOffset = (nav.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    zeroOffset = (Overlay.of(context).context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    // }
 
     final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
     dragOffset = renderBox.globalToLocal(dragPosition);
@@ -103,6 +105,7 @@ class DragInfo extends Drag {
 
   // why you need other calls?
   Widget createProxy(BuildContext context) {
+    // 这里需要重新计算一下！
     var position = dragPosition - dragOffset;
     if (zeroOffset != null) {
       position = position + zeroOffset!;
@@ -125,7 +128,6 @@ class DragInfo extends Drag {
 
   void startDrag() {
     _overlayEntry = OverlayEntry(builder: createProxy);
-    // print("insert overlay");
 
     // Can you give the overlay to _Drag?
     final OverlayState overlay = Overlay.of(context)!;
