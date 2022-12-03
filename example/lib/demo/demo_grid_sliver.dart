@@ -34,13 +34,13 @@ class _DemoGridSliverState extends State<DemoGridSliver> {
           child: FlutterLogo(),
         ),
         ReorderableSliverGridView.count(
-          header: const [
-            Card(
-              child: Center(
-                child: Icon(Icons.add),
-              ),
-            )
-          ],
+          // header: const [
+          //   Card(
+          //     child: Center(
+          //       child: Icon(Icons.add),
+          //     ),
+          //   )
+          // ],
           onReorder: (oldIndex, newIndex) {
             log("reorder: $oldIndex -> $newIndex");
             setState(() {

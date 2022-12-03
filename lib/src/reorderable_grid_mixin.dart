@@ -62,6 +62,10 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
 
   PlaceholderBuilder? get placeholderBuilder => widget.placeholderBuilder;
 
+  bool containsByIndex(int index) {
+    return __items.containsKey(index);
+  }
+
   Offset getPosByOffset(int index, int dIndex) {
     // how to do to this?
     var keys = __items.keys.toList();
@@ -90,6 +94,10 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     }
 
     var child = __items[index];
+
+    if (child == null) {
+      debug("why child is null for index: $index, and __item: $__items");
+    }
 
     // how to do?
     var thisRenderObject = context.findRenderObject();
@@ -170,8 +178,14 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
       return Offset.zero;
     } else {
       if (isMoveLeft) {
+        if (!containsByIndex(index - 1) || !containsByIndex(index)) {
+          return Offset.zero;
+        }
         return getPosByIndex(index - 1) - getPosByIndex(index);
       } else {
+        if (!containsByIndex(index + 1) || !containsByIndex(index)) {
+          return Offset.zero;
+        }
         return getPosByIndex(index + 1) - getPosByIndex(index);
       }
     }

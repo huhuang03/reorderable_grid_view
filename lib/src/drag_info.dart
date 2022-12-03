@@ -68,8 +68,9 @@ class DragInfo extends Drag {
     // var nav = findNavigator(context);
     // if (nav != null && nav.context.findRenderObject() != null && nav.context.findRenderObject() is RenderBox) {
     // zeroOffset = (nav.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    // why global to is is zero??
     zeroOffset = (Overlay.of(context)?.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
-    // debug("zeroOffset")
+    debug("zeroOffset $zeroOffset");
     // }
 
     final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;

@@ -99,6 +99,10 @@ class ReorderableItemViewState extends State<ReorderableItemView>
   void updateForGap(int dropIndex) {
     // Actually I can use only use the targetDropIndex to decide the target pos, but what to do I change middle
     if (!mounted) return;
+    // we don't need update if already dispose()
+    if (!_listState.containsByIndex(index)) {
+      return;
+    }
     // How can I calculate the target?
     _checkPlaceHolder();
 
@@ -106,6 +110,7 @@ class ReorderableItemViewState extends State<ReorderableItemView>
       return;
     }
 
+    // debug("called getOffsetInDrag index $index");
     // let's try use dragSize.
     Offset newOffset = _listState.getOffsetInDrag(index);
     if (newOffset != _targetOffset) {
