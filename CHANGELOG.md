@@ -1,3 +1,7 @@
+## [2.2.6-alpha.3] - 2022-12-3
+- fix can drag over whole screen issue. https://github.com/huhuang03/reorderable_grid_view/issues/52.
+- fix sliver update for gap child is null issue.
+ 
 ## [2.2.6-alpha.2] - 2022-11-1
 - fix drag info pos in nested navigator. https://github.com/huhuang03/reorderable_grid_view/issues/49
 

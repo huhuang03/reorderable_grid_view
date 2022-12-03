@@ -15,35 +15,41 @@ class _DemoCustomState extends State<DemoCustom> {
 
   @override
   Widget build(BuildContext context) {
-    return ReorderableWrapperWidget(
-      child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3),
-          itemCount: data.length * 2,
-          itemBuilder: (context, index) {
-            if (index % 2 == 0) {
-              return const Card(
-                color: Colors.black12,
-                child: Text("Sticky"),
-              );
-            } else {
-              var realIndex = (index / 2).floor();
-              var itemData = data[realIndex];
-              return ReorderableItemView(
-                  key: ValueKey(realIndex),
-                  index: realIndex,
-                  child: Card(
-                    child: Text("R $itemData"),
-                  ));
-            }
-          }),
-      // the drag and drop index is from (index passed to ReorderableItemView)
-      onReorder: (dragIndex, dropIndex) {
-        setState(() {
-          var item = data.removeAt(dragIndex);
-          data.insert(dropIndex, item);
-        });
-      },
+    return Overlay(
+      initialEntries: [
+        OverlayEntry(
+            builder: (builder) => ReorderableWrapperWidget(
+                  child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3),
+                      itemCount: data.length * 2,
+                      itemBuilder: (context, index) {
+                        if (index % 2 == 0) {
+                          return const Card(
+                            color: Colors.black12,
+                            child: Text("Sticky"),
+                          );
+                        } else {
+                          var realIndex = (index / 2).floor();
+                          var itemData = data[realIndex];
+                          return ReorderableItemView(
+                              key: ValueKey(realIndex),
+                              index: realIndex,
+                              child: Card(
+                                child: Text("R $itemData"),
+                              ));
+                        }
+                      }),
+                  // the drag and drop index is from (index passed to ReorderableItemView)
+                  onReorder: (dragIndex, dropIndex) {
+                    setState(() {
+                      var item = data.removeAt(dragIndex);
+                      data.insert(dropIndex, item);
+                    });
+                  },
+                ))
+      ],
     );
   }
 }

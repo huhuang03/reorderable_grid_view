@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
+import 'package:reorderable_grid_view/src/util.dart';
 
 typedef DragItemUpdate = void Function(
     DragInfo item, Offset position, Offset delta);
@@ -63,10 +64,14 @@ class DragInfo extends Drag {
     index = item.index;
     child = item.widget.child;
     itemSize = item.context.size!;
-    var nav = findNavigator(context);
-    if (nav != null && nav.context.findRenderObject() != null && nav.context.findRenderObject() is RenderBox) {
-      zeroOffset = (nav.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
-    }
+    // ???
+    // var nav = findNavigator(context);
+    // if (nav != null && nav.context.findRenderObject() != null && nav.context.findRenderObject() is RenderBox) {
+    // zeroOffset = (nav.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    // why global to is is zero??
+    zeroOffset = (Overlay.of(context)?.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    debug("zeroOffset $zeroOffset");
+    // }
 
     final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
     dragOffset = renderBox.globalToLocal(dragPosition);
@@ -103,6 +108,7 @@ class DragInfo extends Drag {
 
   // why you need other calls?
   Widget createProxy(BuildContext context) {
+    // 这里需要重新计算一下！
     var position = dragPosition - dragOffset;
     if (zeroOffset != null) {
       position = position + zeroOffset!;
@@ -125,7 +131,6 @@ class DragInfo extends Drag {
 
   void startDrag() {
     _overlayEntry = OverlayEntry(builder: createProxy);
-    // print("insert overlay");
 
     // Can you give the overlay to _Drag?
     final OverlayState overlay = Overlay.of(context)!;
