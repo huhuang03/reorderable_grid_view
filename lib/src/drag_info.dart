@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
+import 'package:reorderable_grid_view/src/util.dart';
 
 typedef DragItemUpdate = void Function(
     DragInfo item, Offset position, Offset delta);
@@ -64,10 +65,11 @@ class DragInfo extends Drag {
     child = item.widget.child;
     itemSize = item.context.size!;
     // ???
-    var nav = findNavigator(context);
+    // var nav = findNavigator(context);
     // if (nav != null && nav.context.findRenderObject() != null && nav.context.findRenderObject() is RenderBox) {
     // zeroOffset = (nav.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
-    zeroOffset = (Overlay.of(context).context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    zeroOffset = (Overlay.of(context)?.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    // debug("zeroOffset")
     // }
 
     final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;

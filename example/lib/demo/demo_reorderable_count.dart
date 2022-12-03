@@ -11,7 +11,7 @@ class DemoReorderableGrid extends StatefulWidget {
 }
 
 class _DemoReorderableGridState extends State<DemoReorderableGrid> {
-  final data = List<int>.generate(10, (index) => index);
+  final data = List<int>.generate(100, (index) => index);
   double scrollSpeedVariable = 5;
 
   Widget _buildGrid(BuildContext context) {
