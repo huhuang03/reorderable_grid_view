@@ -1,3 +1,6 @@
+## [2.2.6-alpha.4] = 2022-12-13
+- revert 2.2.6-alpha.3 because it intro a new issue. https://github.com/huhuang03/reorderable_grid_view/issues/54.
+ 
 ## [2.2.6-alpha.3] - 2022-12-3
 - fix can drag over whole screen issue. https://github.com/huhuang03/reorderable_grid_view/issues/52.
 - fix sliver update for gap child is null issue.
