@@ -256,36 +256,31 @@ class ReorderableGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Overlay(
-      initialEntries: [
-        OverlayEntry(
-            builder: (context) => ReorderableWrapperWidget(
-                  onReorder: onReorder,
-                  dragWidgetBuilder: dragWidgetBuilder,
-                  scrollSpeedController: scrollSpeedController,
-                  placeholderBuilder: placeholderBuilder,
-                  onDragStart: onDragStart,
-                  dragEnabled: dragEnabled,
-                  dragStartDelay: dragStartDelay,
-                  child: GridView.custom(
-                    key: key,
-                    gridDelegate: gridDelegate,
-                    childrenDelegate: childrenDelegate,
-                    controller: controller,
-                    reverse: reverse,
-                    primary: primary,
-                    physics: physics,
-                    shrinkWrap: shrinkWrap,
-                    padding: padding,
-                    cacheExtent: cacheExtent,
-                    semanticChildCount: semanticChildCount,
-                    keyboardDismissBehavior: keyboardDismissBehavior,
-                    restorationId: restorationId,
-                    clipBehavior: clipBehavior,
-                    dragStartBehavior: dragStartBehavior,
-                  ),
-                ))
-      ],
+    return ReorderableWrapperWidget(
+      onReorder: onReorder,
+      dragWidgetBuilder: dragWidgetBuilder,
+      scrollSpeedController: scrollSpeedController,
+      placeholderBuilder: placeholderBuilder,
+      onDragStart: onDragStart,
+      dragEnabled: dragEnabled,
+      dragStartDelay: dragStartDelay,
+      child: GridView.custom(
+        key: key,
+        gridDelegate: gridDelegate,
+        childrenDelegate: childrenDelegate,
+        controller: controller,
+        reverse: reverse,
+        primary: primary,
+        physics: physics,
+        shrinkWrap: shrinkWrap,
+        padding: padding,
+        cacheExtent: cacheExtent,
+        semanticChildCount: semanticChildCount,
+        keyboardDismissBehavior: keyboardDismissBehavior,
+        restorationId: restorationId,
+        clipBehavior: clipBehavior,
+        dragStartBehavior: dragStartBehavior,
+      ),
     );
   }
 }
