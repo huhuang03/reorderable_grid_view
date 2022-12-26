@@ -31,6 +31,15 @@ typedef PlaceholderBuilder = Widget Function(
 /// The drag and drop life cycle.
 typedef OnDragStart = void Function(int dragIndex);
 
+/// Called when the position of the dragged widget changes.
+///
+/// [dragIndex] is the index of the item that is dragged.
+/// [position] is the current position of the pointer in the
+/// global coordinate system. [delta] is the offset of the current
+/// position relative to the position of the last drag update call.
+typedef OnDragUpdate = void Function(
+    int dragIndex, Offset position, Offset delta);
+
 /// Usage:
 /// ```
 /// ReorderableGridView(
@@ -56,6 +65,7 @@ class ReorderableGridView extends StatelessWidget {
   final ScrollSpeedController? scrollSpeedController;
   final PlaceholderBuilder? placeholderBuilder;
   final OnDragStart? onDragStart;
+  final OnDragUpdate? onDragUpdate;
 
   final bool? primary;
   final bool shrinkWrap;
@@ -85,6 +95,7 @@ class ReorderableGridView extends StatelessWidget {
     DragWidgetBuilder? dragWidgetBuilder,
     PlaceholderBuilder? placeholderBuilder,
     OnDragStart? onDragStart,
+    OnDragUpdate? onDragUpdate,
     bool reverse = false,
     ScrollController? controller,
     bool? primary,
@@ -113,6 +124,7 @@ class ReorderableGridView extends StatelessWidget {
           scrollSpeedController: scrollSpeedController,
           placeholderBuilder: placeholderBuilder,
           onDragStart: onDragStart,
+          onDragUpdate: onDragUpdate,
 
           // how to determine the
           childrenDelegate: SliverChildBuilderDelegate(
@@ -162,6 +174,7 @@ class ReorderableGridView extends StatelessWidget {
     ScrollSpeedController? scrollSpeedController,
     PlaceholderBuilder? placeholderBuilder,
     OnDragStart? onDragStart,
+    OnDragUpdate? onDragUpdate,
     List<Widget>? footer,
     List<Widget>? header,
     double mainAxisSpacing = 0.0,
@@ -200,6 +213,7 @@ class ReorderableGridView extends StatelessWidget {
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,
+      onDragUpdate: onDragUpdate,
       childrenDelegate: SliverChildListDelegate(
         ReorderableItemView.wrapMeList(header, children, footer),
         addAutomaticKeepAlives: addAutomaticKeepAlives,
@@ -236,6 +250,7 @@ class ReorderableGridView extends StatelessWidget {
     this.scrollSpeedController,
     this.placeholderBuilder,
     this.onDragStart,
+    this.onDragUpdate,
     required this.gridDelegate,
     required this.childrenDelegate,
     this.reverse = false,
@@ -262,6 +277,7 @@ class ReorderableGridView extends StatelessWidget {
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,
+      onDragUpdate: onDragUpdate,
       dragEnabled: dragEnabled,
       dragStartDelay: dragStartDelay,
       child: GridView.custom(

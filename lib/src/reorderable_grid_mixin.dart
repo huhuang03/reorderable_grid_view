@@ -24,6 +24,7 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
   ScrollSpeedController? get scrollSpeedController;
   PlaceholderBuilder? get placeholderBuilder;
   OnDragStart? get onDragStart;
+  OnDragUpdate? get onDragUpdate;
 
   Widget get child;
   Duration? get dragStartDelay;
@@ -222,6 +223,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
   }
 
   _onDragUpdate(DragInfo item, Offset position, Offset delta) {
+    widget.onDragUpdate?.call(_dragIndex!, position, delta);
     updateDragTarget();
   }
 

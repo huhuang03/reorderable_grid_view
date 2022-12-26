@@ -92,6 +92,9 @@ class ReorderableWrapperWidget extends StatefulWidget
   final OnDragStart? onDragStart;
 
   @override
+  final OnDragUpdate? onDragUpdate;
+
+  @override
   final Widget child;
 
   @override
@@ -109,6 +112,7 @@ class ReorderableWrapperWidget extends StatefulWidget
     this.placeholderBuilder,
     this.posDelegate,
     this.onDragStart,
+    this.onDragUpdate,
     this.dragEnabled,
     this.dragStartDelay,
   }) : super(key: key);
