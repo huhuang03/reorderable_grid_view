@@ -1,3 +1,6 @@
+## [2.2.6-alpha.5] = 2022-12-14
+- Expose onDragUpdate callback. https://github.com/huhuang03/reorderable_grid_view/pull/56
+
 ## [2.2.6-alpha.4] = 2022-12-13
 - revert 2.2.6-alpha.3 because it intro a new issue. https://github.com/huhuang03/reorderable_grid_view/issues/54.
  
