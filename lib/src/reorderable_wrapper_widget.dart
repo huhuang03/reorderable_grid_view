@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderable_grid_view/src/reorderable_grid_mixin.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
+import 'package:reorderable_grid_view/src/util.dart';
 
 import '../reorderable_grid_view.dart';
 
@@ -31,16 +30,15 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
 
     // so from the childObject, I still can't get pos?
     if (childObject == null) {
-      log("index: $index is null");
+      debug("index: $index is null");
     } else {
-      log("index: $index, pos: ${childObject.constraints}");
       if (childObject is RenderSliver) {
-        log("index: $index, pos: ${childObject.constraints}");
+        debug("index: $index, pos: ${childObject.constraints}");
       } else if (childObject is RenderBox) {
         // childObject.localToGlobal(point)
-        log("index: $index, pos: ${childObject.semanticBounds}");
+        debug("index: $index, pos: ${childObject.semanticBounds}");
       } else {
-        log("index: $index, $childObject");
+        debug("index: $index, $childObject");
       }
     }
 

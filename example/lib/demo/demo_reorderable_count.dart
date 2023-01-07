@@ -11,8 +11,14 @@ class DemoReorderableGrid extends StatefulWidget {
 }
 
 class _DemoReorderableGridState extends State<DemoReorderableGrid> {
-  final data = List<int>.generate(100, (index) => index);
+  final data = List<int>.generate(10, (index) => index);
   double scrollSpeedVariable = 5;
+
+  void add() {
+    setState(() {
+      data.add(data.length);
+    });
+  }
 
   Widget _buildGrid(BuildContext context) {
     return ReorderableGridView.count(
@@ -44,17 +50,31 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
       dragWidgetBuilder: (index, child) {
         return child;
       },
-      header: const [
+      header: [
         Card(
-          child: Center(
-            child: Icon(Icons.delete),
+          child: InkWell(
+            onTap: () {
+              print("add called");
+              add();
+            },
+            child: const Center(
+              child: Icon(Icons.add)),
           ),
         ),
       ],
-      footer: const [
+      footer: [
         Card(
-          child: Center(
-            child: Icon(Icons.add),
+          child: InkWell(
+            onTap: () {
+              print("delete called");
+              if (data.isNotEmpty) {
+                setState(() {
+                  data.removeLast();
+                });
+              }
+            },
+            child: const Center(
+              child: Icon(Icons.delete)),
           ),
         ),
       ], // 0 < childAspectRatio <= 1.0

@@ -1,3 +1,7 @@
+## [2.2.6-alpha.6] = 2023-1-7
+- remove unused log
+- update demo_reorderable_count, add remove and add method.
+ 
 ## [2.2.6-alpha.5] = 2022-12-14
 - Expose onDragUpdate callback. https://github.com/huhuang03/reorderable_grid_view/pull/56
 
