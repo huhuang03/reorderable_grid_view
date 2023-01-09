@@ -46,7 +46,7 @@ class DragInfo extends Drag {
   // = renderBox.size.height
   late double dragExtent;
   late Size dragSize;
-  late GlobalKey screenshotKey;
+  // late GlobalKey screenshotKey;
   late ReorderableItemViewState item;
 
   AnimationController? _proxyAnimationController;
@@ -76,7 +76,7 @@ class DragInfo extends Drag {
     index = item.index;
     child = item.widget.child;
     itemSize = item.context.size!;
-    screenshotKey = item.repaintKey;
+    // screenshotKey = item.repaintKey;
 
     if (dragWidgetBuilder != null) {
       readyCallback();
@@ -132,25 +132,26 @@ class DragInfo extends Drag {
             ? dragWidgetBuilder!(index, child)
             : Material(
                 elevation: 3.0,
-                child: _defaultDragWidget(),
+                child: _defaultDragWidget(context),
               ),
       ),
     );
   }
 
-  Widget? _createScreenShot() {
-    var renderObject = screenshotKey.currentContext?.findRenderObject();
+  Widget? _createScreenShot(BuildContext context) {
+    var renderObject = item.context.findRenderObject();
     // var renderObject = item.context.findRenderObject();
     if (renderObject is RenderRepaintBoundary) {
       RenderRepaintBoundary renderRepaintBoundary = renderObject;
-      return ScreenshotWidget(renderRepaintBoundary: renderRepaintBoundary, dragWidgetCallback: readyCallback,);
+      return ScreenshotWidget(renderRepaintBoundary: renderRepaintBoundary,
+        dragWidgetCallback: readyCallback, devicePixelRatio: MediaQuery.of(context).devicePixelRatio,);
     }
     return null;
   }
 
-  Widget _defaultDragWidget() {
+  Widget _defaultDragWidget(BuildContext context) {
     // return child;
-    var screenShot = _createScreenShot();
+    var screenShot = _createScreenShot(context);
     return screenShot ?? Container();
   }
 
@@ -284,8 +285,9 @@ class DragInfo extends Drag {
 class ScreenshotWidget extends StatefulWidget {
   final RenderRepaintBoundary renderRepaintBoundary;
   final DragWidgetReadyCallback dragWidgetCallback;
+  final double devicePixelRatio;
 
-  const ScreenshotWidget({Key? key, required this.renderRepaintBoundary, required this.dragWidgetCallback}) : super(key: key);
+  const ScreenshotWidget({Key? key, required this.renderRepaintBoundary, required this.dragWidgetCallback, required this.devicePixelRatio}) : super(key: key);
 
   @override
   State<ScreenshotWidget> createState() => _ScreenshotWidgetState();
@@ -307,8 +309,8 @@ class _ScreenshotWidgetState extends State<ScreenshotWidget> {
       Timer(const Duration(microseconds: 1), () => _load());
       return;
     }
-    debug("devicePixelRatio: ${MediaQuery.of(context).devicePixelRatio}");
-    var image = await widget.renderRepaintBoundary.toImage(pixelRatio: MediaQuery.of(context).devicePixelRatio);
+    debug("devicePixelRatio: ${widget.devicePixelRatio}");
+    var image = await widget.renderRepaintBoundary.toImage(pixelRatio: widget.devicePixelRatio);
     var byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     widget.dragWidgetCallback();
     setState(() {

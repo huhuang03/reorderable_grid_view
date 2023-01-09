@@ -1,3 +1,7 @@
+## [2.2.6-alpha.7] = 2023-1-7
+- fix bug https://github.com/huhuang03/reorderable_grid_view/pull/58, fix item rebuild when drag issue
+- use Image(widget screenshot) as drag view.
+
 ## [2.2.6-alpha.6] = 2023-1-7
 - remove unused log
 - update demo_reorderable_count, add remove and add method.
