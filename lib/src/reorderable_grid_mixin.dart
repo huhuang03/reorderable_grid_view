@@ -152,7 +152,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
           pos.dy > 0 &&
           pos.dx < box.size.width &&
           pos.dy < box.size.height) {
-        // _debug("return item.index: ${item.index}");
         return item.index;
       }
     }
@@ -199,8 +198,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     widget.onDragStart?.call(_dragIndex!);
 
     final ReorderableItemViewState item = __items[_dragIndex!]!;
-    item.dragging = true;
-    item.rebuild();
 
     _dropIndex = _dragIndex;
 
@@ -215,9 +212,13 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
       onUpdate: _onDragUpdate,
       onCancel: _onDragCancel,
       onEnd: _onDragEnd,
+      readyCallback: () {
+        item.dragging = true;
+        item.rebuild();
+        updateDragTarget();
+      },
     );
     _dragInfo!.startDrag();
-    updateDragTarget();
 
     return _dragInfo!;
   }
@@ -277,9 +278,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
 
   @override
   Widget build(BuildContext context) {
-    // create the draggable item in build function?
-    // return Text("hello");
-    // ok, how to replace the child??
     return widget.child;
   }
 
@@ -306,7 +304,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
 
   Future<void> updateDragTarget() async {
     int newTargetIndex = _calcDropIndex(_dropIndex!);
-    // debug("newTarIndex: $newTargetIndex");
     if (newTargetIndex != _dropIndex) {
       _dropIndex = newTargetIndex;
       for (var item in __items.values) {

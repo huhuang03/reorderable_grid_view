@@ -55,6 +55,7 @@ class ReorderableItemViewState extends State<ReorderableItemView>
     with TickerProviderStateMixin {
   late ReorderableGridStateMixin _listState;
   bool _dragging = false;
+  // final repaintKey = GlobalKey();
 
   // ths is strange thing.
   Offset _startOffset = Offset.zero;
@@ -73,6 +74,8 @@ class ReorderableItemViewState extends State<ReorderableItemView>
 
   /// This is the index in [AllChild]
   int? get indexInAll => widget.indexInAll;
+
+  final Key childKey = GlobalKey();
 
   set dragging(bool dragging) {
     if (mounted) {
@@ -226,7 +229,6 @@ class ReorderableItemViewState extends State<ReorderableItemView>
 
   Widget _buildPlaceHolder() {
     // why you are not right?
-    debug("placeholderBuilder: ${_listState.placeholderBuilder}");
     if (_listState.placeholderBuilder == null) {
       return const SizedBox();
     }
@@ -241,35 +243,40 @@ class ReorderableItemViewState extends State<ReorderableItemView>
   // how do you think of this?
   @override
   Widget build(BuildContext context) {
-    if (!_listState.dragEnabled) {
-      return widget.child;
-    }
-
-    if (_dragging) {
-      return _buildPlaceHolder();
-    }
-
-    Widget buildChild(Widget child) {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          if (_dragging) {
-            return _buildPlaceHolder();
+    return RepaintBoundary(
+      child: Listener(
+        onPointerDown: (PointerDownEvent e) {
+          var listState = ReorderableGridStateMixin.of(context);
+          if (_listState.dragEnabled) {
+            listState.startDragRecognizer(index, e, _createDragRecognizer());
           }
-
-          return Transform(
-            transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
-            child: child,
-          );
         },
-      );
-    }
-
-    return Listener(
-      onPointerDown: (PointerDownEvent e) {
-        var listState = ReorderableGridStateMixin.of(context);
-        listState.startDragRecognizer(index, e, _createDragRecognizer());
-      },
-      child: buildChild(child),
+        child: LayoutBuilder(
+          builder: (context, constraint) {
+            return Transform(
+              transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
+              child: Stack(
+                children: [
+                  Offstage(
+                    offstage: !_dragging,
+                    child: Container(
+                      constraints: constraint,
+                      child: _buildPlaceHolder()),
+                  ),
+                  Offstage(
+                    offstage: _dragging,
+                    child: Container(
+                      constraints: constraint,
+                      child: child,
+                    ),
+                  )
+                ],
+              ),
+            );
+          },
+        )
+        // child: buildChild(child),
+      ),
     );
   }
 

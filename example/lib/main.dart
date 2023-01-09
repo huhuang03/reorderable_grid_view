@@ -1,8 +1,11 @@
 import 'package:example/demo/demo_custom.dart';
 import 'package:example/demo/demo_grid_sliver.dart';
+import 'package:example/demo/demo_reorderable_count_enable.dart';
 import 'package:example/demo_incorrect_offset.dart';
 import 'package:example/demo/demo_reorderable_count.dart';
 import 'package:flutter/material.dart';
+
+import 'demo/demo_item_rebuild.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,6 +28,8 @@ class MyApp extends StatelessWidget {
     Item("Custom", () => const DemoCustom()),
     Item("InCorrect Offset", () => const DemoInCorrectOffset()),
     Item("Sliver Grid", () => const DemoGridSliver()),
+    Item("Item Rebuild", () => const DemoItemRebuild()),
+    Item("Enable", () => const DemoEnable()),
     Item("Nested router", () => Navigator(
       initialRoute: "/",
       onGenerateRoute: (RouteSettings settings) {
