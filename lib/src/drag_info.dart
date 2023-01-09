@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:reorderable_grid_view/src/reorderable_item.dart';
 import 'package:reorderable_grid_view/src/util.dart';
@@ -37,6 +41,8 @@ class DragInfo extends Drag {
   // = renderBox.size.height
   late double dragExtent;
   late Size dragSize;
+  late GlobalKey screenshotKey;
+  late ReorderableItemViewState item;
 
   AnimationController? _proxyAnimationController;
 
@@ -50,7 +56,7 @@ class DragInfo extends Drag {
   Offset? zeroOffset;
 
   DragInfo({
-    required ReorderableItemViewState item,
+    required this.item,
     required this.tickerProvider,
     required this.onStart,
     required this.dragPosition,
@@ -64,6 +70,8 @@ class DragInfo extends Drag {
     index = item.index;
     child = item.widget.child;
     itemSize = item.context.size!;
+    screenshotKey = item.screenshotKey;
+    // item.screenshotKey;
     // ???
     // var nav = findNavigator(context);
     // if (nav != null && nav.context.findRenderObject() != null && nav.context.findRenderObject() is RenderBox) {
@@ -123,10 +131,28 @@ class DragInfo extends Drag {
             ? dragWidgetBuilder!(index, child)
             : Material(
                 elevation: 3.0,
-                child: child,
+                child: _defaultDragWidget(),
               ),
       ),
     );
+  }
+
+  Widget? _createScreenShot() {
+    var renderObject = item.context.findRenderObject();
+    // var renderObject = screenshotKey.currentContext?.findRenderObject();
+    if (renderObject is RenderRepaintBoundary) {
+      RenderRepaintBoundary renderRepaintBoundary = renderObject;
+      return ScreenshotWidget(renderRepaintBoundary: renderRepaintBoundary);
+    }
+    return null;
+  }
+
+  Widget _defaultDragWidget() {
+    return child;
+    // return child;
+    var screenShot = _createScreenShot();
+    // return screenShot ?? child;
+    return screenShot ?? Container(color: Colors.red);
   }
 
   void startDrag() {
@@ -256,3 +282,54 @@ class DragInfo extends Drag {
     hasEnd = true;
   }
 }
+
+class ScreenshotWidget extends StatefulWidget {
+  final RenderRepaintBoundary renderRepaintBoundary;
+
+  const ScreenshotWidget({Key? key, required this.renderRepaintBoundary}) : super(key: key);
+
+  @override
+  State<ScreenshotWidget> createState() => _ScreenshotWidgetState();
+}
+
+class _ScreenshotWidgetState extends State<ScreenshotWidget> {
+  ImageProvider? imageProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  _load() async {
+    if (widget.renderRepaintBoundary.debugNeedsPaint) {
+      Timer(const Duration(microseconds: 5), () => _load());
+      return;
+    }
+    debug("create image called");
+    // wait for paint finish??
+    var image = await widget.renderRepaintBoundary.toImage(pixelRatio: 3);
+    var byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    setState(() {
+      if (byteData != null) {
+        imageProvider = MemoryImage(Uint8List.view(byteData.buffer));
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: imageProvider == null
+          ? Container()
+          : Image(image: imageProvider!),
+    );
+    if (imageProvider == null) {
+      return Container();
+    }
+    return Image(image: imageProvider!);
+  }
+}
+
+

@@ -199,8 +199,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     widget.onDragStart?.call(_dragIndex!);
 
     final ReorderableItemViewState item = __items[_dragIndex!]!;
-    item.dragging = true;
-    item.rebuild();
 
     _dropIndex = _dragIndex;
 
@@ -218,6 +216,8 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     );
     _dragInfo!.startDrag();
     updateDragTarget();
+    item.dragging = true;
+    item.rebuild();
 
     return _dragInfo!;
   }
