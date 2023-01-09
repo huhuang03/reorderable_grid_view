@@ -15,6 +15,7 @@ typedef DragItemUpdate = void Function(
 
 typedef DragItemCallback = void Function(DragInfo item);
 
+/// callback that draw widget ready build(most time take a screenshot)
 typedef DragWidgetReadyCallback = void Function();
 
 // Strange that you are create at onStart?
@@ -25,6 +26,7 @@ class DragInfo extends Drag {
   final DragItemCallback? onCancel;
   final DragItemCallback? onEnd;
   final ScrollSpeedController? scrollSpeedController;
+  final DragWidgetReadyCallback readyCallback;
 
   final TickerProvider tickerProvider;
   final GestureMultiDragStartCallback onStart;
@@ -59,6 +61,7 @@ class DragInfo extends Drag {
   Offset? zeroOffset;
 
   DragInfo({
+    required this.readyCallback,
     required this.item,
     required this.tickerProvider,
     required this.onStart,
@@ -73,11 +76,13 @@ class DragInfo extends Drag {
     index = item.index;
     child = item.widget.child;
     itemSize = item.context.size!;
-    screenshotKey = item.screenshotKey;
+    screenshotKey = item.repaintKey;
 
+    if (dragWidgetBuilder != null) {
+      readyCallback();
+    }
     // why global to is is zero??
-    zeroOffset = (Overlay.of(context).context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
-    debug("zeroOffset $zeroOffset");
+    zeroOffset = (Overlay.of(context)?.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
 
     final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
     dragOffset = renderBox.globalToLocal(dragPosition);
@@ -112,9 +117,7 @@ class DragInfo extends Drag {
     _proxyAnimationController = null;
   }
 
-  // why you need other calls?
   Widget createProxy(BuildContext context) {
-    // 这里需要重新计算一下！
     var position = dragPosition - dragOffset;
     if (zeroOffset != null) {
       position = position + zeroOffset!;
@@ -136,11 +139,11 @@ class DragInfo extends Drag {
   }
 
   Widget? _createScreenShot() {
-    var renderObject = item.context.findRenderObject();
-    debug('renderObject: $renderObject');
+    var renderObject = screenshotKey.currentContext?.findRenderObject();
+    // var renderObject = item.context.findRenderObject();
     if (renderObject is RenderRepaintBoundary) {
       RenderRepaintBoundary renderRepaintBoundary = renderObject;
-      return ScreenshotWidget(renderRepaintBoundary: renderRepaintBoundary);
+      return ScreenshotWidget(renderRepaintBoundary: renderRepaintBoundary, dragWidgetCallback: readyCallback,);
     }
     return null;
   }
@@ -148,8 +151,7 @@ class DragInfo extends Drag {
   Widget _defaultDragWidget() {
     // return child;
     var screenShot = _createScreenShot();
-    debug('screenShot: $screenShot');
-    return screenShot ?? Container(color: Colors.red);
+    return screenShot ?? Container();
   }
 
   void startDrag() {
@@ -281,8 +283,9 @@ class DragInfo extends Drag {
 
 class ScreenshotWidget extends StatefulWidget {
   final RenderRepaintBoundary renderRepaintBoundary;
+  final DragWidgetReadyCallback dragWidgetCallback;
 
-  const ScreenshotWidget({Key? key, required this.renderRepaintBoundary}) : super(key: key);
+  const ScreenshotWidget({Key? key, required this.renderRepaintBoundary, required this.dragWidgetCallback}) : super(key: key);
 
   @override
   State<ScreenshotWidget> createState() => _ScreenshotWidgetState();
@@ -291,27 +294,25 @@ class ScreenshotWidget extends StatefulWidget {
 class _ScreenshotWidgetState extends State<ScreenshotWidget> {
   ImageProvider? imageProvider;
 
-  _ScreenshotWidgetState() {
-    _load();
-  }
+  _ScreenshotWidgetState();
 
   @override
   void initState() {
     super.initState();
+    _load();
   }
 
   _load() async {
-    if (widget != null && widget.renderRepaintBoundary.debugNeedsPaint) {
+    if (widget.renderRepaintBoundary.debugNeedsPaint) {
       Timer(const Duration(microseconds: 1), () => _load());
       return;
     }
-    debug("create image called");
-    // wait for paint finish??
-    var image = await widget.renderRepaintBoundary.toImage(pixelRatio: 1);
+    debug("devicePixelRatio: ${MediaQuery.of(context).devicePixelRatio}");
+    var image = await widget.renderRepaintBoundary.toImage(pixelRatio: MediaQuery.of(context).devicePixelRatio);
     var byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    widget.dragWidgetCallback();
     setState(() {
       if (byteData != null) {
-        debug("${byteData.buffer.asUint8List()}");
         imageProvider = MemoryImage(Uint8List.view(byteData.buffer));
       } else {
         debug("why byteData is null?");
@@ -321,20 +322,10 @@ class _ScreenshotWidgetState extends State<ScreenshotWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // return AnimatedSwitcher(
-    //   duration: const Duration(milliseconds: 200),
-    //   child: imageProvider == null
-    //       ? Container()
-    //       : Image(image: imageProvider!),
-    // );
     if (imageProvider == null) {
-      return Container(
-        color: Colors.blue,
-      );
+      return Container();
     }
-    return Container(
-      // color: Colors.red,
-      child: Image(image: imageProvider!));
+    return Image(image: imageProvider!);
   }
 }
 

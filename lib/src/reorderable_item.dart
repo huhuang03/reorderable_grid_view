@@ -55,7 +55,7 @@ class ReorderableItemViewState extends State<ReorderableItemView>
     with TickerProviderStateMixin {
   late ReorderableGridStateMixin _listState;
   bool _dragging = false;
-  final screenshotKey = GlobalKey();
+  final repaintKey = GlobalKey();
 
   // ths is strange thing.
   Offset _startOffset = Offset.zero;
@@ -230,9 +230,7 @@ class ReorderableItemViewState extends State<ReorderableItemView>
   Widget _buildPlaceHolder() {
     // why you are not right?
     if (_listState.placeholderBuilder == null) {
-      return Container(
-        color: Colors.amber,
-        child: const SizedBox());
+      return const SizedBox();
     }
 
     return Transform(
@@ -245,40 +243,41 @@ class ReorderableItemViewState extends State<ReorderableItemView>
   // how do you think of this?
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Listener(
-        onPointerDown: (PointerDownEvent e) {
-          var listState = ReorderableGridStateMixin.of(context);
-          if (_listState.dragEnabled) {
-            listState.startDragRecognizer(index, e, _createDragRecognizer());
-          }
-        },
-        child: LayoutBuilder(
-          builder: (context, constraint) {
-            return Transform(
-              transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
-              child: Stack(
-                children: [
-                  Offstage(
-                    offstage: !_dragging,
-                    child: Container(
-                      constraints: constraint,
-                      child: _buildPlaceHolder()),
-                  ),
-                  Offstage(
-                    offstage: _dragging,
-                    child: Container(
-                      constraints: constraint,
-                      child: child,
+    return Listener(
+      onPointerDown: (PointerDownEvent e) {
+        var listState = ReorderableGridStateMixin.of(context);
+        if (_listState.dragEnabled) {
+          listState.startDragRecognizer(index, e, _createDragRecognizer());
+        }
+      },
+      child: LayoutBuilder(
+        builder: (context, constraint) {
+          return Transform(
+            transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
+            child: Stack(
+              children: [
+                Offstage(
+                  offstage: !_dragging,
+                  child: Container(
+                    constraints: constraint,
+                    child: _buildPlaceHolder()),
+                ),
+                Offstage(
+                  offstage: _dragging,
+                  child: Container(
+                    constraints: constraint,
+                    child: RepaintBoundary(
+                      key: repaintKey,
+                      child: child
                     ),
-                  )
-                ],
-              ),
-            );
-          },
-        )
-        // child: buildChild(child),
-      ),
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+      )
+      // child: buildChild(child),
     );
   }
 
