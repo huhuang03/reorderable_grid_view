@@ -5,7 +5,7 @@ Copy from official ReorderableListView
 # Usage:
 ```
 dependencies:
-  reorderable_grid_view: ^2.2.6-alpha.6
+  reorderable_grid_view: ^2.2.6-alpha.7
 ```
 
 # Example
