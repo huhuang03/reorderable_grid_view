@@ -12,7 +12,10 @@ import 'package:reorderable_grid_view/src/util.dart';
 
 typedef DragItemUpdate = void Function(
     DragInfo item, Offset position, Offset delta);
+
 typedef DragItemCallback = void Function(DragInfo item);
+
+typedef DragWidgetReadyCallback = void Function();
 
 // Strange that you are create at onStart?
 // It's boring that pass you so many params
@@ -71,15 +74,10 @@ class DragInfo extends Drag {
     child = item.widget.child;
     itemSize = item.context.size!;
     screenshotKey = item.screenshotKey;
-    // item.screenshotKey;
-    // ???
-    // var nav = findNavigator(context);
-    // if (nav != null && nav.context.findRenderObject() != null && nav.context.findRenderObject() is RenderBox) {
-    // zeroOffset = (nav.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+
     // why global to is is zero??
-    zeroOffset = (Overlay.of(context)?.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    zeroOffset = (Overlay.of(context).context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
     debug("zeroOffset $zeroOffset");
-    // }
 
     final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
     dragOffset = renderBox.globalToLocal(dragPosition);
@@ -139,7 +137,7 @@ class DragInfo extends Drag {
 
   Widget? _createScreenShot() {
     var renderObject = item.context.findRenderObject();
-    // var renderObject = screenshotKey.currentContext?.findRenderObject();
+    debug('renderObject: $renderObject');
     if (renderObject is RenderRepaintBoundary) {
       RenderRepaintBoundary renderRepaintBoundary = renderObject;
       return ScreenshotWidget(renderRepaintBoundary: renderRepaintBoundary);
@@ -148,10 +146,9 @@ class DragInfo extends Drag {
   }
 
   Widget _defaultDragWidget() {
-    return child;
     // return child;
     var screenShot = _createScreenShot();
-    // return screenShot ?? child;
+    debug('screenShot: $screenShot');
     return screenShot ?? Container(color: Colors.red);
   }
 
@@ -177,7 +174,6 @@ class DragInfo extends Drag {
 
   var _scrollBeginTime = 0;
 
-  // ignore: constant_identifier_names
   static const _DEFAULT_SCROLL_DURATION = 14;
 
   void _scrollIfNeed() async {
@@ -295,40 +291,50 @@ class ScreenshotWidget extends StatefulWidget {
 class _ScreenshotWidgetState extends State<ScreenshotWidget> {
   ImageProvider? imageProvider;
 
-  @override
-  void initState() {
-    super.initState();
+  _ScreenshotWidgetState() {
     _load();
   }
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   _load() async {
-    if (widget.renderRepaintBoundary.debugNeedsPaint) {
-      Timer(const Duration(microseconds: 5), () => _load());
+    if (widget != null && widget.renderRepaintBoundary.debugNeedsPaint) {
+      Timer(const Duration(microseconds: 1), () => _load());
       return;
     }
     debug("create image called");
     // wait for paint finish??
-    var image = await widget.renderRepaintBoundary.toImage(pixelRatio: 3);
+    var image = await widget.renderRepaintBoundary.toImage(pixelRatio: 1);
     var byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     setState(() {
       if (byteData != null) {
+        debug("${byteData.buffer.asUint8List()}");
         imageProvider = MemoryImage(Uint8List.view(byteData.buffer));
+      } else {
+        debug("why byteData is null?");
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 200),
-      child: imageProvider == null
-          ? Container()
-          : Image(image: imageProvider!),
-    );
+    // return AnimatedSwitcher(
+    //   duration: const Duration(milliseconds: 200),
+    //   child: imageProvider == null
+    //       ? Container()
+    //       : Image(image: imageProvider!),
+    // );
     if (imageProvider == null) {
-      return Container();
+      return Container(
+        color: Colors.blue,
+      );
     }
-    return Image(image: imageProvider!);
+    return Container(
+      // color: Colors.red,
+      child: Image(image: imageProvider!));
   }
 }
 

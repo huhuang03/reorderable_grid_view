@@ -229,9 +229,10 @@ class ReorderableItemViewState extends State<ReorderableItemView>
 
   Widget _buildPlaceHolder() {
     // why you are not right?
-    debug("placeholderBuilder: ${_listState.placeholderBuilder}");
     if (_listState.placeholderBuilder == null) {
-      return const SizedBox();
+      return Container(
+        color: Colors.amber,
+        child: const SizedBox());
     }
 
     return Transform(
@@ -244,39 +245,39 @@ class ReorderableItemViewState extends State<ReorderableItemView>
   // how do you think of this?
   @override
   Widget build(BuildContext context) {
-    if (!_listState.dragEnabled) {
-      return widget.child;
-    }
-
-    if (_dragging) {
-      return _buildPlaceHolder();
-    }
-
-    Widget buildChild(Widget child) {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          // if (_dragging) {
-          //   return _buildPlaceHolder();
-          // }
-
-          return Transform(
-            key: childKey,
-            // key: GlobalKey(),
-            transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
-            child: child,
-          );
-        },
-      );
-    }
-
     return RepaintBoundary(
-      key: childKey,
       child: Listener(
         onPointerDown: (PointerDownEvent e) {
           var listState = ReorderableGridStateMixin.of(context);
-          listState.startDragRecognizer(index, e, _createDragRecognizer());
+          if (_listState.dragEnabled) {
+            listState.startDragRecognizer(index, e, _createDragRecognizer());
+          }
         },
-        child: buildChild(child),
+        child: LayoutBuilder(
+          builder: (context, constraint) {
+            return Transform(
+              transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
+              child: Stack(
+                children: [
+                  Offstage(
+                    offstage: !_dragging,
+                    child: Container(
+                      constraints: constraint,
+                      child: _buildPlaceHolder()),
+                  ),
+                  Offstage(
+                    offstage: _dragging,
+                    child: Container(
+                      constraints: constraint,
+                      child: child,
+                    ),
+                  )
+                ],
+              ),
+            );
+          },
+        )
+        // child: buildChild(child),
       ),
     );
   }

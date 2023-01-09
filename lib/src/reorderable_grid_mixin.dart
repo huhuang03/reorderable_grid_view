@@ -215,9 +215,9 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
       onEnd: _onDragEnd,
     );
     _dragInfo!.startDrag();
-    updateDragTarget();
     item.dragging = true;
     item.rebuild();
+    updateDragTarget();
 
     return _dragInfo!;
   }
