@@ -60,6 +60,8 @@ class DragInfo extends Drag {
   // Fix issue #49
   Offset? zeroOffset;
 
+  final useScreenshot = false;
+
   DragInfo({
     required this.readyCallback,
     required this.item,
@@ -78,7 +80,7 @@ class DragInfo extends Drag {
     itemSize = item.context.size!;
     // screenshotKey = item.repaintKey;
 
-    if (dragWidgetBuilder != null) {
+    if (dragWidgetBuilder != null || !useScreenshot) {
       readyCallback();
     }
     // why global to is is zero??
@@ -138,6 +140,12 @@ class DragInfo extends Drag {
     );
   }
 
+  Widget _createDragByChild(BuildContext context) {
+    return child;
+  }
+
+  /// for now, we don't use this screenshot, because it will cost time to snapshot.
+  /// And will show a blank page before show drag
   Widget? _createScreenShot(BuildContext context) {
     var renderObject = item.context.findRenderObject();
     // var renderObject = item.context.findRenderObject();
@@ -151,8 +159,8 @@ class DragInfo extends Drag {
 
   Widget _defaultDragWidget(BuildContext context) {
     // return child;
-    var screenShot = _createScreenShot(context);
-    return screenShot ?? Container();
+    var rst = _createDragByChild(context);
+    return rst ?? Container();
   }
 
   void startDrag() {

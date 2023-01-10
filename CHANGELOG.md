@@ -1,3 +1,6 @@
+## [2.2.6-alpha.8] = 2023-1-10
+- decide use child as DragWidget because use screenshot will show a blank widget first.
+
 ## [2.2.6-alpha.7] = 2023-1-9
 - fix bug https://github.com/huhuang03/reorderable_grid_view/pull/58, fix item rebuild when drag issue
 - use Image(widget screenshot) as drag view.
