@@ -125,6 +125,16 @@ class ReorderableWrapperWidget extends StatefulWidget
 class ReorderableWrapperWidgetState extends State<ReorderableWrapperWidget>
     with
         TickerProviderStateMixin<ReorderableWrapperWidget>,
+        AutomaticKeepAliveClientMixin<ReorderableWrapperWidget>,
         ReorderableGridStateMixin {
   ReorderableWrapperWidgetState();
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

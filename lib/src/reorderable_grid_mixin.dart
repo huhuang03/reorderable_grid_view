@@ -276,11 +276,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
-
   final Map<int, ReorderableItemViewState> __items =
       <int, ReorderableItemViewState>{};
 
