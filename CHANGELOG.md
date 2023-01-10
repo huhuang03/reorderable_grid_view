@@ -1,3 +1,6 @@
+## [2.2.6-alpha.10] = 2023-1-10
+- revert change in 2.2.6-alpha.9
+
 ## [2.2.6-alpha.9] = 2023-1-10
 - fix pageView save state issue, recoding to https://stackoverflow.com/questions/45944777/losing-widget-state-when-switching-pages-in-a-flutter-pageview
  

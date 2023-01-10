@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:example/demo/demo_item_rebuild.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class DemoPageView extends StatefulWidget {
@@ -14,6 +16,7 @@ class DemoPageView extends StatefulWidget {
 class _DemoPageViewState extends State<DemoPageView> {
   final widgets = List<Widget>.generate(10, (index) => Item(no: index));
   double scrollSpeedVariable = 5;
+  var gridKey = GlobalKey();
 
   void add() {
     setState(() {
@@ -22,19 +25,22 @@ class _DemoPageViewState extends State<DemoPageView> {
   }
 
   Widget _buildList(BuildContext context) {
-    return Column(children: [
-      Expanded(
-        child: PageView(
-          children: widgets.map((e) => e).toList(),
+    return Column(
+      children: [
+        Expanded(
+          child: PageView(
+            children: widgets.map((e) => e).toList(),
+          ),
         ),
-      ),
-      const SizedBox(
-        height: 100,
-      )
-    ],);
+        const SizedBox(
+          height: 100,
+        )
+      ],
+    );
   }
 
   Widget _buildGrid(BuildContext context) {
+    // return _useFlutterReorderable();
     return ReorderableGridView.count(
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
@@ -71,8 +77,7 @@ class _DemoPageViewState extends State<DemoPageView> {
               print("add called");
               add();
             },
-            child: const Center(
-              child: Icon(Icons.add)),
+            child: const Center(child: Icon(Icons.add)),
           ),
         ),
       ],
@@ -86,15 +91,37 @@ class _DemoPageViewState extends State<DemoPageView> {
                 });
               }
             },
-            child: const Center(
-              child: Icon(Icons.delete)),
+            child: const Center(child: Icon(Icons.delete)),
           ),
         ),
-      ], // 0 < childAspectRatio <= 1.0
-      children: widgets.map((e) => Container(
-        key: ValueKey(e),
-        child: e)).toList(),
+      ],
+      // 0 < childAspectRatio <= 1.0
+      children:
+          widgets.map((e) => Container(key: ValueKey(e), child: e)).toList(),
     );
+  }
+
+  ReorderableBuilder _useFlutterReorderable() {
+    return ReorderableBuilder(
+      onReorder: (List<OrderUpdateEntity> orderUpdateEntities) {
+        setState(() {
+          for (final orderUpdateEntity in orderUpdateEntities) {
+            final fruit = widgets.removeAt(orderUpdateEntity.oldIndex);
+            widgets.insert(orderUpdateEntity.newIndex, fruit);
+          }
+        });
+      },
+      children: widgets
+          .map((e) => Container(
+                key: Key(e.hashCode.toString()),
+                child: e,
+              ))
+          .toList(),
+      builder: (children) => GridView(
+          key: gridKey,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4),
+          children: children));
   }
 
   @override
@@ -102,8 +129,8 @@ class _DemoPageViewState extends State<DemoPageView> {
     return PageView(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-          child: _buildGrid(context)),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: _buildGrid(context)),
         _buildList(context)
       ],
     );
