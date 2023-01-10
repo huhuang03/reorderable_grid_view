@@ -1,3 +1,6 @@
+## [2.2.6-alpha.9] = 2023-1-10
+- fix pageView save state issue, recoding to https://stackoverflow.com/questions/45944777/losing-widget-state-when-switching-pages-in-a-flutter-pageview
+ 
 ## [2.2.6-alpha.8] = 2023-1-10
 - decide use child as DragWidget because use screenshot will show a blank widget first.
 
