@@ -1,6 +1,3 @@
-import 'dart:ffi';
-import 'dart:typed_data';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +12,27 @@ export 'src/reorderable_item.dart' show ReorderableItemView;
 /// The index here represents the index of current dragging widget
 /// The child here represents the current index widget
 /// [dragWidgetScreenshot] If you pass screenshotDragWidget true, then will take a screenshot of the drag widget.
-typedef DragWidgetBuilder = Widget Function(int index, Widget child, {ByteData dragWidgetScreenshot});
+/// deprecated , use DragWidgetBuilderV2 instead
+@Deprecated("")
+typedef DragWidgetBuilder = Widget Function(int index, Widget child);
+
+class DragWidgetBuilderV2 {
+  /// if ture, will create a screenshot fo the drag widget
+  final bool isScreenshotDragWidget;
+  /// [screenshot] will not null if you provide isTakeScreenshotDragWidget = ture.
+  final Widget Function(int index, Widget child, ImageProvider? screenshot) builder;
+
+  DragWidgetBuilderV2({this.isScreenshotDragWidget = false, required this.builder});
+
+  /// a helper method to covert deprecated build to current builder
+  static DragWidgetBuilderV2? createByOldBuilder9(DragWidgetBuilder? oldBuilder) {
+    if (oldBuilder == null) return null;
+    return DragWidgetBuilderV2(
+      isScreenshotDragWidget: false,
+      builder: (int index, Widget child, ImageProvider? screenshot) => oldBuilder(index, child));
+  }
+}
+// typedef DragWidgetBuilderV2 = Widget Function(int index, Widget child, ByteData? dragWidgetScreenshot);
 
 /// Control the scroll speed if drag over the boundary.
 /// We can pass time here??
@@ -65,7 +82,7 @@ typedef OnDragUpdate = void Function(
 /// So I need the crossAxisCount, spacing to determine the pos.
 class ReorderableGridView extends StatelessWidget {
   final ReorderCallback onReorder;
-  final DragWidgetBuilder? dragWidgetBuilder;
+  final DragWidgetBuilderV2? dragWidgetBuilderV2;
   final ScrollSpeedController? scrollSpeedController;
   final PlaceholderBuilder? placeholderBuilder;
   final OnDragStart? onDragStart;
@@ -97,6 +114,7 @@ class ReorderableGridView extends StatelessWidget {
     required ReorderCallback onReorder,
     ScrollSpeedController? scrollSpeedController,
     DragWidgetBuilder? dragWidgetBuilder,
+    DragWidgetBuilderV2? dragWidgetBuilderV2,
     PlaceholderBuilder? placeholderBuilder,
     OnDragStart? onDragStart,
     OnDragUpdate? onDragUpdate,
@@ -121,10 +139,11 @@ class ReorderableGridView extends StatelessWidget {
     Clip clipBehavior = Clip.hardEdge,
     Duration? dragStartDelay,
     bool? dragEnabled,
+    bool? screenshotDragWidget,
   }) : this(
           key: key,
           onReorder: onReorder,
-          dragWidgetBuilder: dragWidgetBuilder,
+          dragWidgetBuilderV2: dragWidgetBuilderV2?? DragWidgetBuilderV2.createByOldBuilder9(dragWidgetBuilder),
           scrollSpeedController: scrollSpeedController,
           placeholderBuilder: placeholderBuilder,
           onDragStart: onDragStart,
@@ -175,6 +194,7 @@ class ReorderableGridView extends StatelessWidget {
     Key? key,
     required ReorderCallback onReorder,
     DragWidgetBuilder? dragWidgetBuilder,
+    DragWidgetBuilderV2? dragWidgetBuilderV2,
     ScrollSpeedController? scrollSpeedController,
     PlaceholderBuilder? placeholderBuilder,
     OnDragStart? onDragStart,
@@ -213,7 +233,8 @@ class ReorderableGridView extends StatelessWidget {
     return ReorderableGridView(
       key: key,
       onReorder: onReorder,
-      dragWidgetBuilder: dragWidgetBuilder,
+      dragWidgetBuilderV2: dragWidgetBuilderV2?? DragWidgetBuilderV2.createByOldBuilder9(dragWidgetBuilder),
+      // dragWidgetBuilder: dragWidgetBuilder,
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,
@@ -250,7 +271,7 @@ class ReorderableGridView extends StatelessWidget {
   const ReorderableGridView({
     Key? key,
     required this.onReorder,
-    this.dragWidgetBuilder,
+    this.dragWidgetBuilderV2,
     this.scrollSpeedController,
     this.placeholderBuilder,
     this.onDragStart,
@@ -277,7 +298,7 @@ class ReorderableGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ReorderableWrapperWidget(
       onReorder: onReorder,
-      dragWidgetBuilder: dragWidgetBuilder,
+      dragWidgetBuilder: dragWidgetBuilderV2,
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,

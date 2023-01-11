@@ -43,7 +43,7 @@ class DemoItemRebuild extends StatefulWidget {
 class _DemoItemRebuildState extends State<DemoItemRebuild> {
   final data = List<int>.generate(10, (index) => index);
   double scrollSpeedVariable = 5;
-
+  
   void add() {
     setState(() {
       data.add(data.length);
@@ -76,6 +76,16 @@ class _DemoItemRebuildState extends State<DemoItemRebuild> {
           data.insert(newIndex, element);
         });
       },
+      dragWidgetBuilderV2: DragWidgetBuilderV2(
+        isScreenshotDragWidget: true,
+        builder: (index, child, screenshot) {
+          print("dragWidgetBuilderV2, screenshot: $screenshot, ${screenshot.hashCode}");
+          if (screenshot == null) {
+            return child;
+          }
+          return Image(image: screenshot);
+        }
+      ),
       // option
       header: [
         Card(

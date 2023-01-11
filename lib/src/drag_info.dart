@@ -31,7 +31,7 @@ class DragInfo extends Drag {
   final TickerProvider tickerProvider;
   final GestureMultiDragStartCallback onStart;
 
-  final DragWidgetBuilder? dragWidgetBuilder;
+  final DragWidgetBuilderV2? dragWidgetBuilder;
   late Size itemSize;
   late Widget child;
   late ScrollableState scrollable;
@@ -60,8 +60,7 @@ class DragInfo extends Drag {
   // Fix issue #49
   Offset? zeroOffset;
 
-  // final useScreenshot = false;
-  ByteData? dragWidgetScreenShot;
+  ImageProvider? dragWidgetScreenShot;
 
   DragInfo({
     required this.readyCallback,
@@ -81,9 +80,6 @@ class DragInfo extends Drag {
     itemSize = item.context.size!;
     // screenshotKey = item.repaintKey;
 
-    if (dragWidgetBuilder != null || !useScreenshot) {
-      readyCallback();
-    }
     // why global to is is zero??
     zeroOffset = (Overlay.of(context)?.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
 
@@ -132,7 +128,7 @@ class DragInfo extends Drag {
         width: itemSize.width,
         height: itemSize.height,
         child: dragWidgetBuilder != null
-            ? dragWidgetBuilder!(index, child)
+            ? dragWidgetBuilder!.builder(index, child, dragWidgetScreenShot)
             : Material(
                 elevation: 3.0,
                 child: _defaultDragWidget(context),
@@ -145,26 +141,15 @@ class DragInfo extends Drag {
     return child;
   }
 
-  /// for now, we don't use this screenshot, because it will cost time to snapshot.
-  /// And will show a blank page before show drag
-  Widget? _createScreenShot(BuildContext context) {
-    var renderObject = item.context.findRenderObject();
-    // var renderObject = item.context.findRenderObject();
-    if (renderObject is RenderRepaintBoundary) {
-      RenderRepaintBoundary renderRepaintBoundary = renderObject;
-      return ScreenshotWidget(renderRepaintBoundary: renderRepaintBoundary,
-        dragWidgetCallback: readyCallback, devicePixelRatio: MediaQuery.of(context).devicePixelRatio,);
-    }
-    return null;
-  }
-
   Widget _defaultDragWidget(BuildContext context) {
     // return child;
     var rst = _createDragByChild(context);
     return rst ?? Container();
   }
 
-  void startDrag(ui.Image? screenshot) {
+  void startDrag(ImageProvider? screenshot) {
+    readyCallback();
+    dragWidgetScreenShot = screenshot;
     _overlayEntry = OverlayEntry(builder: createProxy);
 
     // Can you give the overlay to _Drag?

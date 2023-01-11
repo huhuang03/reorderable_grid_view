@@ -16,7 +16,7 @@ class ReorderableSliverGridView extends StatelessWidget {
   final double childAspectRatio;
 
   final ReorderCallback onReorder;
-  final DragWidgetBuilder? dragWidgetBuilder;
+  final DragWidgetBuilderV2? dragWidgetBuilder;
   final ScrollSpeedController? scrollSpeedController;
   final PlaceholderBuilder? placeholderBuilder;
   final OnDragStart? onDragStart;
@@ -36,6 +36,7 @@ class ReorderableSliverGridView extends StatelessWidget {
     this.footer,
     this.dragStartDelay = kLongPressTimeout,
     this.dragWidgetBuilder,
+    // this.dragWidgetBuilder,
     this.scrollSpeedController,
     this.placeholderBuilder,
     this.onDragStart,

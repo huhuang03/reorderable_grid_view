@@ -1,4 +1,5 @@
-import 'dart:ui' as ui show Image;
+import 'dart:typed_data';
+import 'dart:ui' as ui show Image, ImageByteFormat;
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
@@ -21,14 +22,11 @@ abstract class ReorderableChildPosDelegate {
 
 mixin ReorderableGridWidgetMixin on StatefulWidget {
   ReorderCallback get onReorder;
-  DragWidgetBuilder? get dragWidgetBuilder;
+  DragWidgetBuilderV2? get dragWidgetBuilder;
   ScrollSpeedController? get scrollSpeedController;
   PlaceholderBuilder? get placeholderBuilder;
   OnDragStart? get onDragStart;
   OnDragUpdate? get onDragUpdate;
-  /// should take a screenshot of the drag widget.
-  /// if true, the dragWidgetBuilder will have a param which is the screenshot byteData
-  bool? get screenshotDragWidget;
 
   Widget get child;
   Duration? get dragStartDelay;
@@ -236,9 +234,12 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
       // should never happen
       return;
     }
-    if (widget.screenshotDragWidget?? false) {
+    if (widget.dragWidgetBuilder?.isScreenshotDragWidget?? false) {
       ui.Image? screenshot = await takeScreenShot(item);
-      _dragInfo?.startDrag(screenshot);
+      ByteData? byteData = await screenshot?.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData != null) {
+        _dragInfo?.startDrag(MemoryImage(byteData.buffer.asUint8List()));
+      }
     } else {
       _dragInfo?.startDrag(null);
     }

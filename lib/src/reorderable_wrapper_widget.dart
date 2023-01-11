@@ -76,7 +76,7 @@ class ReorderableWrapperWidget extends StatefulWidget
   final ReorderCallback onReorder;
 
   @override
-  final DragWidgetBuilder? dragWidgetBuilder;
+  final DragWidgetBuilderV2? dragWidgetBuilder;
 
   @override
   final ScrollSpeedController? scrollSpeedController;
@@ -119,6 +119,7 @@ class ReorderableWrapperWidget extends StatefulWidget
   ReorderableWrapperWidgetState createState() {
     return ReorderableWrapperWidgetState();
   }
+
 }
 
 /// Yes we can't get grid delegate here, because we don't know child.
