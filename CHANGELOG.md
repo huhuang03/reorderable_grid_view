@@ -1,3 +1,6 @@
+## [2.2.6-alpha.11] = 2023-1-11
+- add DragWidgetBuilderV2
+
 ## [2.2.6-alpha.10] = 2023-1-10
 - revert change in 2.2.6-alpha.9
 

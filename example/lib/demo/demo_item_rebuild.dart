@@ -79,7 +79,6 @@ class _DemoItemRebuildState extends State<DemoItemRebuild> {
       dragWidgetBuilderV2: DragWidgetBuilderV2(
         isScreenshotDragWidget: true,
         builder: (index, child, screenshot) {
-          print("dragWidgetBuilderV2, screenshot: $screenshot, ${screenshot.hashCode}");
           if (screenshot == null) {
             return child;
           }
