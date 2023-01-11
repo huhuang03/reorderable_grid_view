@@ -60,7 +60,8 @@ class DragInfo extends Drag {
   // Fix issue #49
   Offset? zeroOffset;
 
-  final useScreenshot = false;
+  // final useScreenshot = false;
+  ByteData? dragWidgetScreenShot;
 
   DragInfo({
     required this.readyCallback,
@@ -163,7 +164,7 @@ class DragInfo extends Drag {
     return rst ?? Container();
   }
 
-  void startDrag() {
+  void startDrag(ui.Image? screenshot) {
     _overlayEntry = OverlayEntry(builder: createProxy);
 
     // Can you give the overlay to _Drag?

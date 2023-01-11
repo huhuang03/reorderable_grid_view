@@ -1,3 +1,6 @@
+import 'dart:ffi';
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +14,8 @@ export 'src/reorderable_item.dart' show ReorderableItemView;
 /// Build the drag widget under finger when dragging.
 /// The index here represents the index of current dragging widget
 /// The child here represents the current index widget
-typedef DragWidgetBuilder = Widget Function(int index, Widget child);
+/// [dragWidgetScreenshot] If you pass screenshotDragWidget true, then will take a screenshot of the drag widget.
+typedef DragWidgetBuilder = Widget Function(int index, Widget child, {ByteData dragWidgetScreenshot});
 
 /// Control the scroll speed if drag over the boundary.
 /// We can pass time here??

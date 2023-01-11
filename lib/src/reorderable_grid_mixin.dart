@@ -1,3 +1,4 @@
+import 'dart:ui' as ui show Image;
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
@@ -25,6 +26,9 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
   PlaceholderBuilder? get placeholderBuilder;
   OnDragStart? get onDragStart;
   OnDragUpdate? get onDragUpdate;
+  /// should take a screenshot of the drag widget.
+  /// if true, the dragWidgetBuilder will have a param which is the screenshot byteData
+  bool? get screenshotDragWidget;
 
   Widget get child;
   Duration? get dragStartDelay;
@@ -193,6 +197,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
 
   // position is the global position
   Drag _onDragStart(Offset position) {
+    // how can I delay for take snapshot?
     debug("_onDragStart: $position, __dragIndex: $_dragIndex");
     assert(_dragInfo == null);
     widget.onDragStart?.call(_dragIndex!);
@@ -218,9 +223,25 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
         updateDragTarget();
       },
     );
-    _dragInfo!.startDrag();
+
+    // ok, how about at here, do a capture?
+    // _dragInfo!.startDrag();
+    _startDrag(item);
 
     return _dragInfo!;
+  }
+
+  void _startDrag(ReorderableItemViewState item) async {
+    if (_dragInfo == null) {
+      // should never happen
+      return;
+    }
+    if (widget.screenshotDragWidget?? false) {
+      ui.Image? screenshot = await takeScreenShot(item);
+      _dragInfo?.startDrag(screenshot);
+    } else {
+      _dragInfo?.startDrag(null);
+    }
   }
 
   _onDragUpdate(DragInfo item, Offset position, Offset delta) {
