@@ -16,7 +16,7 @@ class ReorderableSliverGridView extends StatelessWidget {
   final double childAspectRatio;
 
   final ReorderCallback onReorder;
-  final DragWidgetBuilderV2? dragWidgetBuilder;
+  final DragWidgetBuilderV2? dragWidgetBuilderV2;
   final ScrollSpeedController? scrollSpeedController;
   final PlaceholderBuilder? placeholderBuilder;
   final OnDragStart? onDragStart;
@@ -32,11 +32,10 @@ class ReorderableSliverGridView extends StatelessWidget {
     required this.crossAxisSpacing,
     required this.childAspectRatio,
     required this.onReorder,
+    this.dragWidgetBuilderV2,
     this.header,
     this.footer,
     this.dragStartDelay = kLongPressTimeout,
-    this.dragWidgetBuilder,
-    // this.dragWidgetBuilder,
     this.scrollSpeedController,
     this.placeholderBuilder,
     this.onDragStart,
@@ -48,6 +47,7 @@ class ReorderableSliverGridView extends StatelessWidget {
     Key? key,
     required int crossAxisCount,
     required ReorderCallback onReorder,
+    DragWidgetBuilderV2? dragWidgetBuilderV2,
     List<Widget>? footer,
     List<Widget>? header,
     OnDragStart? onDragStart,
@@ -65,6 +65,7 @@ class ReorderableSliverGridView extends StatelessWidget {
           footer: footer,
           header: header,
           crossAxisCount: crossAxisCount,
+          dragWidgetBuilderV2: dragWidgetBuilderV2,
           mainAxisSpacing: mainAxisSpacing,
           crossAxisSpacing: crossAxisSpacing,
           childAspectRatio: childAspectRatio,
@@ -87,7 +88,7 @@ class ReorderableSliverGridView extends StatelessWidget {
 
     return ReorderableWrapperWidget(
       onReorder: onReorder,
-      dragWidgetBuilder: dragWidgetBuilder,
+      dragWidgetBuilder: dragWidgetBuilderV2,
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,
