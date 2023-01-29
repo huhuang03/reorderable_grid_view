@@ -46,10 +46,6 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
           data.insert(newIndex, element);
         });
       },
-      // option
-      dragWidgetBuilder: (index, child) {
-        return child;
-      },
       header: [
         Card(
           child: InkWell(

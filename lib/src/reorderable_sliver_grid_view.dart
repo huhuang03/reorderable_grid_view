@@ -93,6 +93,7 @@ class ReorderableSliverGridView extends StatelessWidget {
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,
       onDragUpdate: onDragUpdate,
+      isSliver: true,
       child: child,
     );
   }

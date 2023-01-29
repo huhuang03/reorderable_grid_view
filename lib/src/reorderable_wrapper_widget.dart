@@ -101,6 +101,9 @@ class ReorderableWrapperWidget extends StatefulWidget
   @override
   final Duration? dragStartDelay;
 
+  @override
+  final bool? isSliver;
+
   const ReorderableWrapperWidget({
     Key? key,
     required this.child,
@@ -113,6 +116,7 @@ class ReorderableWrapperWidget extends StatefulWidget
     this.onDragUpdate,
     this.dragEnabled,
     this.dragStartDelay,
+    this.isSliver,
   }) : super(key: key);
 
   @override
@@ -128,10 +132,4 @@ class ReorderableWrapperWidgetState extends State<ReorderableWrapperWidget>
         TickerProviderStateMixin<ReorderableWrapperWidget>,
         ReorderableGridStateMixin {
   ReorderableWrapperWidgetState();
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
-
 }

@@ -54,6 +54,7 @@ class DragInfo extends Drag {
   // Give to _Drag?? You want more control of the drag??
   OverlayEntry? _overlayEntry;
   BuildContext context;
+  OverlayState? overlay;
   var hasEnd = false;
 
   // zero pos in global, offset to navigation.
@@ -69,6 +70,7 @@ class DragInfo extends Drag {
     required this.onStart,
     required this.dragPosition,
     required this.context,
+    this.overlay,
     this.scrollSpeedController,
     this.dragWidgetBuilder,
     this.onUpdate,
@@ -81,7 +83,7 @@ class DragInfo extends Drag {
     // screenshotKey = item.repaintKey;
 
     // why global to is is zero??
-    zeroOffset = (Overlay.of(context)?.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    zeroOffset = (_getOverlay().context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
 
     final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
     dragOffset = renderBox.globalToLocal(dragPosition);
@@ -147,13 +149,17 @@ class DragInfo extends Drag {
     return rst ?? Container();
   }
 
+  OverlayState _getOverlay() {
+    return overlay?? Overlay.of(context);
+  }
+
   void startDrag(ImageProvider? screenshot) {
     readyCallback();
     dragWidgetScreenShot = screenshot;
     _overlayEntry = OverlayEntry(builder: createProxy);
 
     // Can you give the overlay to _Drag?
-    final OverlayState overlay = Overlay.of(context)!;
+    final OverlayState overlay = _getOverlay();
     overlay.insert(_overlayEntry!);
     _scrollIfNeed();
   }
