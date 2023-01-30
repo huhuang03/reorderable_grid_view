@@ -33,6 +33,8 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
   bool? get dragEnabled;
 
   bool? get isSliver;
+
+  bool? get restrictDragScope;
 }
 
 // What I want is I can call setState and get those properties.
@@ -203,7 +205,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isSliver?? false) {
+    if (widget.isSliver?? false || !(widget.restrictDragScope?? false)) {
       return widget.child;
     }
     return Stack(children: [

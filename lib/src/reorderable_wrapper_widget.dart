@@ -104,10 +104,14 @@ class ReorderableWrapperWidget extends StatefulWidget
   @override
   final bool? isSliver;
 
+  @override
+  final bool restrictDragScope;
+
   const ReorderableWrapperWidget({
     Key? key,
     required this.child,
     required this.onReorder,
+    this.restrictDragScope = false,
     this.dragWidgetBuilder,
     this.scrollSpeedController,
     this.placeholderBuilder,

@@ -1,3 +1,6 @@
+## [2.2.6-alpha.12] = 2023-1-30
+- add option `restrictDragScope`, restrict drag scope to ReorderableGridView, not drag over the scree, default is false.
+
 ## [2.2.6-alpha.12] = 2023-1-29
 - fix bug #52. How to restrict dragging of widget inside a specific container or a prarent container & not allow dragging all over the phone screen ?
 But not fix in ReorderableGridView, not ReorderableSliverGridView
