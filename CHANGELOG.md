@@ -1,4 +1,4 @@
-## [2.2.6-alpha.12] = 2023-1-30
+## [2.2.6-alpha.13] = 2023-1-30
 - add option `restrictDragScope`, restrict drag scope to ReorderableGridView, not drag over the scree, default is false.
 
 ## [2.2.6-alpha.12] = 2023-1-29
