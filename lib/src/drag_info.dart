@@ -90,7 +90,7 @@ class DragInfo extends Drag {
     dragExtent = renderBox.size.height;
     dragSize = renderBox.size;
 
-    scrollable = Scrollable.of(item.context)!;
+    scrollable = Scrollable.of(item.context);
   }
 
   NavigatorState? findNavigator(BuildContext context) {
@@ -177,7 +177,7 @@ class DragInfo extends Drag {
 
   var _scrollBeginTime = 0;
 
-  static const _DEFAULT_SCROLL_DURATION = 14;
+  static const defaultScrollDuration = 14;
 
   void _scrollIfNeed() async {
     if (hasEnd) {
@@ -252,7 +252,7 @@ class DragInfo extends Drag {
       if (needScroll) {
         _autoScrolling = true;
         await position.animateTo(newOffset!,
-            duration: const Duration(milliseconds: _DEFAULT_SCROLL_DURATION),
+            duration: const Duration(milliseconds: defaultScrollDuration),
             curve: Curves.linear);
         _autoScrolling = false;
         _scrollIfNeed();

@@ -3,11 +3,11 @@ import 'dart:ui' as ui show Image;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 
-const _IS_DEBUG = false;
+const isDebug = false;
 
 debug(String msg) {
-  if (_IS_DEBUG) {
-    print("ReorderableGridView: $msg");
+  if (isDebug) {
+    debugPrint("ReorderableGridView: $msg");
   }
 }
 
