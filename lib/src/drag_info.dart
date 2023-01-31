@@ -90,7 +90,8 @@ class DragInfo extends Drag {
     dragExtent = renderBox.size.height;
     dragSize = renderBox.size;
 
-    scrollable = Scrollable.of(item.context);
+    // you can not delete !, because in some flutter version is option.
+    scrollable = Scrollable.of(item.context)!;
   }
 
   NavigatorState? findNavigator(BuildContext context) {
@@ -150,7 +151,8 @@ class DragInfo extends Drag {
   }
 
   OverlayState _getOverlay() {
-    return overlay?? Overlay.of(context);
+    // you can not delete !, because in some flutter version is option.
+    return overlay?? Overlay.of(context)!;
   }
 
   void startDrag(ImageProvider? screenshot) {

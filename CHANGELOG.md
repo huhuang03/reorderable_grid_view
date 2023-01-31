@@ -1,4 +1,7 @@
 ## [2.2.6-alpha.13] = 2023-1-30
+- fix `Overlay.of(context)` and `Scrollable.of(context)` return option and not option in different flutter version.
+
+## [2.2.6-alpha.13] = 2023-1-30
 - add option `restrictDragScope`, restrict drag scope to ReorderableGridView, not drag over the scree, default is false.
 
 ## [2.2.6-alpha.12] = 2023-1-29
