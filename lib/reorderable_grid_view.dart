@@ -90,6 +90,7 @@ class ReorderableGridView extends StatelessWidget {
 
   final bool? primary;
   final bool shrinkWrap;
+  final bool restrictDragScope;
   final EdgeInsetsGeometry? padding;
   final ScrollPhysics? physics;
   final bool reverse;
@@ -139,7 +140,7 @@ class ReorderableGridView extends StatelessWidget {
     Clip clipBehavior = Clip.hardEdge,
     Duration? dragStartDelay,
     bool? dragEnabled,
-    bool? screenshotDragWidget,
+    bool restrictDragScope = false,
   }) : this(
           key: key,
           onReorder: onReorder,
@@ -188,6 +189,7 @@ class ReorderableGridView extends StatelessWidget {
           clipBehavior: clipBehavior,
           dragStartDelay: dragStartDelay,
           dragEnabled: dragEnabled,
+          restrictDragScope: restrictDragScope,
         );
 
   factory ReorderableGridView.count({
@@ -225,6 +227,7 @@ class ReorderableGridView extends StatelessWidget {
     Clip clipBehavior = Clip.hardEdge,
     Duration? dragStartDelay,
     bool? dragEnabled,
+    restrictDragScope = false,
   }) {
     assert(
       children.every((Widget w) => w.key != null),
@@ -265,6 +268,7 @@ class ReorderableGridView extends StatelessWidget {
       clipBehavior: clipBehavior,
       dragEnabled: dragEnabled,
       dragStartDelay: dragStartDelay,
+      restrictDragScope: restrictDragScope,
     );
   }
 
@@ -278,6 +282,7 @@ class ReorderableGridView extends StatelessWidget {
     this.onDragUpdate,
     required this.gridDelegate,
     required this.childrenDelegate,
+    this.restrictDragScope = false,
     this.reverse = false,
     this.primary,
     this.physics,
@@ -305,6 +310,7 @@ class ReorderableGridView extends StatelessWidget {
       onDragUpdate: onDragUpdate,
       dragEnabled: dragEnabled,
       dragStartDelay: dragStartDelay,
+      restrictDragScope: restrictDragScope,
       child: GridView.custom(
         key: key,
         gridDelegate: gridDelegate,

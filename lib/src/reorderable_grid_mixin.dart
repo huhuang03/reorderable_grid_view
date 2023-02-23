@@ -31,6 +31,10 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
   Widget get child;
   Duration? get dragStartDelay;
   bool? get dragEnabled;
+
+  bool? get isSliver;
+
+  bool? get restrictDragScope;
 }
 
 // What I want is I can call setState and get those properties.
@@ -38,6 +42,8 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
 mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     on State<T>, TickerProviderStateMixin<T> {
   MultiDragGestureRecognizer? _recognizer;
+  GlobalKey<OverlayState> overlayKey = GlobalKey<OverlayState>();
+  // late Overlay overlay = Overlay(key: overlayKey);
 
   Duration get dragStartDelay => widget.dragStartDelay ?? kLongPressTimeout;
   bool get dragEnabled => widget.dragEnabled ?? true;
@@ -64,6 +70,10 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
   int get dropIndex => _dropIndex ?? -1;
 
   PlaceholderBuilder? get placeholderBuilder => widget.placeholderBuilder;
+
+  OverlayState? getOverlay() {
+    return overlayKey.currentState;
+  }
 
   bool containsByIndex(int index) {
     return __items.containsKey(index);
@@ -193,6 +203,17 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     }
   }
 
+  @override
+  Widget build(BuildContext context) {
+    if (widget.isSliver?? false || !(widget.restrictDragScope?? false)) {
+      return widget.child;
+    }
+    return Stack(children: [
+      widget.child,
+      Overlay(key: overlayKey,)
+    ]);
+  }
+
   // position is the global position
   Drag _onDragStart(Offset position) {
     // how can I delay for take snapshot?
@@ -207,6 +228,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     _dragInfo = DragInfo(
       item: item,
       tickerProvider: this,
+      overlay: getOverlay(),
       context: context,
       dragWidgetBuilder: widget.dragWidgetBuilder,
       scrollSpeedController: widget.scrollSpeedController,

@@ -54,6 +54,7 @@ class DragInfo extends Drag {
   // Give to _Drag?? You want more control of the drag??
   OverlayEntry? _overlayEntry;
   BuildContext context;
+  OverlayState? overlay;
   var hasEnd = false;
 
   // zero pos in global, offset to navigation.
@@ -69,6 +70,7 @@ class DragInfo extends Drag {
     required this.onStart,
     required this.dragPosition,
     required this.context,
+    this.overlay,
     this.scrollSpeedController,
     this.dragWidgetBuilder,
     this.onUpdate,
@@ -81,13 +83,14 @@ class DragInfo extends Drag {
     // screenshotKey = item.repaintKey;
 
     // why global to is is zero??
-    zeroOffset = (Overlay.of(context)?.context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
+    zeroOffset = (_getOverlay().context.findRenderObject() as RenderBox).globalToLocal(Offset.zero);
 
     final RenderBox renderBox = item.context.findRenderObject()! as RenderBox;
     dragOffset = renderBox.globalToLocal(dragPosition);
     dragExtent = renderBox.size.height;
     dragSize = renderBox.size;
 
+    // you can not delete !, because in some flutter version is option.
     scrollable = Scrollable.of(item.context)!;
   }
 
@@ -147,13 +150,18 @@ class DragInfo extends Drag {
     return rst ?? Container();
   }
 
+  OverlayState _getOverlay() {
+    // you can not delete !, because in some flutter version is option.
+    return overlay?? Overlay.of(context)!;
+  }
+
   void startDrag(ImageProvider? screenshot) {
     readyCallback();
     dragWidgetScreenShot = screenshot;
     _overlayEntry = OverlayEntry(builder: createProxy);
 
     // Can you give the overlay to _Drag?
-    final OverlayState overlay = Overlay.of(context)!;
+    final OverlayState overlay = _getOverlay();
     overlay.insert(_overlayEntry!);
     _scrollIfNeed();
   }
@@ -171,7 +179,7 @@ class DragInfo extends Drag {
 
   var _scrollBeginTime = 0;
 
-  static const _DEFAULT_SCROLL_DURATION = 14;
+  static const defaultScrollDuration = 14;
 
   void _scrollIfNeed() async {
     if (hasEnd) {
@@ -246,7 +254,7 @@ class DragInfo extends Drag {
       if (needScroll) {
         _autoScrolling = true;
         await position.animateTo(newOffset!,
-            duration: const Duration(milliseconds: _DEFAULT_SCROLL_DURATION),
+            duration: const Duration(milliseconds: defaultScrollDuration),
             curve: Curves.linear);
         _autoScrolling = false;
         _scrollIfNeed();

@@ -5,7 +5,7 @@ Copy from official ReorderableListView
 # Usage:
 ```
 dependencies:
-  reorderable_grid_view: ^2.2.6-alpha.11
+  reorderable_grid_view: ^2.2.6-alpha.14
 ```
 
 # Example
@@ -58,9 +58,10 @@ class _MyHomePageState extends State<MyHomePage> {
 ```
 
 # Options
-| option              | desc                    |
-|---------------------|-------------------------|
-| `dragWidgetBuilder` | the drag widget builder |
+| option                | desc                                                                                  |
+|-----------------------|---------------------------------------------------------------------------------------|
+| `dragWidgetBuilderV2` | the drag widget builder                                                               |
+| `restrictDragScope`   | restrict drag scope to ReorderableGridView, not drag over the scree, default is false |
 
 # Constructors
 - `ReorderableGridView.builder`
