@@ -1,3 +1,6 @@
+## [2.2.6] = 2023-2-23
+- release 2.2.6
+
 ## [2.2.6-alpha.13] = 2023-1-30
 - fix `Overlay.of(context)` and `Scrollable.of(context)` return option and not option in different flutter version.
 
