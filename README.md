@@ -62,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
 |-----------------------|---------------------------------------------------------------------------------------|
 | `dragWidgetBuilderV2` | the drag widget builder                                                               |
 | `restrictDragScope`   | restrict drag scope to ReorderableGridView, not drag over the scree, default is false |
+| `dragStartDelay`      | the longPress time                                                                    |
 
 # Constructors
 - `ReorderableGridView.builder`
