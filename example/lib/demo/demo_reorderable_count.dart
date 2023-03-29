@@ -62,7 +62,6 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
         Card(
           child: InkWell(
             onTap: () {
-              print("delete called");
               if (data.isNotEmpty) {
                 setState(() {
                   data.removeLast();
