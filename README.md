@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
 | `scrollSpeedController` | control how speed when scroll down when drag out of viewport                          |
 
 ## `dragWidgetBuilderV2`
-Normaly if you can do like this:
+Normaly you can do like this:
 
 ```
 dragWidgetBuilderV2: DragWidgetBuilderV2(
