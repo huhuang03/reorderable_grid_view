@@ -65,6 +65,29 @@ class _MyHomePageState extends State<MyHomePage> {
 | `dragStartDelay`        | the longPress time                                                                    |
 | `scrollSpeedController` | control how speed when scroll down when drag out of viewport                          |
 
+## `dragWidgetBuilderV2`
+Normaly if you can do like this:
+
+```
+dragWidgetBuilderV2: DragWidgetBuilderV2(
+	isScreenshotDragWidget: false,
+	builder: (index, child, screenshot) {
+		return child;
+	}
+)
+```
+- child is you dragging widget.
+
+And if you dragging widget has some state, the callback's child can't access the state. So you can do a screenshot like this.
+```
+dragWidgetBuilderV2: DragWidgetBuilderV2(
+	isScreenshotDragWidget: true,
+	builder: (index, child, screenshot) {
+		return Image(screenshot);
+	}
+)
+```
+
 # Constructors
 - `ReorderableGridView.builder`
 - `ReorderableGridView.count`
