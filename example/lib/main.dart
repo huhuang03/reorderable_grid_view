@@ -1,6 +1,7 @@
 import 'package:example/demo/demo_custom.dart';
 import 'package:example/demo/demo_grid_sliver.dart';
 import 'package:example/demo/demo_page_view.dart';
+import 'package:example/demo/demo_remove_drag_shadow.dart';
 import 'package:example/demo/demo_reorderable_count_enable.dart';
 import 'package:example/demo_incorrect_offset.dart';
 import 'package:example/demo/demo_reorderable_count.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
   final items = [
     Item("ReorderableGrid.count", () => const DemoReorderableGrid()),
     Item("Custom", () => const DemoCustom()),
+    Item("Remove Drag Shadow", () => const DemoRemoveShadow()),
     Item("InCorrect Offset", () => const DemoInCorrectOffset()),
     Item("Sliver Grid", () => const DemoGridSliver()),
     Item("Item Rebuild", () => const DemoItemRebuild()),
