@@ -237,7 +237,6 @@ class ReorderableGridView extends StatelessWidget {
       key: key,
       onReorder: onReorder,
       dragWidgetBuilderV2: dragWidgetBuilderV2?? DragWidgetBuilderV2.createByOldBuilder9(dragWidgetBuilder),
-      // dragWidgetBuilder: dragWidgetBuilder,
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,

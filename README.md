@@ -58,11 +58,35 @@ class _MyHomePageState extends State<MyHomePage> {
 ```
 
 # Options
-| option                | desc                                                                                  |
-|-----------------------|---------------------------------------------------------------------------------------|
-| `dragWidgetBuilderV2` | the drag widget builder                                                               |
-| `restrictDragScope`   | restrict drag scope to ReorderableGridView, not drag over the scree, default is false |
-| `dragStartDelay`      | the longPress time                                                                    |
+| option                  | desc                                                                                  |
+|-------------------------|---------------------------------------------------------------------------------------|
+| `dragWidgetBuilderV2`   | the drag widget builder                                                               |
+| `restrictDragScope`     | restrict drag scope to ReorderableGridView, not drag over the scree, default is false |
+| `dragStartDelay`        | the longPress time                                                                    |
+| `scrollSpeedController` | control how speed when scroll down when drag out of viewport                          |
+
+## `dragWidgetBuilderV2`
+Normaly you can do like this:
+
+```
+dragWidgetBuilderV2: DragWidgetBuilderV2(
+	isScreenshotDragWidget: false,
+	builder: (index, child, screenshot) {
+		return child;
+	}
+)
+```
+- child is you dragging widget.
+
+And if you dragging widget has some state, the callback's child can't access the state. So you can do a screenshot like this.
+```
+dragWidgetBuilderV2: DragWidgetBuilderV2(
+	isScreenshotDragWidget: true,
+	builder: (index, child, screenshot) {
+		return Image(screenshot);
+	}
+)
+```
 
 # Constructors
 - `ReorderableGridView.builder`
@@ -76,11 +100,10 @@ Use `ReorderableWrapperWidget` as root. and it's descendants is ReorderableItemV
 
 # Important
 - the `placeholderBuilder` is not right when the list is very long, is not fixable for now. please see [issue 47](https://github.com/huhuang03/reorderable_grid_view/issues/47)
-- can drag out of scope is not fixable for now, please see [issue 52](https://github.com/huhuang03/reorderable_grid_view/issues/52)
+- can drag out of scope in `ReorderableSliverGridView`, please see [issue 52](https://github.com/huhuang03/reorderable_grid_view/issues/52)
 
 # TODO
 ## fix `placeholderBuilder` is not right when the list is very long
-## fix `Overlay` can drag out of container issue.
 
 # Other link project
 If this project is not fit your meet, you can try those other projects
