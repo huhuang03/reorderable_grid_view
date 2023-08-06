@@ -100,11 +100,10 @@ Use `ReorderableWrapperWidget` as root. and it's descendants is ReorderableItemV
 
 # Important
 - the `placeholderBuilder` is not right when the list is very long, is not fixable for now. please see [issue 47](https://github.com/huhuang03/reorderable_grid_view/issues/47)
-- can drag out of scope is not fixable for now, please see [issue 52](https://github.com/huhuang03/reorderable_grid_view/issues/52)
+- can drag out of scope in `ReorderableSliverGridView`, please see [issue 52](https://github.com/huhuang03/reorderable_grid_view/issues/52)
 
 # TODO
 ## fix `placeholderBuilder` is not right when the list is very long
-## fix `Overlay` can drag out of container issue.
 
 # Other link project
 If this project is not fit your meet, you can try those other projects

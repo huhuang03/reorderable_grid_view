@@ -3,14 +3,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
-class DemoReorderableGrid extends StatefulWidget {
-  const DemoReorderableGrid({Key? key}) : super(key: key);
+class DemoRemoveShadow extends StatefulWidget {
+  const DemoRemoveShadow({Key? key}) : super(key: key);
 
   @override
-  State<DemoReorderableGrid> createState() => _DemoReorderableGridState();
+  State<DemoRemoveShadow> createState() => _DemoRemoveShadowState();
 }
 
-class _DemoReorderableGridState extends State<DemoReorderableGrid> {
+class _DemoRemoveShadowState extends State<DemoRemoveShadow> {
   final data = List<int>.generate(10, (index) => index);
   double scrollSpeedVariable = 5;
 
@@ -26,6 +26,9 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
       mainAxisSpacing: 10,
       crossAxisCount: 3,
       childAspectRatio: 0.6,
+      dragWidgetBuilderV2: DragWidgetBuilderV2(builder: (int index, Widget child, ImageProvider? screenshot) {
+        return child;
+      }),
       scrollSpeedController:
           (int timeInMilliSecond, double overSize, double itemSize) {
         log("scrollSpeedController call back called");
@@ -47,33 +50,6 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
           data.insert(newIndex, element);
         });
       },
-      header: [
-        Card(
-          child: InkWell(
-            onTap: () {
-              print("add called");
-              add();
-            },
-            child: const Center(
-              child: Icon(Icons.add)),
-          ),
-        ),
-      ],
-      footer: [
-        Card(
-          child: InkWell(
-            onTap: () {
-              if (data.isNotEmpty) {
-                setState(() {
-                  data.removeLast();
-                });
-              }
-            },
-            child: const Center(
-              child: Icon(Icons.delete)),
-          ),
-        ),
-      ], // 0 < childAspectRatio <= 1.0
       children: data.map((e) => buildItem(e)).toList(),
     );
   }
