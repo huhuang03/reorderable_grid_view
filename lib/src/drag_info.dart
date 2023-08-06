@@ -140,14 +140,8 @@ class DragInfo extends Drag {
     );
   }
 
-  Widget _createDragByChild(BuildContext context) {
-    return child;
-  }
-
   Widget _defaultDragWidget(BuildContext context) {
-    // return child;
-    var rst = _createDragByChild(context);
-    return rst ?? Container();
+    return child;
   }
 
   OverlayState _getOverlay() {
