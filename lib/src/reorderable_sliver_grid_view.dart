@@ -90,6 +90,7 @@ class ReorderableSliverGridView extends StatelessWidget {
       onReorder: onReorder,
       dragWidgetBuilder: dragWidgetBuilderV2,
       dragStartDelay: dragStartDelay,
+      dragEnabled: dragEnabled,
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,
