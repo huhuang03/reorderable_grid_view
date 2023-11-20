@@ -1,3 +1,6 @@
+## [2.2.8] = 2023-11-20
+- fix `dragStartDelay` and `dragEnabled` has lost in `ReorderableSliverGridView`. see https://github.com/huhuang03/reorderable_grid_view/issues/68.
+ 
 ## [2.2.7] = 2023-8-6
 - fix null check warning. see https://github.com/huhuang03/reorderable_grid_view/issues/68.
 
