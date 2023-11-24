@@ -31,11 +31,11 @@ class _DemoCustomState extends State<DemoCustom> {
                             child: Text("Sticky"),
                           );
                         } else {
-                          var realIndex = (index / 2).floor();
-                          var itemData = data[realIndex];
+                          var indexForReorderable = (index / 2).floor();
+                          var itemData = data[indexForReorderable];
                           return ReorderableItemView(
-                              key: ValueKey(realIndex),
-                              index: realIndex,
+                              key: ValueKey(indexForReorderable),
+                              index: indexForReorderable,
                               child: Card(
                                 child: Text("R $itemData"),
                               ));
