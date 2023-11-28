@@ -73,6 +73,9 @@ class GridChildPosDelegate extends ReorderableChildPosDelegate {
 class ReorderableWrapperWidget extends StatefulWidget
     with ReorderableGridWidgetMixin {
   @override
+  final DragEnableConfig? dragEnableConfig;
+
+  @override
   final ReorderCallback onReorder;
 
   @override
@@ -111,6 +114,7 @@ class ReorderableWrapperWidget extends StatefulWidget
     Key? key,
     required this.child,
     required this.onReorder,
+    this.dragEnableConfig,
     this.restrictDragScope = false,
     this.dragWidgetBuilder,
     this.scrollSpeedController,

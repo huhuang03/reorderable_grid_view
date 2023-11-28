@@ -100,9 +100,7 @@ class ReorderableItemViewState extends State<ReorderableItemView>
   /// We can only check the items between startIndex and the targetIndex,
   /// but for simply, we check all <= targetDropIndex
   void updateForGap(int dropIndex) {
-    // Actually I can use only use the targetDropIndex to decide the target pos, but what to do I change middle
     if (!mounted) return;
-    // we don't need update if already dispose()
     if (!_listState.containsByIndex(index)) {
       return;
     }
@@ -114,7 +112,6 @@ class ReorderableItemViewState extends State<ReorderableItemView>
     }
 
     // debug("called getOffsetInDrag index $index");
-    // let's try use dragSize.
     Offset newOffset = _listState.getOffsetInDrag(index);
     if (newOffset != _targetOffset) {
       _targetOffset = newOffset;
@@ -240,6 +237,10 @@ class ReorderableItemViewState extends State<ReorderableItemView>
     );
   }
 
+  bool _canDrag() {
+    return _listState.dragEnableConfig(index);
+  }
+
   // how do you think of this?
   @override
   Widget build(BuildContext context) {
@@ -247,14 +248,14 @@ class ReorderableItemViewState extends State<ReorderableItemView>
       child: Listener(
         onPointerDown: (PointerDownEvent e) {
           var listState = ReorderableGridStateMixin.of(context);
-          if (_listState.dragEnabled) {
+          if (_listState.dragEnabled && _canDrag()) {
             listState.startDragRecognizer(index, e, _createDragRecognizer());
           }
         },
         child: LayoutBuilder(
           builder: (context, constraint) {
             return Transform(
-              transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
+              transform: _canDrag()? Matrix4.translationValues(offset.dx, offset.dy, 0): Matrix4.identity(),
               child: Stack(
                 children: [
                   Offstage(
