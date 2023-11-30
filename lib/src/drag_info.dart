@@ -46,7 +46,6 @@ class DragInfo extends Drag {
   // = renderBox.size.height
   late double dragExtent;
   late Size dragSize;
-  // late GlobalKey screenshotKey;
   late ReorderableItemViewState item;
 
   AnimationController? _proxyAnimationController;

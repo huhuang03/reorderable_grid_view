@@ -52,6 +52,8 @@ typedef PlaceholderBuilder = Widget Function(
 /// The drag and drop life cycle.
 typedef OnDragStart = void Function(int dragIndex);
 
+typedef DragEnableConfig = bool Function(int index);
+
 /// Called when the position of the dragged widget changes.
 ///
 /// [dragIndex] is the index of the item that is dragged.
@@ -88,6 +90,7 @@ class ReorderableGridView extends StatelessWidget {
   final OnDragStart? onDragStart;
   final OnDragUpdate? onDragUpdate;
 
+  final DragEnableConfig? dragEnableConfig;
   final bool? primary;
   final bool shrinkWrap;
   final bool restrictDragScope;
@@ -141,11 +144,13 @@ class ReorderableGridView extends StatelessWidget {
     Duration? dragStartDelay,
     bool? dragEnabled,
     bool restrictDragScope = false,
+    DragEnableConfig? dragEnableConfig,
   }) : this(
           key: key,
           onReorder: onReorder,
           dragWidgetBuilderV2: dragWidgetBuilderV2?? DragWidgetBuilderV2.createByOldBuilder9(dragWidgetBuilder),
           scrollSpeedController: scrollSpeedController,
+          dragEnableConfig: dragEnableConfig,
           placeholderBuilder: placeholderBuilder,
           onDragStart: onDragStart,
           onDragUpdate: onDragUpdate,
@@ -195,6 +200,7 @@ class ReorderableGridView extends StatelessWidget {
   factory ReorderableGridView.count({
     Key? key,
     required ReorderCallback onReorder,
+    DragEnableConfig? dragEnableConfig,
     DragWidgetBuilder? dragWidgetBuilder,
     DragWidgetBuilderV2? dragWidgetBuilderV2,
     ScrollSpeedController? scrollSpeedController,
@@ -236,6 +242,7 @@ class ReorderableGridView extends StatelessWidget {
     return ReorderableGridView(
       key: key,
       onReorder: onReorder,
+      dragEnableConfig: dragEnableConfig,
       dragWidgetBuilderV2: dragWidgetBuilderV2?? DragWidgetBuilderV2.createByOldBuilder9(dragWidgetBuilder),
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
@@ -275,6 +282,7 @@ class ReorderableGridView extends StatelessWidget {
     Key? key,
     required this.onReorder,
     this.dragWidgetBuilderV2,
+    this.dragEnableConfig,
     this.scrollSpeedController,
     this.placeholderBuilder,
     this.onDragStart,
@@ -302,6 +310,7 @@ class ReorderableGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ReorderableWrapperWidget(
       onReorder: onReorder,
+      dragEnableConfig: dragEnableConfig,
       dragWidgetBuilder: dragWidgetBuilderV2,
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,

@@ -1,4 +1,5 @@
 import 'package:example/demo/demo_custom.dart';
+import 'package:example/demo/demo_drag_enable_config.dart';
 import 'package:example/demo/demo_grid_sliver.dart';
 import 'package:example/demo/demo_page_view.dart';
 import 'package:example/demo/demo_remove_drag_shadow.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
   final items = [
     Item("ReorderableGrid.count", () => const DemoReorderableGrid()),
     Item("Custom", () => const DemoCustom()),
+    Item("Drag Enable Config", () => const DemoDragEnableConfig()),
     Item("Remove Drag Shadow", () => const DemoRemoveShadow()),
     Item("InCorrect Offset", () => const DemoInCorrectOffset()),
     Item("Sliver Grid", () => const DemoGridSliver()),
@@ -76,7 +78,8 @@ class MyApp extends StatelessWidget {
                                     )));
                       },
                       child: ListTile(title: Text(item.name)));
-                })));
+                })
+  ));
   }
 }
 

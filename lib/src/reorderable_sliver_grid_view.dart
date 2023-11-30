@@ -15,6 +15,7 @@ class ReorderableSliverGridView extends StatelessWidget {
   final double crossAxisSpacing;
   final double childAspectRatio;
 
+  final DragEnableConfig? dragEnableConfig;
   final ReorderCallback onReorder;
   final DragWidgetBuilderV2? dragWidgetBuilderV2;
   final ScrollSpeedController? scrollSpeedController;
@@ -41,6 +42,7 @@ class ReorderableSliverGridView extends StatelessWidget {
     this.onDragStart,
     this.onDragUpdate,
     this.dragEnabled = true,
+    this.dragEnableConfig
   }) : super(key: key);
 
   const ReorderableSliverGridView.count({
@@ -58,6 +60,7 @@ class ReorderableSliverGridView extends StatelessWidget {
     Duration dragStartDelay = kLongPressTimeout,
     children = const <Widget>[],
     bool dragEnabled = true,
+    DragEnableConfig? dragEnableConfig,
   }) : this(
           key: key,
           onReorder: onReorder,
@@ -73,6 +76,7 @@ class ReorderableSliverGridView extends StatelessWidget {
           onDragUpdate: onDragUpdate,
           dragStartDelay: dragStartDelay,
           dragEnabled: dragEnabled,
+          dragEnableConfig: dragEnableConfig
         );
 
   @override
@@ -96,6 +100,7 @@ class ReorderableSliverGridView extends StatelessWidget {
       onDragStart: onDragStart,
       onDragUpdate: onDragUpdate,
       isSliver: true,
+      dragEnableConfig: dragEnableConfig,
       child: child,
     );
   }

@@ -21,6 +21,7 @@ abstract class ReorderableChildPosDelegate {
 }
 
 mixin ReorderableGridWidgetMixin on StatefulWidget {
+  DragEnableConfig? get dragEnableConfig;
   ReorderCallback get onReorder;
   DragWidgetBuilderV2? get dragWidgetBuilder;
   ScrollSpeedController? get scrollSpeedController;
@@ -41,6 +42,7 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
 // So I want my widget to on The ReorderableGridWidgetMixin
 mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     on State<T>, TickerProviderStateMixin<T> {
+  DragEnableConfig get dragEnableConfig => widget.dragEnableConfig ?? (index) => true;
   MultiDragGestureRecognizer? _recognizer;
   GlobalKey<OverlayState> overlayKey = GlobalKey<OverlayState>();
   // late Overlay overlay = Overlay(key: overlayKey);
@@ -150,7 +152,6 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
   // Ok, let's no calc the dropIndex
   // Check the dragInfo before you call this function.
   int _calcDropIndex(int defaultIndex) {
-    // _debug("_calcDropIndex");
 
     if (_dragInfo == null) {
       // _debug("_dragInfo is null, so return: $defaultIndex");
@@ -164,7 +165,9 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
           pos.dy > 0 &&
           pos.dx < box.size.width &&
           pos.dy < box.size.height) {
-        return item.index;
+        if (dragEnableConfig(item.index)) {
+          return item.index;
+        }
       }
     }
     return defaultIndex;
@@ -189,18 +192,39 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     if (!inDragRange) {
       return Offset.zero;
     } else {
+      var preIndex = _findPreviousCanDrag(index);
+      var nextIndex = _findNextCanDrag(index);
       if (isMoveLeft) {
-        if (!containsByIndex(index - 1) || !containsByIndex(index)) {
+        if (!containsByIndex(preIndex) || !containsByIndex(index)) {
           return Offset.zero;
         }
-        return getPosByIndex(index - 1) - getPosByIndex(index);
+        return getPosByIndex(preIndex) - getPosByIndex(index);
       } else {
-        if (!containsByIndex(index + 1) || !containsByIndex(index)) {
+        if (!containsByIndex(nextIndex) || !containsByIndex(index)) {
           return Offset.zero;
         }
-        return getPosByIndex(index + 1) - getPosByIndex(index);
+        return getPosByIndex(nextIndex) - getPosByIndex(index);
       }
     }
+  }
+
+  int _findPreviousCanDrag(int start) {
+    for (var i = start - 1; i >= 0; i--) {
+      if (dragEnableConfig(i)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  int _findNextCanDrag(int start) {
+    var max = __items.keys.reduce((a, b) => a > b? a: b);
+    for (var i = start + 1; i <= max; i++) {
+      if (dragEnableConfig(i)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   @override
