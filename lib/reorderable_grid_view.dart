@@ -137,7 +137,6 @@ class ReorderableGridView extends StatelessWidget {
     double? cacheExtent,
     int? semanticChildCount,
     DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-    DragEnableConfig? dragEnableConfig,
     ScrollViewKeyboardDismissBehavior keyboardDismissBehavior =
         ScrollViewKeyboardDismissBehavior.manual,
     String? restorationId,
@@ -145,6 +144,7 @@ class ReorderableGridView extends StatelessWidget {
     Duration? dragStartDelay,
     bool? dragEnabled,
     bool restrictDragScope = false,
+    DragEnableConfig? dragEnableConfig,
   }) : this(
           key: key,
           onReorder: onReorder,
