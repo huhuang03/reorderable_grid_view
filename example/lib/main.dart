@@ -78,7 +78,8 @@ class MyApp extends StatelessWidget {
                                     )));
                       },
                       child: ListTile(title: Text(item.name)));
-                })));
+                })
+  ));
   }
 }
 

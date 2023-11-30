@@ -15,21 +15,38 @@ class _DemoDragEnableConfigState extends State<DemoDragEnableConfig> {
 
   @override
   Widget build(BuildContext context) {
+    dragEnableConfig(index) {
+      return data[index].isOdd;
+    }
+
     return Overlay(
       initialEntries: [
         OverlayEntry(
           builder: (builder) => ReorderableGridView.count(
             onReorder: (dragIndex, dropIndex) {
               setState(() {
-                print('dragIndex: $dragIndex, dropIndex: $dropIndex');
-                var item = data.removeAt(dragIndex);
-                data.insert(dropIndex, item);
-                print('after swap: $data');
+                if (dragIndex == dropIndex) {
+                  return;
+                }
+                var dragRight = dragIndex < dropIndex;
+                var di = dragRight? 1: -1;
+                var needMoveIndex = [];
+                for (var i = dragIndex; i != dropIndex; i += di) {
+                  if (dragEnableConfig(i)) {
+                    needMoveIndex.add(i);
+                  }
+                }
+                for (var i = 0; i < needMoveIndex.length - 2; i++) {
+                  var i1 = data[i];
+                  var i2 = data[i + 1];
+
+                  var tmp = data[i1];
+                  data[i1] = data[i2];
+                  data[i2] = tmp;
+                }
               });
             },
-            dragEnableConfig: (index) {
-              return data[index].isOdd;
-            },
+            dragEnableConfig: dragEnableConfig,
             crossAxisCount: 3,
             children: data.map((e) {
               return Card(
@@ -38,31 +55,6 @@ class _DemoDragEnableConfigState extends State<DemoDragEnableConfig> {
                 child: Text(e.isOdd? 'Reorderable_$e' : 'Block_$e'),
               );
             }).toList())
-            // builder: (builder) => ReorderableWrapperWidget(
-            //       child: GridView.builder(
-            //           gridDelegate:
-            //               const SliverGridDelegateWithFixedCrossAxisCount(
-            //                   crossAxisCount: 3),
-            //           itemCount: data.length * 2,
-            //           itemBuilder: (context, index) {
-            //             if (index % 2 == 0) {
-            //               return const Card(
-            //                 color: Colors.black12,
-            //                 child: Text("Sticky"),
-            //               );
-            //             } else {
-            //               var indexForReorderable = (index / 2).floor();
-            //               var itemData = data[indexForReorderable];
-            //               return ReorderableItemView(
-            //                   key: ValueKey(indexForReorderable),
-            //                   index: indexForReorderable,
-            //                   child: Card(
-            //                     child: Text("R $itemData"),
-            //                   ));
-            //             }
-            //           }),
-            //       // the drag and drop index is from (index passed to ReorderableItemView)
-            //     )
         )
       ],
     );
