@@ -1,3 +1,6 @@
+## [2.2.9-alpha.1] = 2023-11-20
+- add `dragEnableConfig` which config item drag enable. see https://github.com/huhuang03/reorderable_grid_view/issues/72.
+
 ## [2.2.8] = 2023-11-20
 - fix `dragStartDelay` and `dragEnabled` has lost in `ReorderableSliverGridView`. see https://github.com/huhuang03/reorderable_grid_view/issues/68.
  
