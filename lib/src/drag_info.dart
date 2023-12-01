@@ -185,8 +185,11 @@ class DragInfo extends Drag {
       double? newOffset;
       bool needScroll = false;
       final ScrollPosition position = scrollable.position;
-      final RenderBox scrollRenderBox =
-          scrollable.context.findRenderObject()! as RenderBox;
+      final RenderObject? renderObject = scrollable.context.findRenderObject();
+      if (renderObject == null) {
+        return;
+      }
+      final RenderBox scrollRenderBox = renderObject as RenderBox;
 
       final scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
       final scrollStart = scrollOrigin.dy;
@@ -260,16 +263,14 @@ class DragInfo extends Drag {
 
   @override
   void end(DragEndDetails details) {
-    onEnd?.call(this);
-
     _endOrCancel();
+    onEnd?.call(this);
   }
 
   @override
   void cancel() {
-    onCancel?.call(this);
-
     _endOrCancel();
+    onCancel?.call(this);
   }
 
   void _endOrCancel() {

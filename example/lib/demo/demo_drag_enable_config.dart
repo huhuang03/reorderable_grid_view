@@ -36,9 +36,9 @@ class _DemoDragEnableConfigState extends State<DemoDragEnableConfig> {
                     needMoveIndex.add(i);
                   }
                 }
-                for (var i = 0; i < needMoveIndex.length - 2; i++) {
-                  var i1 = data[i];
-                  var i2 = data[i + 1];
+                for (var i = 0; i < needMoveIndex.length - 1; i++) {
+                  var i1 = needMoveIndex[i];
+                  var i2 = needMoveIndex[i + 1];
 
                   var tmp = data[i1];
                   data[i1] = data[i2];
