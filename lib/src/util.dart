@@ -17,8 +17,9 @@ Future<ui.Image?> takeScreenShot(State state) async {
   // var renderObject = item.context.findRenderObject();
   if (renderObject is RenderRepaintBoundary) {
     RenderRepaintBoundary renderRepaintBoundary = renderObject;
-    // not good at here
     var devicePixelRatio = MediaQuery.of(state.context).devicePixelRatio;
+    await Future.delayed(Duration.zero);
     return renderRepaintBoundary.toImage(pixelRatio: devicePixelRatio);
   }
+  return null;
 }

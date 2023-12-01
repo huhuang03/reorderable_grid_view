@@ -1,6 +1,8 @@
+import 'dart:developer';
 import 'dart:typed_data';
 import 'dart:ui' as ui show Image, ImageByteFormat;
 import 'dart:math';
+import 'dart:developer' as developer;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -283,6 +285,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     if (widget.dragWidgetBuilder?.isScreenshotDragWidget?? false) {
       ui.Image? screenshot = await takeScreenShot(item);
       ByteData? byteData = await screenshot?.toByteData(format: ui.ImageByteFormat.png);
+      developer.log("screen shot is null: $screenshot, byteData: $byteData");
       if (byteData != null) {
         _dragInfo?.startDrag(MemoryImage(byteData.buffer.asUint8List()));
       }

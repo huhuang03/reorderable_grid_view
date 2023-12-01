@@ -70,7 +70,6 @@ class _DemoItemRebuildState extends State<DemoItemRebuild> {
         log("onDragStart $dragIndex");
       },
       onReorder: (oldIndex, newIndex) {
-        // print("reorder: $oldIndex -> $newIndex");
         setState(() {
           final element = data.removeAt(oldIndex);
           data.insert(newIndex, element);
