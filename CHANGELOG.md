@@ -1,3 +1,7 @@
+## [2.2.9-alpha.2] = 2023-12-1
+- fix screenshot drag build.
+- try fix Scroll.of(Context).findObject is null, maybe not fixed.
+
 ## [2.2.9-alpha.1] = 2023-11-20
 - add `dragEnableConfig` which config item drag enable. see https://github.com/huhuang03/reorderable_grid_view/issues/72.
 
