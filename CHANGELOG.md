@@ -1,3 +1,6 @@
+## [2.2.9-alpha.3] = 2023-1-3
+- fix `mainAxisExtent` param.
+
 ## [2.2.9-alpha.2] = 2023-12-1
 - fix screenshot drag build.
 - try fix Scroll.of(Context).findObject is null, maybe not fixed.

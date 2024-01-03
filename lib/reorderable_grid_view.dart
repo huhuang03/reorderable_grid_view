@@ -19,17 +19,22 @@ typedef DragWidgetBuilder = Widget Function(int index, Widget child);
 class DragWidgetBuilderV2 {
   /// if ture, will create a screenshot fo the drag widget
   final bool isScreenshotDragWidget;
-  /// [screenshot] will not null if you provide isTakeScreenshotDragWidget = ture.
-  final Widget Function(int index, Widget child, ImageProvider? screenshot) builder;
 
-  DragWidgetBuilderV2({this.isScreenshotDragWidget = false, required this.builder});
+  /// [screenshot] will not null if you provide isTakeScreenshotDragWidget = ture.
+  final Widget Function(int index, Widget child, ImageProvider? screenshot)
+      builder;
+
+  DragWidgetBuilderV2(
+      {this.isScreenshotDragWidget = false, required this.builder});
 
   /// a helper method to covert deprecated build to current builder
-  static DragWidgetBuilderV2? createByOldBuilder9(DragWidgetBuilder? oldBuilder) {
+  static DragWidgetBuilderV2? createByOldBuilder9(
+      DragWidgetBuilder? oldBuilder) {
     if (oldBuilder == null) return null;
     return DragWidgetBuilderV2(
-      isScreenshotDragWidget: false,
-      builder: (int index, Widget child, ImageProvider? screenshot) => oldBuilder(index, child));
+        isScreenshotDragWidget: false,
+        builder: (int index, Widget child, ImageProvider? screenshot) =>
+            oldBuilder(index, child));
   }
 }
 // typedef DragWidgetBuilderV2 = Widget Function(int index, Widget child, ByteData? dragWidgetScreenshot);
@@ -148,7 +153,8 @@ class ReorderableGridView extends StatelessWidget {
   }) : this(
           key: key,
           onReorder: onReorder,
-          dragWidgetBuilderV2: dragWidgetBuilderV2?? DragWidgetBuilderV2.createByOldBuilder9(dragWidgetBuilder),
+          dragWidgetBuilderV2: dragWidgetBuilderV2 ??
+              DragWidgetBuilderV2.createByOldBuilder9(dragWidgetBuilder),
           scrollSpeedController: scrollSpeedController,
           dragEnableConfig: dragEnableConfig,
           placeholderBuilder: placeholderBuilder,
@@ -243,7 +249,8 @@ class ReorderableGridView extends StatelessWidget {
       key: key,
       onReorder: onReorder,
       dragEnableConfig: dragEnableConfig,
-      dragWidgetBuilderV2: dragWidgetBuilderV2?? DragWidgetBuilderV2.createByOldBuilder9(dragWidgetBuilder),
+      dragWidgetBuilderV2: dragWidgetBuilderV2 ??
+          DragWidgetBuilderV2.createByOldBuilder9(dragWidgetBuilder),
       scrollSpeedController: scrollSpeedController,
       placeholderBuilder: placeholderBuilder,
       onDragStart: onDragStart,
@@ -255,11 +262,11 @@ class ReorderableGridView extends StatelessWidget {
         addSemanticIndexes: addSemanticIndexes,
       ),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        mainAxisSpacing: mainAxisSpacing,
-        crossAxisSpacing: crossAxisSpacing,
-        childAspectRatio: childAspectRatio,
-      ),
+          crossAxisCount: crossAxisCount,
+          mainAxisSpacing: mainAxisSpacing,
+          crossAxisSpacing: crossAxisSpacing,
+          childAspectRatio: childAspectRatio,
+          mainAxisExtent: mainAxisExtent),
       reverse: reverse,
       controller: controller,
       primary: primary,
