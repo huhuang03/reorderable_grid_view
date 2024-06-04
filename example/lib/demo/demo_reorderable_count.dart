@@ -26,6 +26,9 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
       mainAxisSpacing: 10,
       crossAxisCount: 3,
       childAspectRatio: 0.6,
+      onDropIndexChange: (index, oldIndex) {
+        log('onDropIndexChange, index: $index, oldIndex: $oldIndex');
+      },
       scrollSpeedController:
           (int timeInMilliSecond, double overSize, double itemSize) {
         log("scrollSpeedController call back called");

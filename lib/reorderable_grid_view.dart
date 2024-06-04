@@ -50,6 +50,10 @@ class DragWidgetBuilderV2 {
 typedef ScrollSpeedController = double Function(
     int timeInMilliSecond, double overSize, double itemSize);
 
+/// every an drop index changed
+/// if old == 0, means drag start
+typedef OnDropIndexChange = void Function(int index, int? old);
+
 /// build the target placeholder
 typedef PlaceholderBuilder = Widget Function(
     int dropIndex, int dropInddex, Widget dragWidget);
@@ -94,6 +98,8 @@ class ReorderableGridView extends StatelessWidget {
   final PlaceholderBuilder? placeholderBuilder;
   final OnDragStart? onDragStart;
   final OnDragUpdate? onDragUpdate;
+  // every time an animation occurs begin
+  final OnDropIndexChange? onDropIndexChange;
 
   final DragEnableConfig? dragEnableConfig;
   final bool? primary;
@@ -240,6 +246,7 @@ class ReorderableGridView extends StatelessWidget {
     Duration? dragStartDelay,
     bool? dragEnabled,
     restrictDragScope = false,
+    OnDropIndexChange? onDropIndexChange,
   }) {
     assert(
       children.every((Widget w) => w.key != null),
@@ -282,6 +289,7 @@ class ReorderableGridView extends StatelessWidget {
       dragEnabled: dragEnabled,
       dragStartDelay: dragStartDelay,
       restrictDragScope: restrictDragScope,
+      onDropIndexChange: onDropIndexChange,
     );
   }
 
@@ -311,6 +319,7 @@ class ReorderableGridView extends StatelessWidget {
     this.dragStartBehavior = DragStartBehavior.start,
     this.dragStartDelay,
     this.dragEnabled,
+    this.onDropIndexChange,
   }) : super(key: key);
 
   @override
@@ -326,6 +335,7 @@ class ReorderableGridView extends StatelessWidget {
       dragEnabled: dragEnabled,
       dragStartDelay: dragStartDelay,
       restrictDragScope: restrictDragScope,
+      onDropIndexChange: onDropIndexChange,
       child: GridView.custom(
         key: key,
         gridDelegate: gridDelegate,

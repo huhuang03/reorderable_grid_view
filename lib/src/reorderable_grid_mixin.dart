@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:typed_data';
 import 'dart:ui' as ui show Image, ImageByteFormat;
 import 'dart:math';
@@ -38,6 +37,9 @@ mixin ReorderableGridWidgetMixin on StatefulWidget {
   bool? get isSliver;
 
   bool? get restrictDragScope;
+
+  // every time an animation occurs begin
+  OnDropIndexChange? get onDropIndexChange;
 }
 
 // What I want is I can call setState and get those properties.
@@ -250,6 +252,9 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     final ReorderableItemViewState item = __items[_dragIndex!]!;
 
     _dropIndex = _dragIndex;
+    if (_dropIndex != null) {
+      widget.onDropIndexChange?.call(_dropIndex!, null);
+    }
 
     _dragInfo = DragInfo(
       item: item,
@@ -371,6 +376,7 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
   Future<void> updateDragTarget() async {
     int newTargetIndex = _calcDropIndex(_dropIndex!);
     if (newTargetIndex != _dropIndex) {
+      widget.onDropIndexChange?.call(newTargetIndex, _dropIndex);
       _dropIndex = newTargetIndex;
       for (var item in __items.values) {
         item.updateForGap(_dropIndex!);

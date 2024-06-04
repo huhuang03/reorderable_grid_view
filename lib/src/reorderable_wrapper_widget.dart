@@ -110,6 +110,11 @@ class ReorderableWrapperWidget extends StatefulWidget
   @override
   final bool restrictDragScope;
 
+
+  @override
+  // every time an animation occurs begin
+  final OnDropIndexChange? onDropIndexChange;
+
   const ReorderableWrapperWidget({
     Key? key,
     required this.child,
@@ -125,6 +130,7 @@ class ReorderableWrapperWidget extends StatefulWidget
     this.dragEnabled,
     this.dragStartDelay,
     this.isSliver,
+    this.onDropIndexChange,
   }) : super(key: key);
 
   @override
