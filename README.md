@@ -5,7 +5,7 @@ Copy from official ReorderableListView
 # Usage:
 ```
 dependencies:
-  reorderable_grid_view: ^2.2.6
+  reorderable_grid_view: ^2.2.9-alpha.4
 ```
 
 # Example
@@ -64,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
 | `restrictDragScope`     | restrict drag scope to ReorderableGridView, not drag over the scree, default is false |
 | `dragStartDelay`        | the longPress time                                                                    |
 | `scrollSpeedController` | control how speed when scroll down when drag out of viewport                          |
+| `OnDropIndexChange`     | the drop position changed, void (index, oldIndex), oldIndex = nil if is drag start.   |
 
 ## `dragWidgetBuilderV2`
 Normaly you can do like this:
