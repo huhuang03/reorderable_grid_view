@@ -51,7 +51,7 @@ typedef ScrollSpeedController = double Function(
     int timeInMilliSecond, double overSize, double itemSize);
 
 /// every an drop index changed
-/// if old == 0, means drag start
+/// old == null, means drag start
 typedef OnDropIndexChange = void Function(int index, int? old);
 
 /// build the target placeholder
