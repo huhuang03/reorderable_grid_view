@@ -1,6 +1,6 @@
 # ReorderableGridView
 
-Copy from official ReorderableListView
+Idea from official ReorderableListView
 
 # Usage:
 ```
