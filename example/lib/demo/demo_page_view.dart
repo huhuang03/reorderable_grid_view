@@ -2,8 +2,6 @@ import 'dart:developer';
 
 import 'package:example/demo/demo_item_rebuild.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class DemoPageView extends StatefulWidget {
@@ -74,7 +72,6 @@ class _DemoPageViewState extends State<DemoPageView> {
         Card(
           child: InkWell(
             onTap: () {
-              print("add called");
               add();
             },
             child: const Center(child: Icon(Icons.add)),
@@ -99,29 +96,6 @@ class _DemoPageViewState extends State<DemoPageView> {
       children:
           widgets.map((e) => Container(key: ValueKey(e), child: e)).toList(),
     );
-  }
-
-  ReorderableBuilder _useFlutterReorderable() {
-    return ReorderableBuilder(
-      onReorder: (List<OrderUpdateEntity> orderUpdateEntities) {
-        setState(() {
-          for (final orderUpdateEntity in orderUpdateEntities) {
-            final fruit = widgets.removeAt(orderUpdateEntity.oldIndex);
-            widgets.insert(orderUpdateEntity.newIndex, fruit);
-          }
-        });
-      },
-      children: widgets
-          .map((e) => Container(
-                key: Key(e.hashCode.toString()),
-                child: e,
-              ))
-          .toList(),
-      builder: (children) => GridView(
-          key: gridKey,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4),
-          children: children));
   }
 
   @override

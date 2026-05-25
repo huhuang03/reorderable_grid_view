@@ -108,6 +108,7 @@ class ReorderableGridView extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final ScrollPhysics? physics;
   final bool reverse;
+  final Axis scrollDirection;
   final double? cacheExtent;
   final int? semanticChildCount;
 
@@ -134,6 +135,7 @@ class ReorderableGridView extends StatelessWidget {
     OnDragStart? onDragStart,
     OnDragUpdate? onDragUpdate,
     bool reverse = false,
+    Axis scrollDirection = Axis.vertical,
     ScrollController? controller,
     bool? primary,
     ScrollPhysics? physics,
@@ -193,6 +195,7 @@ class ReorderableGridView extends StatelessWidget {
 
           gridDelegate: gridDelegate,
           reverse: reverse,
+          scrollDirection: scrollDirection,
           controller: controller,
           primary: primary,
           physics: physics,
@@ -226,6 +229,7 @@ class ReorderableGridView extends StatelessWidget {
     double childAspectRatio = 1.0,
     double? mainAxisExtent,
     bool reverse = false,
+    Axis scrollDirection = Axis.vertical,
     ScrollController? controller,
     bool? primary,
     ScrollPhysics? physics,
@@ -275,6 +279,7 @@ class ReorderableGridView extends StatelessWidget {
           childAspectRatio: childAspectRatio,
           mainAxisExtent: mainAxisExtent),
       reverse: reverse,
+      scrollDirection: scrollDirection,
       controller: controller,
       primary: primary,
       physics: physics,
@@ -294,7 +299,7 @@ class ReorderableGridView extends StatelessWidget {
   }
 
   const ReorderableGridView({
-    Key? key,
+    super.key,
     required this.onReorder,
     this.dragWidgetBuilderV2,
     this.dragEnableConfig,
@@ -306,6 +311,7 @@ class ReorderableGridView extends StatelessWidget {
     required this.childrenDelegate,
     this.restrictDragScope = false,
     this.reverse = false,
+    this.scrollDirection = Axis.vertical,
     this.primary,
     this.physics,
     this.shrinkWrap = false,
@@ -320,7 +326,7 @@ class ReorderableGridView extends StatelessWidget {
     this.dragStartDelay,
     this.dragEnabled,
     this.onDropIndexChange,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -340,6 +346,7 @@ class ReorderableGridView extends StatelessWidget {
         key: key,
         gridDelegate: gridDelegate,
         childrenDelegate: childrenDelegate,
+        scrollDirection: scrollDirection,
         controller: controller,
         reverse: reverse,
         primary: primary,
