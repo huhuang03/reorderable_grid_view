@@ -1,3 +1,6 @@
+## [2.2.9-alpha.5] = 2026-6-28
+- support horizontal scroll
+
 ## [2.2.9-alpha.3] = 2023-1-3
 - fix `mainAxisExtent` param.
 
