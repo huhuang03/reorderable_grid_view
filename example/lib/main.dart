@@ -1,6 +1,7 @@
 import 'package:example/demo/demo_custom.dart';
 import 'package:example/demo/demo_drag_enable_config.dart';
 import 'package:example/demo/demo_grid_sliver.dart';
+import 'package:example/demo/demo_horizontal.dart';
 import 'package:example/demo/demo_page_view.dart';
 import 'package:example/demo/demo_remove_drag_shadow.dart';
 import 'package:example/demo/demo_reorderable_count_enable.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
     Item("Remove Drag Shadow", () => const DemoRemoveShadow()),
     Item("InCorrect Offset", () => const DemoInCorrectOffset()),
     Item("Sliver Grid", () => const DemoGridSliver()),
+    Item("Horizontal", () => const DemoHorizontal()),
     Item("Item Rebuild", () => const DemoItemRebuild()),
     Item("Enable", () => const DemoEnable()),
     Item("PageView", () => const DemoPageView()),
