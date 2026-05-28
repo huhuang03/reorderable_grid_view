@@ -5,7 +5,7 @@ import 'package:flutter/rendering.dart';
 
 const isDebug = false;
 
-debug(String msg) {
+void debug(String msg) {
   if (isDebug) {
     debugPrint("ReorderableGridView: $msg");
   }

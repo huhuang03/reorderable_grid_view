@@ -89,7 +89,6 @@ class _DemoItemRebuildState extends State<DemoItemRebuild> {
         Card(
           child: InkWell(
             onTap: () {
-              print("add called");
               add();
             },
             child: const Center(
@@ -101,7 +100,6 @@ class _DemoItemRebuildState extends State<DemoItemRebuild> {
         Card(
           child: InkWell(
             onTap: () {
-              print("delete called");
               if (data.isNotEmpty) {
                 setState(() {
                   data.removeLast();

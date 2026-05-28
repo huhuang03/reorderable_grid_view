@@ -64,7 +64,7 @@ class _TestIssue24State extends State<TestIssue24> {
                 ),
                 Text(
                   tile.name,
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Colors.grey[800], fontWeight: FontWeight.bold),
                 ),
               ]),

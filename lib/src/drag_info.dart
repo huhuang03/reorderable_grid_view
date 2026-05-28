@@ -90,7 +90,7 @@ class DragInfo extends Drag {
     dragSize = renderBox.size;
 
     // you can not delete !, because in some flutter version is option.
-    scrollable = Scrollable.of(item.context)!;
+    scrollable = Scrollable.of(item.context);
   }
 
   NavigatorState? findNavigator(BuildContext context) {
@@ -145,7 +145,7 @@ class DragInfo extends Drag {
 
   OverlayState _getOverlay() {
     // you can not delete !, because in some flutter version is option.
-    return overlay?? Overlay.of(context)!;
+    return overlay?? Overlay.of(context);
   }
 
   void startDrag(ImageProvider? screenshot) {
@@ -192,12 +192,17 @@ class DragInfo extends Drag {
       final RenderBox scrollRenderBox = renderObject as RenderBox;
 
       final scrollOrigin = scrollRenderBox.localToGlobal(Offset.zero);
-      final scrollStart = scrollOrigin.dy;
 
-      final scrollEnd = scrollStart + scrollRenderBox.size.height;
+      final bool isHorizontal = position.axis == Axis.horizontal;
 
-      final dragInfoStart = getPosInGlobal().dy;
-      final dragInfoEnd = dragInfoStart + dragExtent;
+      final double scrollStart = isHorizontal ? scrollOrigin.dx : scrollOrigin.dy;
+      final double scrollLength = isHorizontal ? scrollRenderBox.size.width : scrollRenderBox.size.height;
+      final double scrollEnd = scrollStart + scrollLength;
+
+      final Offset dragGlobalPos = getPosInGlobal();
+      final double dragInfoStart = isHorizontal ? dragGlobalPos.dx : dragGlobalPos.dy;
+      final double dragInfoExtent = isHorizontal ? dragSize.width : dragSize.height;
+      final double dragInfoEnd = dragInfoStart + dragInfoExtent;
 
       // scroll bottom
       final overBottom = dragInfoEnd > scrollEnd;
@@ -241,7 +246,7 @@ class DragInfo extends Drag {
         scroll = scrollSpeedController!(
           DateTime.now().millisecondsSinceEpoch - _scrollBeginTime,
           overSize,
-          itemSize.height,
+          isHorizontal ? itemSize.width : itemSize.height,
         );
 
         calcOffset();
@@ -283,7 +288,7 @@ class ScreenshotWidget extends StatefulWidget {
   final DragWidgetReadyCallback dragWidgetCallback;
   final double devicePixelRatio;
 
-  const ScreenshotWidget({Key? key, required this.renderRepaintBoundary, required this.dragWidgetCallback, required this.devicePixelRatio}) : super(key: key);
+  const ScreenshotWidget({super.key, required this.renderRepaintBoundary, required this.dragWidgetCallback, required this.devicePixelRatio});
 
   @override
   State<ScreenshotWidget> createState() => _ScreenshotWidgetState();
@@ -300,7 +305,7 @@ class _ScreenshotWidgetState extends State<ScreenshotWidget> {
     _load();
   }
 
-  _load() async {
+  void _load() async {
     if (widget.renderRepaintBoundary.debugNeedsPaint) {
       Timer(const Duration(microseconds: 1), () => _load());
       return;

@@ -26,7 +26,7 @@ class ReorderableSliverGridView extends StatelessWidget {
   final bool dragEnabled;
 
   const ReorderableSliverGridView({
-    Key? key,
+    super.key,
     this.children = const <Widget>[],
     required this.crossAxisCount,
     required this.mainAxisSpacing,
@@ -43,7 +43,7 @@ class ReorderableSliverGridView extends StatelessWidget {
     this.onDragUpdate,
     this.dragEnabled = true,
     this.dragEnableConfig
-  }) : super(key: key);
+  });
 
   const ReorderableSliverGridView.count({
     Key? key,

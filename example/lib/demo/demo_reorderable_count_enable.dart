@@ -55,7 +55,6 @@ class _DemoEnableState extends State<DemoEnable> {
         Card(
           child: InkWell(
             onTap: () {
-              print("add called");
               add();
             },
             child: const Center(
@@ -67,7 +66,6 @@ class _DemoEnableState extends State<DemoEnable> {
         Card(
           child: InkWell(
             onTap: () {
-              print("delete called");
               if (data.isNotEmpty) {
                 setState(() {
                   data.removeLast();

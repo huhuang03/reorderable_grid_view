@@ -116,7 +116,7 @@ class ReorderableWrapperWidget extends StatefulWidget
   final OnDropIndexChange? onDropIndexChange;
 
   const ReorderableWrapperWidget({
-    Key? key,
+    super.key,
     required this.child,
     required this.onReorder,
     this.dragEnableConfig,
@@ -131,7 +131,7 @@ class ReorderableWrapperWidget extends StatefulWidget
     this.dragStartDelay,
     this.isSliver,
     this.onDropIndexChange,
-  }) : super(key: key);
+  });
 
   @override
   ReorderableWrapperWidgetState createState() {

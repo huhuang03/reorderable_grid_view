@@ -299,23 +299,23 @@ mixin ReorderableGridStateMixin<T extends ReorderableGridWidgetMixin>
     }
   }
 
-  _onDragUpdate(DragInfo item, Offset position, Offset delta) {
+  void _onDragUpdate(DragInfo item, Offset position, Offset delta) {
     widget.onDragUpdate?.call(_dragIndex!, position, delta);
     updateDragTarget();
   }
 
-  _onDragCancel(DragInfo item) {
+  void _onDragCancel(DragInfo item) {
     _dragReset();
     setState(() {});
   }
 
-  _onDragEnd(DragInfo item) {
+  void _onDragEnd(DragInfo item) {
     widget.onReorder(_dragIndex!, _dropIndex!);
     _dragReset();
   }
 
   // ok, drag is end.
-  _dragReset() {
+  void _dragReset() {
     if (_dragIndex != null) {
       if (__items.containsKey(_dragIndex!)) {
         final ReorderableItemViewState item = __items[_dragIndex!]!;

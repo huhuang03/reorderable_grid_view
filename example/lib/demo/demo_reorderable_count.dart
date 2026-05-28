@@ -54,7 +54,6 @@ class _DemoReorderableGridState extends State<DemoReorderableGrid> {
         Card(
           child: InkWell(
             onTap: () {
-              print("add called");
               add();
             },
             child: const Center(
